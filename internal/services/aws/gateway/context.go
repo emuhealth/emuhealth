@@ -132,7 +132,7 @@ func BuildContext(req *http.Request, rawBody []byte, options Options) (AwsReques
 	ctx.Query = queryReq.Parameters
 	if queryReq.Action != "" {
 		ctx.Protocol = protocols.ProtocolQuery
-		ctx.Service = firstNonEmpty(pathService, host.Service, credentials.Scope.Service, serviceFromQueryAction(queryReq.Action))
+		ctx.Service = firstNonEmpty(pathService, host.Service, credentials.Scope.Service, serviceFromQueryAction(queryReq.Action, queryReq.Parameters))
 		ctx.Action = queryReq.Action
 		ctx.Input = queryInput(queryReq.Parameters)
 		return ctx, nil
@@ -363,7 +363,16 @@ func serviceFromPath(pathValue string) string {
 	return knownPathService(strings.ToLower(first))
 }
 
-func serviceFromQueryAction(action string) string {
+func serviceFromQueryAction(action string, params map[string]string) string {
+	switch action {
+	case "AddPermission", "RemovePermission":
+		if params["TopicArn"] != "" {
+			return "sns"
+		}
+		if params["QueueUrl"] != "" {
+			return "sqs"
+		}
+	}
 	return queryActionServices[action]
 }
 
@@ -411,29 +420,43 @@ var knownServices = map[string]string{
 }
 
 var queryActionServices = map[string]string{
-	"AddPermission":      "sqs",
-	"AssumeRole":         "sts",
-	"CreateQueue":        "sqs",
-	"CreateRole":         "iam",
-	"CreateUser":         "iam",
-	"CreateAccessKey":    "iam",
-	"DeleteAccessKey":    "iam",
-	"DeleteMessage":      "sqs",
-	"DeleteQueue":        "sqs",
-	"DeleteRole":         "iam",
-	"DeleteUser":         "iam",
-	"GetCallerIdentity":  "sts",
-	"GetQueueAttributes": "sqs",
-	"GetQueueUrl":        "sqs",
-	"GetRole":            "iam",
-	"GetUser":            "iam",
-	"ListAccessKeys":     "iam",
-	"ListQueues":         "sqs",
-	"ListRoles":          "iam",
-	"ListUsers":          "iam",
-	"PurgeQueue":         "sqs",
-	"ReceiveMessage":     "sqs",
-	"SendMessage":        "sqs",
+	"AddPermission":            "sqs",
+	"AssumeRole":               "sts",
+	"CreateQueue":              "sqs",
+	"CreateRole":               "iam",
+	"CreateUser":               "iam",
+	"CreateAccessKey":          "iam",
+	"CreateTopic":              "sns",
+	"DeleteAccessKey":          "iam",
+	"DeleteMessage":            "sqs",
+	"DeleteQueue":              "sqs",
+	"DeleteRole":               "iam",
+	"DeleteTopic":              "sns",
+	"DeleteUser":               "iam",
+	"ConfirmSubscription":      "sns",
+	"GetCallerIdentity":        "sts",
+	"GetQueueAttributes":       "sqs",
+	"GetQueueUrl":              "sqs",
+	"GetRole":                  "iam",
+	"GetTopicAttributes":       "sns",
+	"GetUser":                  "iam",
+	"ListAccessKeys":           "iam",
+	"ListQueues":               "sqs",
+	"ListRoles":                "iam",
+	"ListSubscriptions":        "sns",
+	"ListSubscriptionsByTopic": "sns",
+	"ListTagsForResource":      "sns",
+	"ListTopics":               "sns",
+	"ListUsers":                "iam",
+	"Publish":                  "sns",
+	"PurgeQueue":               "sqs",
+	"ReceiveMessage":           "sqs",
+	"SendMessage":              "sqs",
+	"SetTopicAttributes":       "sns",
+	"Subscribe":                "sns",
+	"TagResource":              "sns",
+	"Unsubscribe":              "sns",
+	"UntagResource":            "sns",
 }
 
 var jsonTargetServices = map[string]string{
