@@ -1,7 +1,7 @@
 ---
 name: stripe
 description: Emulated Stripe API for local development and testing. Use when the user needs to process payments locally, test checkout flows, create customers, manage products and prices, handle payment intents, work with webhooks, or use the Stripe SDK without hitting real Stripe servers. Triggers include "Stripe API", "emulate Stripe", "test payments locally", "checkout flow", "payment intent", "Stripe webhook", "Stripe SDK", "STRIPE_API_KEY", or any task requiring a local Stripe API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Stripe API Emulator
@@ -14,7 +14,7 @@ No real payments are processed. Every Stripe SDK call hits the emulator and prod
 
 ```bash
 # Stripe only
-npx emulate --service stripe
+npx emuhealth --service stripe
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -23,9 +23,9 @@ npx emulate --service stripe
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const stripe = await createEmulator({ service: 'stripe', port: 4000 })
+const stripe = await createEmulator({ service: "stripe", port: 4000 });
 // stripe.url === 'http://localhost:4000'
 ```
 
@@ -36,14 +36,14 @@ const stripe = await createEmulator({ service: 'stripe', port: 4000 })
 The Stripe Node.js SDK does not read an environment variable for the base URL. You must pass it when constructing the client:
 
 ```typescript
-import Stripe from 'stripe'
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-  host: 'localhost',
+  apiVersion: "2024-12-18.acacia",
+  host: "localhost",
   port: 4000,
-  protocol: 'http',
-})
+  protocol: "http",
+});
 ```
 
 ### Embedded in Next.js (adapter-next)
@@ -52,81 +52,77 @@ When using `@emulators/adapter-next`, the emulator runs inside your Next.js app 
 
 ```typescript
 // next.config.ts
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmulate } from "@emulators/adapter-next";
 
 export default withEmulate({
   env: {
-    STRIPE_SECRET_KEY: 'sk_test_emulated',
+    STRIPE_SECRET_KEY: "sk_test_emulated",
   },
-})
+});
 ```
 
 ```typescript
 // lib/stripe.ts
-import Stripe from 'stripe'
+import Stripe from "stripe";
 
-const port = process.env.PORT ?? '3000'
+const port = process.env.PORT ?? "3000";
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-  host: 'localhost',
+  apiVersion: "2024-12-18.acacia",
+  host: "localhost",
   port: parseInt(port, 10),
-  protocol: 'http',
-})
+  protocol: "http",
+});
 ```
 
 ```typescript
 // app/emulate/[...path]/route.ts
-import { createEmulateHandler } from '@emulators/adapter-next'
-import * as stripe from '@emulators/stripe'
+import { createEmulateHandler } from "@emulators/adapter-next";
+import * as stripe from "@emulators/stripe";
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
   services: {
     stripe: {
       emulator: stripe,
       seed: {
-        products: [
-          { id: 'prod_widget', name: 'Widget', description: 'A useful widget' },
-        ],
-        prices: [
-          { id: 'price_widget', product_name: 'Widget', currency: 'usd', unit_amount: 1000 },
-        ],
+        products: [{ id: "prod_widget", name: "Widget", description: "A useful widget" }],
+        prices: [{ id: "price_widget", product_name: "Widget", currency: "usd", unit_amount: 1000 }],
         webhooks: [
           {
-            url: `http://localhost:${process.env.PORT ?? '3000'}/api/webhooks/stripe`,
-            events: ['*'],
+            url: `http://localhost:${process.env.PORT ?? "3000"}/api/webhooks/stripe`,
+            events: ["*"],
           },
         ],
       },
     },
   },
-})
+});
 ```
 
 ```typescript
 // app/v1/[...path]/route.ts  (proxy for Stripe SDK)
-const STRIPE_URL = `http://localhost:${process.env.PORT ?? '3000'}/emulate/stripe`
+const STRIPE_URL = `http://localhost:${process.env.PORT ?? "3000"}/emulate/stripe`;
 
 async function handler(req: Request, ctx: { params: Promise<{ path: string[] }> }) {
-  const { path } = await ctx.params
-  const url = new URL(req.url)
-  const target = `${STRIPE_URL}/v1/${path.join('/')}${url.search}`
+  const { path } = await ctx.params;
+  const url = new URL(req.url);
+  const target = `${STRIPE_URL}/v1/${path.join("/")}${url.search}`;
 
   const res = await fetch(target, {
     method: req.method,
     headers: req.headers,
     body: req.body,
-    duplex: 'half',
-  } as any)
+    duplex: "half",
+  } as any);
 
   return new Response(res.body, {
     status: res.status,
     statusText: res.statusText,
     headers: res.headers,
-  })
+  });
 }
 
-export { handler as GET, handler as POST, handler as PUT, handler as PATCH, handler as DELETE }
+export { handler as GET, handler as POST, handler as PUT, handler as PATCH, handler as DELETE };
 ```
 
 ### Direct fetch
@@ -157,7 +153,7 @@ stripe:
       unit_amount: 2500
   webhooks:
     - url: http://localhost:3000/api/webhooks/stripe
-      events: ['*']
+      events: ["*"]
       secret: whsec_test
 ```
 
@@ -294,47 +290,47 @@ The emulator dispatches webhook events when state changes. Register webhooks via
 
 ### Events dispatched
 
-| Event | Trigger |
-|-------|---------|
-| `customer.created` | Customer created |
-| `customer.updated` | Customer updated |
-| `customer.deleted` | Customer deleted |
-| `product.created` | Product created |
-| `price.created` | Price created |
-| `payment_intent.created` | Payment intent created |
-| `payment_intent.succeeded` | Payment intent confirmed |
-| `payment_intent.canceled` | Payment intent canceled |
-| `charge.succeeded` | Payment intent confirmed (charge auto-created) |
-| `checkout.session.completed` | Checkout completed via hosted page |
-| `checkout.session.expired` | Checkout session expired |
+| Event                        | Trigger                                        |
+| ---------------------------- | ---------------------------------------------- |
+| `customer.created`           | Customer created                               |
+| `customer.updated`           | Customer updated                               |
+| `customer.deleted`           | Customer deleted                               |
+| `product.created`            | Product created                                |
+| `price.created`              | Price created                                  |
+| `payment_intent.created`     | Payment intent created                         |
+| `payment_intent.succeeded`   | Payment intent confirmed                       |
+| `payment_intent.canceled`    | Payment intent canceled                        |
+| `charge.succeeded`           | Payment intent confirmed (charge auto-created) |
+| `checkout.session.completed` | Checkout completed via hosted page             |
+| `checkout.session.expired`   | Checkout session expired                       |
 
 ### Webhook handler example
 
 ```typescript
 // app/api/webhooks/stripe/route.ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const event = body.type as string
-  const obj = body.data?.object
+  const body = await request.json();
+  const event = body.type as string;
+  const obj = body.data?.object;
 
   switch (event) {
-    case 'customer.created':
-      console.log('Customer created:', obj.id, obj.email)
-      break
-    case 'checkout.session.completed':
-      console.log('Checkout completed:', obj.id)
-      break
-    case 'payment_intent.succeeded':
-      console.log('Payment succeeded:', obj.id)
-      break
-    case 'charge.succeeded':
-      console.log('Charge succeeded:', obj.id)
-      break
+    case "customer.created":
+      console.log("Customer created:", obj.id, obj.email);
+      break;
+    case "checkout.session.completed":
+      console.log("Checkout completed:", obj.id);
+      break;
+    case "payment_intent.succeeded":
+      console.log("Payment succeeded:", obj.id);
+      break;
+    case "charge.succeeded":
+      console.log("Charge succeeded:", obj.id);
+      break;
   }
 
-  return NextResponse.json({ received: true })
+  return NextResponse.json({ received: true });
 }
 ```
 
@@ -345,29 +341,29 @@ export async function POST(request: Request) {
 ```typescript
 // Server action
 const customer = await stripe.customers.create({
-  email: 'shopper@example.com',
-  name: 'Demo Shopper',
-})
+  email: "shopper@example.com",
+  name: "Demo Shopper",
+});
 
 const session = await stripe.checkout.sessions.create({
-  mode: 'payment',
+  mode: "payment",
   customer: customer.id,
-  line_items: [{ price: 'price_widget', quantity: 2 }],
+  line_items: [{ price: "price_widget", quantity: 2 }],
   success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
   cancel_url: `${origin}/cart`,
-})
+});
 
-redirect(session.url!)
+redirect(session.url!);
 ```
 
 ### Retrieve Session on Success Page
 
 ```typescript
-const session = await stripe.checkout.sessions.retrieve(session_id)
-const customer = await stripe.customers.retrieve(session.customer as string)
+const session = await stripe.checkout.sessions.retrieve(session_id);
+const customer = await stripe.customers.retrieve(session.customer as string);
 
-console.log(session.payment_status) // 'paid'
-console.log(customer.name)          // 'Demo Shopper'
+console.log(session.payment_status); // 'paid'
+console.log(customer.name); // 'Demo Shopper'
 ```
 
 ### Payment Intent Flow (no checkout UI)
@@ -375,11 +371,11 @@ console.log(customer.name)          // 'Demo Shopper'
 ```typescript
 const pi = await stripe.paymentIntents.create({
   amount: 5000,
-  currency: 'usd',
-  customer: 'cus_xxx',
-})
+  currency: "usd",
+  customer: "cus_xxx",
+});
 
 // Confirm triggers payment_intent.succeeded + charge.succeeded webhooks
-const confirmed = await stripe.paymentIntents.confirm(pi.id)
-console.log(confirmed.status) // 'succeeded'
+const confirmed = await stripe.paymentIntents.confirm(pi.id);
+console.log(confirmed.status); // 'succeeded'
 ```

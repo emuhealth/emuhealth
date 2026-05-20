@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 const testBaseURL = "http://localhost:4000"

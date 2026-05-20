@@ -7,7 +7,7 @@ S3, SQS, DynamoDB, IAM, and STS emulation with AWS SDK-compatible S3 paths, AWS 
 To expose the native AWS emulator in a Vercel preview without separate infrastructure, scaffold the Go Function route:
 
 ```bash
-npx emulate vercel init --service aws
+npx emuhealth vercel init --service aws
 ```
 
 The generated route serves AWS at `/emulate/aws/*`. State uses warm memory by default: cold starts reset to a fresh store, warm invocations reuse mutations, and concurrent function instances can diverge.

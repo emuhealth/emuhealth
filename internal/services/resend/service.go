@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/core/ui"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/core/ui"
 )
 
 type Options struct {

@@ -1,7 +1,7 @@
 ---
 name: microsoft
 description: Emulated Microsoft Entra ID (Azure AD) OAuth 2.0 / OpenID Connect for local development and testing. Use when the user needs to test Microsoft sign-in locally, emulate Entra ID OIDC discovery, handle Microsoft token exchange, configure Azure AD OAuth clients, work with Microsoft Graph /me, or test PKCE/client credentials flows without hitting real Microsoft APIs. Triggers include "Microsoft OAuth", "Entra ID", "Azure AD", "emulate Microsoft", "mock Microsoft login", "test Microsoft sign-in", "Microsoft OIDC", "local Microsoft auth", or any task requiring a local Microsoft OAuth/OIDC provider.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Microsoft Entra ID Emulator
@@ -12,7 +12,7 @@ Microsoft Entra ID (Azure AD) v2.0 OAuth 2.0 and OpenID Connect emulation with a
 
 ```bash
 # Microsoft only
-npx emulate --service microsoft
+npx emuhealth --service microsoft
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -21,9 +21,9 @@ npx emulate --service microsoft
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const microsoft = await createEmulator({ service: 'microsoft', port: 4005 })
+const microsoft = await createEmulator({ service: "microsoft", port: 4005 });
 // microsoft.url === 'http://localhost:4005'
 ```
 
@@ -37,27 +37,27 @@ MICROSOFT_EMULATOR_URL=http://localhost:4005
 
 ### OAuth URL Mapping
 
-| Real Microsoft URL | Emulator URL |
-|--------------------|-------------|
+| Real Microsoft URL                                                                 | Emulator URL                                                             |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | `https://login.microsoftonline.com/{tenant}/v2.0/.well-known/openid-configuration` | `$MICROSOFT_EMULATOR_URL/{tenant}/v2.0/.well-known/openid-configuration` |
-| `https://login.microsoftonline.com/.well-known/openid-configuration` | `$MICROSOFT_EMULATOR_URL/.well-known/openid-configuration` |
-| `https://login.microsoftonline.com/common/oauth2/v2.0/authorize` | `$MICROSOFT_EMULATOR_URL/oauth2/v2.0/authorize` |
-| `https://login.microsoftonline.com/common/oauth2/v2.0/token` | `$MICROSOFT_EMULATOR_URL/oauth2/v2.0/token` |
-| `https://login.microsoftonline.com/common/discovery/v2.0/keys` | `$MICROSOFT_EMULATOR_URL/discovery/v2.0/keys` |
-| `https://graph.microsoft.com/oidc/userinfo` | `$MICROSOFT_EMULATOR_URL/oidc/userinfo` |
-| `https://graph.microsoft.com/v1.0/me` | `$MICROSOFT_EMULATOR_URL/v1.0/me` |
+| `https://login.microsoftonline.com/.well-known/openid-configuration`               | `$MICROSOFT_EMULATOR_URL/.well-known/openid-configuration`               |
+| `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`                   | `$MICROSOFT_EMULATOR_URL/oauth2/v2.0/authorize`                          |
+| `https://login.microsoftonline.com/common/oauth2/v2.0/token`                       | `$MICROSOFT_EMULATOR_URL/oauth2/v2.0/token`                              |
+| `https://login.microsoftonline.com/common/discovery/v2.0/keys`                     | `$MICROSOFT_EMULATOR_URL/discovery/v2.0/keys`                            |
+| `https://graph.microsoft.com/oidc/userinfo`                                        | `$MICROSOFT_EMULATOR_URL/oidc/userinfo`                                  |
+| `https://graph.microsoft.com/v1.0/me`                                              | `$MICROSOFT_EMULATOR_URL/v1.0/me`                                        |
 
 ### Auth.js / NextAuth.js
 
 ```typescript
-import MicrosoftEntraId from '@auth/core/providers/microsoft-entra-id'
+import MicrosoftEntraId from "@auth/core/providers/microsoft-entra-id";
 
 MicrosoftEntraId({
   clientId: process.env.MICROSOFT_CLIENT_ID,
   clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
   authorization: {
     url: `${process.env.MICROSOFT_EMULATOR_URL}/oauth2/v2.0/authorize`,
-    params: { scope: 'openid email profile User.Read' },
+    params: { scope: "openid email profile User.Read" },
   },
   token: {
     url: `${process.env.MICROSOFT_EMULATOR_URL}/oauth2/v2.0/token`,
@@ -66,31 +66,34 @@ MicrosoftEntraId({
     url: `${process.env.MICROSOFT_EMULATOR_URL}/oidc/userinfo`,
   },
   issuer: process.env.MICROSOFT_EMULATOR_URL,
-})
+});
 ```
 
 ### Passport.js
 
 ```typescript
-import { OIDCStrategy } from 'passport-azure-ad'
+import { OIDCStrategy } from "passport-azure-ad";
 
-const MICROSOFT_URL = process.env.MICROSOFT_EMULATOR_URL ?? 'https://login.microsoftonline.com'
+const MICROSOFT_URL = process.env.MICROSOFT_EMULATOR_URL ?? "https://login.microsoftonline.com";
 
-new OIDCStrategy({
-  identityMetadata: `${MICROSOFT_URL}/.well-known/openid-configuration`,
-  clientID: process.env.MICROSOFT_CLIENT_ID,
-  clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
-  redirectUrl: 'http://localhost:3000/api/auth/callback/microsoft-entra-id',
-  responseType: 'code',
-  responseMode: 'query',
-  scope: ['openid', 'email', 'profile'],
-}, verifyCallback)
+new OIDCStrategy(
+  {
+    identityMetadata: `${MICROSOFT_URL}/.well-known/openid-configuration`,
+    clientID: process.env.MICROSOFT_CLIENT_ID,
+    clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+    redirectUrl: "http://localhost:3000/api/auth/callback/microsoft-entra-id",
+    responseType: "code",
+    responseMode: "query",
+    scope: ["openid", "email", "profile"],
+  },
+  verifyCallback,
+);
 ```
 
 ### MSAL.js
 
 ```typescript
-import { ConfidentialClientApplication } from '@azure/msal-node'
+import { ConfidentialClientApplication } from "@azure/msal-node";
 
 const msalConfig = {
   auth: {
@@ -99,9 +102,9 @@ const msalConfig = {
     authority: process.env.MICROSOFT_EMULATOR_URL,
     knownAuthorities: [process.env.MICROSOFT_EMULATOR_URL],
   },
-}
+};
 
-const cca = new ConfidentialClientApplication(msalConfig)
+const cca = new ConfidentialClientApplication(msalConfig);
 ```
 
 ## Seed Config
@@ -178,16 +181,16 @@ nonce=random-nonce"
 
 Query parameters:
 
-| Param | Description |
-|-------|-------------|
-| `client_id` | OAuth client ID |
-| `redirect_uri` | Callback URL |
-| `scope` | Space-separated scopes (`openid email profile User.Read`) |
-| `state` | Opaque state for CSRF protection |
-| `nonce` | Nonce for ID token (optional) |
-| `response_mode` | `query` (default) or `form_post` |
-| `code_challenge` | PKCE challenge (optional) |
-| `code_challenge_method` | `plain` or `S256` (optional) |
+| Param                   | Description                                               |
+| ----------------------- | --------------------------------------------------------- |
+| `client_id`             | OAuth client ID                                           |
+| `redirect_uri`          | Callback URL                                              |
+| `scope`                 | Space-separated scopes (`openid email profile User.Read`) |
+| `state`                 | Opaque state for CSRF protection                          |
+| `nonce`                 | Nonce for ID token (optional)                             |
+| `response_mode`         | `query` (default) or `form_post`                          |
+| `code_challenge`        | PKCE challenge (optional)                                 |
+| `code_challenge_method` | `plain` or `S256` (optional)                              |
 
 ### Token Exchange
 
@@ -348,15 +351,15 @@ curl -X POST $MICROSOFT_URL/oauth2/v2.0/token \
 Libraries that support OIDC discovery can auto-configure from the discovery document:
 
 ```typescript
-import { Issuer } from 'openid-client'
+import { Issuer } from "openid-client";
 
 const microsoftIssuer = await Issuer.discover(
-  process.env.MICROSOFT_EMULATOR_URL ?? 'https://login.microsoftonline.com/common/v2.0'
-)
+  process.env.MICROSOFT_EMULATOR_URL ?? "https://login.microsoftonline.com/common/v2.0",
+);
 
 const client = new microsoftIssuer.Client({
   client_id: process.env.MICROSOFT_CLIENT_ID,
   client_secret: process.env.MICROSOFT_CLIENT_SECRET,
-  redirect_uris: ['http://localhost:3000/api/auth/callback/microsoft-entra-id'],
-})
+  redirect_uris: ["http://localhost:3000/api/auth/callback/microsoft-entra-id"],
+});
 ```

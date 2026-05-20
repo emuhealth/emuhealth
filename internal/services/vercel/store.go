@@ -1,6 +1,6 @@
 package vercel
 
-import corestore "github.com/vercel-labs/emulate/internal/core/store"
+import corestore "github.com/emuhealth/emuhealth/internal/core/store"
 
 type Store struct {
 	Users              *corestore.Collection

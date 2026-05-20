@@ -1,17 +1,17 @@
 # Programmatic API
 
-Use emulators as libraries in your tests and scripts. There are two approaches: the `emulate` CLI package (which wraps all services) and the individual `@emulators/*` scoped packages.
+Use emulators as libraries in your tests and scripts. There are two approaches: the `emuhealth` CLI package (which wraps all services) and the individual `@emulators/*` scoped packages.
 
 ## CLI package
 
 The `emulate` package provides a `createEmulator` helper that starts any service by name.
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const github = await createEmulator({ service: 'github', port: 4001 })
 const vercel = await createEmulator({ service: 'vercel', port: 4002 })
@@ -27,7 +27,7 @@ await vercel.close()
 
 ```typescript
 // vitest.setup.ts
-import { createEmulator, type Emulator } from 'emulate'
+import { createEmulator, type Emulator } from 'emuhealth'
 
 let github: Emulator
 let vercel: Emulator

@@ -1,7 +1,7 @@
 ---
 name: google
 description: Emulated Google OAuth 2.0, OpenID Connect, Gmail, Calendar, and Drive for local development and testing. Use when the user needs to test Google sign-in locally, emulate OIDC discovery, handle Google token exchange, configure Google OAuth clients, work with Gmail messages/drafts/threads/labels, manage Calendar events, upload or list Drive files, or work with Google userinfo without hitting real Google APIs. Triggers include "Google OAuth", "emulate Google", "mock Google login", "test Google sign-in", "OIDC emulator", "Google OIDC", "Gmail API", "Google Calendar", "Google Drive", "local Google auth", or any task requiring a local Google API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Google OAuth 2.0 / OIDC + Gmail, Calendar & Drive Emulator
@@ -12,7 +12,7 @@ OAuth 2.0 and OpenID Connect emulation with authorization code flow, PKCE suppor
 
 ```bash
 # Google only
-npx emulate --service google
+npx emuhealth --service google
 
 # Default port
 # http://localhost:4002
@@ -21,9 +21,9 @@ npx emulate --service google
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const google = await createEmulator({ service: 'google', port: 4002 })
+const google = await createEmulator({ service: "google", port: 4002 });
 // google.url === 'http://localhost:4002'
 ```
 
@@ -37,44 +37,44 @@ GOOGLE_EMULATOR_URL=http://localhost:4002
 
 ### OAuth URL Mapping
 
-| Real Google URL | Emulator URL |
-|-----------------|-------------|
-| `https://accounts.google.com/o/oauth2/v2/auth` | `$GOOGLE_EMULATOR_URL/o/oauth2/v2/auth` |
-| `https://oauth2.googleapis.com/token` | `$GOOGLE_EMULATOR_URL/oauth2/token` |
-| `https://www.googleapis.com/oauth2/v2/userinfo` | `$GOOGLE_EMULATOR_URL/oauth2/v2/userinfo` |
+| Real Google URL                                                | Emulator URL                                            |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
+| `https://accounts.google.com/o/oauth2/v2/auth`                 | `$GOOGLE_EMULATOR_URL/o/oauth2/v2/auth`                 |
+| `https://oauth2.googleapis.com/token`                          | `$GOOGLE_EMULATOR_URL/oauth2/token`                     |
+| `https://www.googleapis.com/oauth2/v2/userinfo`                | `$GOOGLE_EMULATOR_URL/oauth2/v2/userinfo`               |
 | `https://accounts.google.com/.well-known/openid-configuration` | `$GOOGLE_EMULATOR_URL/.well-known/openid-configuration` |
-| `https://www.googleapis.com/oauth2/v3/certs` | `$GOOGLE_EMULATOR_URL/oauth2/v3/certs` |
-| `https://gmail.googleapis.com/gmail/v1/...` | `$GOOGLE_EMULATOR_URL/gmail/v1/...` |
-| `https://www.googleapis.com/calendar/v3/...` | `$GOOGLE_EMULATOR_URL/calendar/v3/...` |
-| `https://www.googleapis.com/drive/v3/...` | `$GOOGLE_EMULATOR_URL/drive/v3/...` |
+| `https://www.googleapis.com/oauth2/v3/certs`                   | `$GOOGLE_EMULATOR_URL/oauth2/v3/certs`                  |
+| `https://gmail.googleapis.com/gmail/v1/...`                    | `$GOOGLE_EMULATOR_URL/gmail/v1/...`                     |
+| `https://www.googleapis.com/calendar/v3/...`                   | `$GOOGLE_EMULATOR_URL/calendar/v3/...`                  |
+| `https://www.googleapis.com/drive/v3/...`                      | `$GOOGLE_EMULATOR_URL/drive/v3/...`                     |
 
 ### google-auth-library (Node.js)
 
 ```typescript
-import { OAuth2Client } from 'google-auth-library'
+import { OAuth2Client } from "google-auth-library";
 
-const GOOGLE_URL = process.env.GOOGLE_EMULATOR_URL ?? 'https://accounts.google.com'
+const GOOGLE_URL = process.env.GOOGLE_EMULATOR_URL ?? "https://accounts.google.com";
 
 const client = new OAuth2Client({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirectUri: 'http://localhost:3000/api/auth/callback/google',
-})
+  redirectUri: "http://localhost:3000/api/auth/callback/google",
+});
 
-const emulatorAuthorizeUrl = `${GOOGLE_URL}/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=...&scope=openid+email+profile&response_type=code&state=...`
+const emulatorAuthorizeUrl = `${GOOGLE_URL}/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=...&scope=openid+email+profile&response_type=code&state=...`;
 ```
 
 ### Auth.js / NextAuth.js
 
 ```typescript
-import Google from '@auth/core/providers/google'
+import Google from "@auth/core/providers/google";
 
 Google({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   authorization: {
     url: `${process.env.GOOGLE_EMULATOR_URL}/o/oauth2/v2/auth`,
-    params: { scope: 'openid email profile' },
+    params: { scope: "openid email profile" },
   },
   token: {
     url: `${process.env.GOOGLE_EMULATOR_URL}/oauth2/token`,
@@ -82,24 +82,27 @@ Google({
   userinfo: {
     url: `${process.env.GOOGLE_EMULATOR_URL}/oauth2/v2/userinfo`,
   },
-})
+});
 ```
 
 ### Passport.js
 
 ```typescript
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
-const GOOGLE_URL = process.env.GOOGLE_EMULATOR_URL ?? 'https://accounts.google.com'
+const GOOGLE_URL = process.env.GOOGLE_EMULATOR_URL ?? "https://accounts.google.com";
 
-new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3000/api/auth/callback/google',
-  authorizationURL: `${GOOGLE_URL}/o/oauth2/v2/auth`,
-  tokenURL: `${GOOGLE_URL}/oauth2/token`,
-  userProfileURL: `${GOOGLE_URL}/oauth2/v2/userinfo`,
-}, verifyCallback)
+new GoogleStrategy(
+  {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/api/auth/callback/google",
+    authorizationURL: `${GOOGLE_URL}/o/oauth2/v2/auth`,
+    tokenURL: `${GOOGLE_URL}/oauth2/token`,
+    userProfileURL: `${GOOGLE_URL}/oauth2/v2/userinfo`,
+  },
+  verifyCallback,
+);
 ```
 
 ## Seed Config
@@ -569,17 +572,15 @@ curl $GOOGLE_URL/oauth2/v2/userinfo \
 ### OIDC Discovery-Based Setup
 
 ```typescript
-import { Issuer } from 'openid-client'
+import { Issuer } from "openid-client";
 
-const googleIssuer = await Issuer.discover(
-  process.env.GOOGLE_EMULATOR_URL ?? 'https://accounts.google.com'
-)
+const googleIssuer = await Issuer.discover(process.env.GOOGLE_EMULATOR_URL ?? "https://accounts.google.com");
 
 const client = new googleIssuer.Client({
   client_id: process.env.GOOGLE_CLIENT_ID,
   client_secret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect_uris: ['http://localhost:3000/api/auth/callback/google'],
-})
+  redirect_uris: ["http://localhost:3000/api/auth/callback/google"],
+});
 ```
 
 ### Send a Gmail Message and Check the Thread

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 func (s *Service) registerPullRoutes(router *corehttp.Router) {

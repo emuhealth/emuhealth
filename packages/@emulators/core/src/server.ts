@@ -40,7 +40,7 @@ export function createServer(plugin: ServicePlugin, options: ServerOptions = {})
     }
   }
 
-  const docsUrl = options.docsUrl ?? `https://emulate.dev/${plugin.name}`;
+  const docsUrl = options.docsUrl ?? "https://github.com/emuhealth/emuhealth";
 
   registerFontRoutes(app);
 

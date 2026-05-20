@@ -1,7 +1,7 @@
 ---
 name: aws
-description: Emulated AWS cloud services (S3, SQS, DynamoDB, IAM, STS) for local development, testing, and native Vercel preview functions. Use when the user needs to interact with AWS API endpoints locally, test S3 bucket and object operations, emulate SQS queues and messages, test DynamoDB tables and items, manage IAM users/roles/access keys, test STS assume role, scaffold AWS through npx emulate vercel init, or work without hitting real AWS APIs. Triggers include "AWS emulator", "emulate AWS", "mock S3", "local SQS", "local DynamoDB", "test IAM", "emulate S3", "AWS locally", "STS assume role", or any task requiring local AWS service emulation.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+description: Emulated AWS cloud services (S3, SQS, DynamoDB, IAM, STS) for local development, testing, and native Vercel preview functions. Use when the user needs to interact with AWS API endpoints locally, test S3 bucket and object operations, emulate SQS queues and messages, test DynamoDB tables and items, manage IAM users/roles/access keys, test STS assume role, scaffold AWS through npx emuhealth vercel init, or work without hitting real AWS APIs. Triggers include "AWS emulator", "emulate AWS", "mock S3", "local SQS", "local DynamoDB", "test IAM", "emulate S3", "AWS locally", "STS assume role", or any task requiring local AWS service emulation.
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # AWS Emulator
@@ -13,7 +13,7 @@ S3, SQS, DynamoDB, IAM, and STS emulation with AWS SDK-compatible S3 paths, AWS 
 To expose the native AWS emulator in a Vercel preview without separate infrastructure, scaffold the Go Function route:
 
 ```bash
-npx emulate vercel init --service aws
+npx emuhealth vercel init --service aws
 ```
 
 The generated route serves AWS at `/emulate/aws/*`. State uses warm memory by default: cold starts reset to a fresh store, warm invocations reuse mutations, and concurrent function instances can diverge.
@@ -22,7 +22,7 @@ The generated route serves AWS at `/emulate/aws/*`. State uses warm memory by de
 
 ```bash
 # AWS only
-npx emulate --service aws
+npx emuhealth --service aws
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -31,9 +31,9 @@ npx emulate --service aws
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const aws = await createEmulator({ service: 'aws', port: 4006 })
+const aws = await createEmulator({ service: "aws", port: 4006 });
 // aws.url === 'http://localhost:4006'
 ```
 
@@ -57,73 +57,73 @@ AWS_EMULATOR_URL=http://localhost:4006
 ### AWS SDK v3
 
 ```typescript
-import { S3Client } from '@aws-sdk/client-s3'
+import { S3Client } from "@aws-sdk/client-s3";
 
 const s3 = new S3Client({
   endpoint: process.env.AWS_EMULATOR_URL,
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
-    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
   forcePathStyle: true,
-})
+});
 ```
 
 ```typescript
-import { SQSClient } from '@aws-sdk/client-sqs'
+import { SQSClient } from "@aws-sdk/client-sqs";
 
 const sqs = new SQSClient({
   endpoint: `${process.env.AWS_EMULATOR_URL}/sqs`,
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
-    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
-})
+});
 ```
 
 The native Go runtime accepts the SQS SDK client's `X-Amz-Target: AmazonSQS.<Action>` JSON requests to `/sqs` and returns JSON responses. Manual curl calls can use the AWS Query form examples below.
 
 ```typescript
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const dynamodb = new DynamoDBClient({
   endpoint: `${process.env.AWS_EMULATOR_URL}/dynamodb`,
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
-    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
-})
+});
 ```
 
 The native Go runtime accepts the DynamoDB SDK client's `X-Amz-Target: DynamoDB_20120810.<Action>` JSON requests to `/dynamodb` and returns JSON responses.
 
 ```typescript
-import { IAMClient } from '@aws-sdk/client-iam'
+import { IAMClient } from "@aws-sdk/client-iam";
 
 const iam = new IAMClient({
   endpoint: `${process.env.AWS_EMULATOR_URL}/iam`,
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
-    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
-})
+});
 ```
 
 ```typescript
-import { STSClient } from '@aws-sdk/client-sts'
+import { STSClient } from "@aws-sdk/client-sts";
 
 const sts = new STSClient({
   endpoint: `${process.env.AWS_EMULATOR_URL}/sts`,
-  region: 'us-east-1',
+  region: "us-east-1",
   credentials: {
-    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
-    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
-})
+});
 ```
 
 ## Seed Config

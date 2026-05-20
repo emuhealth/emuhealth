@@ -11,9 +11,9 @@ import (
 	"strings"
 	"sync"
 
-	coreassets "github.com/vercel-labs/emulate/internal/core/assets"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	emuruntime "github.com/vercel-labs/emulate/internal/runtime"
+	coreassets "github.com/emuhealth/emuhealth/internal/core/assets"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	emuruntime "github.com/emuhealth/emuhealth/internal/runtime"
 )
 
 const DefaultRoutePrefix = "/emulate"

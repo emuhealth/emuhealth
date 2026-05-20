@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	coreassets "github.com/vercel-labs/emulate/internal/core/assets"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	awsassets "github.com/vercel-labs/emulate/internal/services/aws/assets"
-	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
-	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
+	coreassets "github.com/emuhealth/emuhealth/internal/core/assets"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	awsassets "github.com/emuhealth/emuhealth/internal/services/aws/assets"
+	"github.com/emuhealth/emuhealth/internal/services/aws/gateway"
+	"github.com/emuhealth/emuhealth/internal/services/aws/protocols"
 )
 
 type Handler struct {

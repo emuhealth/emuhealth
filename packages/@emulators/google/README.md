@@ -2,7 +2,7 @@
 
 Google OAuth 2.0, OpenID Connect, and mutable Google Workspace-style surfaces for local Gmail, Calendar, and Drive flows.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -13,6 +13,7 @@ npm install @emulators/google
 ## Endpoints
 
 ### OAuth & OIDC
+
 - `GET /o/oauth2/v2/auth` — authorization endpoint
 - `POST /oauth2/token` — token exchange
 - `GET /oauth2/v2/userinfo` — get user info
@@ -20,6 +21,7 @@ npm install @emulators/google
 - `GET /oauth2/v3/certs` — JSON Web Key Set (JWKS)
 
 ### Gmail
+
 - `GET /gmail/v1/users/:userId/messages` — list messages with `q`, `labelIds`, `maxResults`, and `pageToken`
 - `GET /gmail/v1/users/:userId/messages/:id` — fetch message in `full`, `metadata`, `minimal`, or `raw` formats
 - `GET /gmail/v1/users/:userId/messages/:messageId/attachments/:id` — fetch attachment bodies
@@ -32,6 +34,7 @@ npm install @emulators/google
 - `POST /gmail/v1/users/:userId/messages/:id/untrash` — untrash message
 
 ### Drafts
+
 - `GET /gmail/v1/users/:userId/drafts` — list drafts
 - `POST /gmail/v1/users/:userId/drafts` — create draft
 - `GET /gmail/v1/users/:userId/drafts/:id` — get draft
@@ -40,17 +43,20 @@ npm install @emulators/google
 - `DELETE /gmail/v1/users/:userId/drafts/:id` — delete draft
 
 ### Threads
+
 - `GET /gmail/v1/users/:userId/threads` — list threads
 - `GET /gmail/v1/users/:userId/threads/:id` — get thread
 - `POST /gmail/v1/users/:userId/threads/:id/modify` — add/remove labels across a thread
 
 ### Labels
+
 - `GET /gmail/v1/users/:userId/labels` — list labels
 - `POST /gmail/v1/users/:userId/labels` — create label
 - `PATCH /gmail/v1/users/:userId/labels/:id` — update label
 - `DELETE /gmail/v1/users/:userId/labels/:id` — delete label
 
 ### History, Watch & Settings
+
 - `GET /gmail/v1/users/:userId/history` — list history
 - `POST /gmail/v1/users/:userId/watch` — set up push notifications
 - `POST /gmail/v1/users/:userId/stop` — stop push notifications
@@ -61,6 +67,7 @@ npm install @emulators/google
 - `GET /gmail/v1/users/:userId/settings/sendAs` — list send-as aliases
 
 ### Calendar
+
 - `GET /calendar/v3/users/:userId/calendarList` — list calendars
 - `GET /calendar/v3/calendars/:calendarId/events` — list events
 - `POST /calendar/v3/calendars/:calendarId/events` — create event
@@ -68,6 +75,7 @@ npm install @emulators/google
 - `POST /calendar/v3/freeBusy` — free/busy query
 
 ### Drive
+
 - `GET /drive/v3/files` — list files
 - `GET /drive/v3/files/:fileId` — get file metadata
 - `POST /drive/v3/files` — create file
@@ -126,5 +134,5 @@ google:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/google)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

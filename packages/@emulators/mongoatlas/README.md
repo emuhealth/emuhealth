@@ -2,7 +2,7 @@
 
 MongoDB Atlas emulation with Atlas Admin API v2 and Atlas Data API v1 for local development and testing. In-memory document storage with CRUD, filtering, and aggregation.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -15,12 +15,14 @@ npm install @emulators/mongoatlas
 ### Admin API
 
 #### Projects
+
 - `GET /api/atlas/v2/groups` — list projects
 - `GET /api/atlas/v2/groups/:groupId` — get project
 - `POST /api/atlas/v2/groups` — create project
 - `DELETE /api/atlas/v2/groups/:groupId` — delete project (cascades clusters and data)
 
 #### Clusters
+
 - `GET /api/atlas/v2/groups/:groupId/clusters` — list clusters
 - `GET /api/atlas/v2/groups/:groupId/clusters/:clusterName` — get cluster
 - `POST /api/atlas/v2/groups/:groupId/clusters` — create cluster
@@ -28,12 +30,14 @@ npm install @emulators/mongoatlas
 - `DELETE /api/atlas/v2/groups/:groupId/clusters/:clusterName` — delete cluster
 
 #### Database Users
+
 - `GET /api/atlas/v2/groups/:groupId/databaseUsers` — list database users
 - `GET /api/atlas/v2/groups/:groupId/databaseUsers/admin/:username` — get database user
 - `POST /api/atlas/v2/groups/:groupId/databaseUsers` — create database user
 - `DELETE /api/atlas/v2/groups/:groupId/databaseUsers/admin/:username` — delete database user
 
 #### Data Explorer
+
 - `GET /api/atlas/v2/groups/:groupId/clusters/:clusterName/databases` — list databases
 - `GET /api/atlas/v2/groups/:groupId/clusters/:clusterName/databases/:databaseName/collections` — list collections
 
@@ -67,5 +71,5 @@ mongoatlas:
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

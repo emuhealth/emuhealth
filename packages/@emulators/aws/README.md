@@ -2,7 +2,7 @@
 
 The in-process JavaScript plugin provides S3, SQS, IAM, and STS emulation with AWS SDK-compatible S3 paths and AWS Query endpoints for SQS/IAM/STS. Query and REST XML operations return AWS-compatible XML. DynamoDB is available in the native Go AWS runtime; see the DynamoDB note below.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -28,6 +28,7 @@ S3 routes use root paths matching the real AWS S3 wire format, so the official A
 - `DELETE /:bucket/:key` — delete object
 
 ### SQS
+
 SQS requests use `POST /sqs/` with an `Action` form parameter.
 
 - `CreateQueue`, `ListQueues`, `GetQueueUrl`, `GetQueueAttributes`
@@ -35,6 +36,7 @@ SQS requests use `POST /sqs/` with an `Action` form parameter.
 - `PurgeQueue`, `DeleteQueue`
 
 ### DynamoDB (native Go runtime)
+
 DynamoDB is currently available through the native Go AWS runtime, not through the in-process JavaScript plugin exported by this package. In that runtime, requests use the `/dynamodb/` endpoint with `X-Amz-Target: DynamoDB_20120810.<Action>` JSON requests.
 
 - `CreateTable`, `DescribeTable`, `ListTables`, `UpdateTable`, `DeleteTable`
@@ -43,6 +45,7 @@ DynamoDB is currently available through the native Go AWS runtime, not through t
 - `TagResource`, `UntagResource`, `ListTagsOfResource`
 
 ### IAM
+
 IAM requests use `POST /iam/` with an `Action` form parameter.
 
 - `CreateUser`, `GetUser`, `ListUsers`, `DeleteUser`
@@ -50,6 +53,7 @@ IAM requests use `POST /iam/` with an `Action` form parameter.
 - `CreateRole`, `GetRole`, `ListRoles`, `DeleteRole`
 
 ### STS
+
 STS requests use `POST /sts/` with an `Action` form parameter.
 
 - `GetCallerIdentity`, `AssumeRole`
@@ -82,5 +86,5 @@ aws:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/aws)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

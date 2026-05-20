@@ -3,7 +3,7 @@ package sqs
 import (
 	"testing"
 
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 func TestReserveVisibleMessageRejectsStaleSnapshot(t *testing.T) {

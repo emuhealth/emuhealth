@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 type createRepoOptions struct {

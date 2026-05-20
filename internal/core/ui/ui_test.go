@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
 )
 
 func TestRenderCardPageEscapesTitleAndUsesSharedChrome(t *testing.T) {

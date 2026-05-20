@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
 )
 
 func (s *Service) registerMetaRoutes(router *corehttp.Router) {

@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/services/aws/auth"
-	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/services/aws/auth"
+	"github.com/emuhealth/emuhealth/internal/services/aws/gateway"
 )
 
 var fallbackAWSIDCounter atomic.Uint64

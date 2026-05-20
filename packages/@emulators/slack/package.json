@@ -11,14 +11,14 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "homepage": "https://emulate.dev",
+  "homepage": "https://github.com/emuhealth/emuhealth",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vercel-labs/emulate.git",
+    "url": "https://github.com/emuhealth/emuhealth.git",
     "directory": "packages/@emulators/slack"
   },
   "bugs": {
-    "url": "https://github.com/vercel-labs/emulate/issues"
+    "url": "https://github.com/emuhealth/emuhealth/issues"
   },
   "publishConfig": {
     "access": "public"

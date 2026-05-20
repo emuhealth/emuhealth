@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
 )
 
 //go:embed assets/*
@@ -229,9 +229,9 @@ func emuBar(opts PageOptions) string {
 	return `<div class="emu-bar">
   <span class="emu-bar-title">` + EscapeHTML(title) + `</span>
   <nav class="emu-bar-links">
-    <a href="https://github.com/vercel-labs/emulate/issues" target="_blank" rel="noopener"><span class="full">Report Issue</span><span class="short">Report</span></a>
-    <a href="https://github.com/vercel-labs/emulate" target="_blank" rel="noopener"><span class="full">Source Code</span><span class="short">Source</span></a>
-    <a href="https://emulate.dev" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
+    <a href="https://github.com/emuhealth/emuhealth/issues" target="_blank" rel="noopener"><span class="full">Report Issue</span><span class="short">Report</span></a>
+    <a href="https://github.com/emuhealth/emuhealth" target="_blank" rel="noopener"><span class="full">Source Code</span><span class="short">Source</span></a>
+    <a href="https://github.com/emuhealth/emuhealth" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
   </nav>
 </div>`
 }
@@ -302,7 +302,7 @@ body{font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;background:
 `
 }
 
-const poweredBy = `<div class="powered-by">Powered by <a href="https://emulate.dev" target="_blank" rel="noopener">emulate</a></div>`
+const poweredBy = `<div class="powered-by">Powered by <a href="https://github.com/emuhealth/emuhealth" target="_blank" rel="noopener">EmuHealth</a></div>`
 
 func assetPath(opts PageOptions, target string) string {
 	prefix := strings.TrimRight(opts.Prefix, "/")

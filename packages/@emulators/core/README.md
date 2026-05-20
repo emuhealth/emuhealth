@@ -2,7 +2,7 @@
 
 HTTP server, in-memory store, plugin interface, and middleware for emulate service plugins.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -27,9 +27,9 @@ The core provides the shared infrastructure that every `@emulators/*` service pl
 For local development, use the built-in file adapter:
 
 ```typescript
-import { filePersistence } from '@emulators/core'
+import { filePersistence } from "@emulators/core";
 
-persistence: filePersistence('.emulate/state.json')
+persistence: filePersistence(".emulate/state.json");
 ```
 
 ### Custom adapter
@@ -38,14 +38,18 @@ Any object with `load` and `save` methods works:
 
 ```typescript
 const kvAdapter = {
-  async load() { return await kv.get('emulate-state') },
-  async save(data: string) { await kv.set('emulate-state', data) },
-}
+  async load() {
+    return await kv.get("emulate-state");
+  },
+  async save(data: string) {
+    await kv.set("emulate-state", data);
+  },
+};
 ```
 
 The persistence adapter is called on cold start (load) and after every mutating request (save). Saves are serialized via an internal queue to prevent race conditions.
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

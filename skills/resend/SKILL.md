@@ -1,7 +1,7 @@
 ---
 name: resend
-description: Emulated Resend email API for local development, testing, and native Vercel preview functions. Use when the user needs to send emails locally, test transactional email flows, implement magic link or verification code auth, inspect sent emails, manage domains/contacts/API keys, scaffold Resend through npx emulate vercel init, or work with the Resend API without sending real emails. Triggers include "Resend API", "emulate Resend", "send email locally", "test email", "magic link", "verification email", "email inbox", "RESEND_BASE_URL", or any task requiring a local email API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+description: Emulated Resend email API for local development, testing, and native Vercel preview functions. Use when the user needs to send emails locally, test transactional email flows, implement magic link or verification code auth, inspect sent emails, manage domains/contacts/API keys, scaffold Resend through npx emuhealth vercel init, or work with the Resend API without sending real emails. Triggers include "Resend API", "emulate Resend", "send email locally", "test email", "magic link", "verification email", "email inbox", "RESEND_BASE_URL", or any task requiring a local email API.
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Resend Email API Emulator
@@ -17,7 +17,7 @@ The experimental native Go runtime implements the current Resend routes, support
 To expose the native Resend emulator in a Vercel preview without separate infrastructure, scaffold the Go Function route:
 
 ```bash
-npx emulate vercel init --service resend
+npx emuhealth vercel init --service resend
 ```
 
 The generated route serves Resend at `/emulate/resend/*`. Set `RESEND_BASE_URL` to the preview origin plus `/emulate/resend`. State uses warm memory by default: cold starts reset to a fresh store, warm invocations reuse mutations, and concurrent function instances can diverge.
@@ -26,7 +26,7 @@ The generated route serves Resend at `/emulate/resend/*`. Set `RESEND_BASE_URL` 
 
 ```bash
 # Resend only
-npx emulate --service resend
+npx emuhealth --service resend
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -35,9 +35,9 @@ npx emulate --service resend
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const resend = await createEmulator({ service: 'resend', port: 4000 })
+const resend = await createEmulator({ service: "resend", port: 4000 });
 // resend.url === 'http://localhost:4000'
 ```
 
@@ -63,17 +63,17 @@ RESEND_BASE_URL=http://localhost:4000
 ```
 
 ```typescript
-import { Resend } from 'resend'
+import { Resend } from "resend";
 
 // No baseUrl argument needed; the SDK reads RESEND_BASE_URL automatically.
-const resend = new Resend('re_test_key')
+const resend = new Resend("re_test_key");
 
 await resend.emails.send({
-  from: 'hello@example.com',
-  to: 'user@example.com',
-  subject: 'Hello',
-  html: '<p>It works!</p>',
-})
+  from: "hello@example.com",
+  to: "user@example.com",
+  subject: "Hello",
+  html: "<p>It works!</p>",
+});
 ```
 
 ### Embedded in Next.js (adapter-next)
@@ -82,30 +82,30 @@ When using `@emulators/adapter-next`, the emulator runs inside your Next.js app 
 
 ```typescript
 // next.config.ts
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmulate } from "@emulators/adapter-next";
 
 export default withEmulate({
   env: {
-    RESEND_BASE_URL: `http://localhost:${process.env.PORT ?? '3000'}/emulate/resend`,
+    RESEND_BASE_URL: `http://localhost:${process.env.PORT ?? "3000"}/emulate/resend`,
   },
-})
+});
 ```
 
 ```typescript
 // app/emulate/[...path]/route.ts
-import { createEmulateHandler } from '@emulators/adapter-next'
-import * as resend from '@emulators/resend'
+import { createEmulateHandler } from "@emulators/adapter-next";
+import * as resend from "@emulators/resend";
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
   services: {
     resend: {
       emulator: resend,
       seed: {
-        domains: [{ name: 'example.com' }],
+        domains: [{ name: "example.com" }],
       },
     },
   },
-})
+});
 ```
 
 ### Direct fetch
@@ -113,19 +113,19 @@ export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
 If you cannot use the SDK or env var, call the emulator directly:
 
 ```typescript
-await fetch('http://localhost:4000/emails', {
-  method: 'POST',
+await fetch("http://localhost:4000/emails", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer re_test_key',
+    "Content-Type": "application/json",
+    Authorization: "Bearer re_test_key",
   },
   body: JSON.stringify({
-    from: 'hello@example.com',
-    to: 'user@example.com',
-    subject: 'Hello',
-    html: '<p>It works!</p>',
+    from: "hello@example.com",
+    to: "user@example.com",
+    subject: "Hello",
+    html: "<p>It works!</p>",
   }),
-})
+});
 ```
 
 ## Seed Config
@@ -326,26 +326,26 @@ curl -s $BASE/emails/$EMAIL_ID -H "Authorization: Bearer $TOKEN" | jq -r '.html'
 ### Send and Verify in a Test
 
 ```typescript
-import { createEmulator } from 'emulate'
-import { Resend } from 'resend'
+import { createEmulator } from "emuhealth";
+import { Resend } from "resend";
 
-const emu = await createEmulator({ service: 'resend', port: 4000 })
+const emu = await createEmulator({ service: "resend", port: 4000 });
 
-process.env.RESEND_BASE_URL = emu.url
-const resend = new Resend('re_test_key')
+process.env.RESEND_BASE_URL = emu.url;
+const resend = new Resend("re_test_key");
 
 // Send
 await resend.emails.send({
-  from: 'auth@example.com',
-  to: 'user@test.com',
-  subject: 'Verify',
-  html: '<p>Code: <strong>123456</strong></p>',
-})
+  from: "auth@example.com",
+  to: "user@test.com",
+  subject: "Verify",
+  html: "<p>Code: <strong>123456</strong></p>",
+});
 
 // Retrieve
 const res = await fetch(`${emu.url}/emails`, {
-  headers: { Authorization: 'Bearer re_test_key' },
-})
-const { data: emails } = await res.json()
-console.log(emails[0].html) // contains "123456"
+  headers: { Authorization: "Bearer re_test_key" },
+});
+const { data: emails } = await res.json();
+console.log(emails[0].html); // contains "123456"
 ```

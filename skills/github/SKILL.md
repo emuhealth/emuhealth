@@ -1,7 +1,7 @@
 ---
 name: github
 description: Emulated GitHub REST API for local development and testing. Use when the user needs to interact with GitHub API endpoints locally, test GitHub integrations, emulate repos/issues/PRs, set up GitHub OAuth flows, configure GitHub Apps, test webhooks, or work with actions/checks without hitting the real GitHub API. Triggers include "GitHub API", "emulate GitHub", "mock GitHub", "test GitHub OAuth", "GitHub App JWT", "local GitHub", or any task requiring a local GitHub API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # GitHub API Emulator
@@ -14,7 +14,7 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 
 ```bash
 # GitHub only
-npx emulate --service github
+npx emuhealth --service github
 
 # Default port
 # http://localhost:4001
@@ -23,9 +23,9 @@ npx emulate --service github
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const github = await createEmulator({ service: 'github', port: 4001 })
+const github = await createEmulator({ service: "github", port: 4001 });
 // github.url === 'http://localhost:4001'
 ```
 
@@ -82,26 +82,26 @@ GITHUB_EMULATOR_URL=http://localhost:4001
 ### Octokit
 
 ```typescript
-import { Octokit } from '@octokit/rest'
+import { Octokit } from "@octokit/rest";
 
 const octokit = new Octokit({
-  baseUrl: process.env.GITHUB_EMULATOR_URL ?? 'https://api.github.com',
-  auth: 'test_token_admin',
-})
+  baseUrl: process.env.GITHUB_EMULATOR_URL ?? "https://api.github.com",
+  auth: "test_token_admin",
+});
 ```
 
 ### OAuth URL Mapping
 
-| Real GitHub URL | Emulator URL |
-|-----------------|-------------|
-| `https://github.com/login/oauth/authorize` | `$GITHUB_EMULATOR_URL/login/oauth/authorize` |
+| Real GitHub URL                               | Emulator URL                                    |
+| --------------------------------------------- | ----------------------------------------------- |
+| `https://github.com/login/oauth/authorize`    | `$GITHUB_EMULATOR_URL/login/oauth/authorize`    |
 | `https://github.com/login/oauth/access_token` | `$GITHUB_EMULATOR_URL/login/oauth/access_token` |
-| `https://api.github.com/user` | `$GITHUB_EMULATOR_URL/user` |
+| `https://api.github.com/user`                 | `$GITHUB_EMULATOR_URL/user`                     |
 
 ### Auth.js / NextAuth.js
 
 ```typescript
-import GitHub from '@auth/core/providers/github'
+import GitHub from "@auth/core/providers/github";
 
 GitHub({
   clientId: process.env.GITHUB_CLIENT_ID,
@@ -115,7 +115,7 @@ GitHub({
   userinfo: {
     url: `${process.env.GITHUB_EMULATOR_URL}/user`,
   },
-})
+});
 ```
 
 ## Seed Config

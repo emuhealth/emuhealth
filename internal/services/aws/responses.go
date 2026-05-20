@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
-	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	"github.com/emuhealth/emuhealth/internal/services/aws/gateway"
+	"github.com/emuhealth/emuhealth/internal/services/aws/protocols"
 )
 
 func readRequestBody(req *http.Request) ([]byte, error) {

@@ -1,7 +1,7 @@
 ---
 name: emulate
-description: Local drop-in API emulator for Vercel, GitHub, Google, Slack, Apple, Microsoft, and AWS. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, scaffold Vercel Go Function previews, or work with the emulate CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emulate", "npx emulate vercel init", or any task requiring local service emulation.
-allowed-tools: Bash(npx emulate:*)
+description: Local drop-in API emulator for Vercel, GitHub, Google, Slack, Apple, Microsoft, and AWS. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, scaffold Vercel Go Function previews, or work with the emulate CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emuhealth", "npx emuhealth vercel init", or any task requiring local service emulation.
+allowed-tools: Bash(npx emuhealth:*)
 ---
 
 # Service Emulation with emulate
@@ -11,58 +11,58 @@ Local drop-in replacement services for CI and no-network sandboxes. Fully statef
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services start with sensible defaults:
 
 | Service   | Default Port |
-|-----------|-------------|
-| Vercel    | 4000        |
-| GitHub    | 4001        |
-| Google    | 4002        |
-| Slack     | 4003        |
-| Apple     | 4004        |
-| Microsoft | 4005        |
-| AWS       | 4006        |
+| --------- | ------------ |
+| Vercel    | 4000         |
+| GitHub    | 4001         |
+| Google    | 4002         |
+| Slack     | 4003         |
+| Apple     | 4004         |
+| Microsoft | 4005         |
+| AWS       | 4006         |
 
 ## CLI
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom base port (auto-increments per service)
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service vercel
+npx emuhealth init --service vercel
 
 # Scaffold a Vercel Go Function preview route
-npx emulate vercel init
+npx emuhealth vercel init
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ### Options
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `-p, --port` | `4000` | Base port (auto-increments per service) |
-| `-s, --service` | all | Comma-separated services to enable |
-| `--seed` | auto-detect | Path to seed config (YAML or JSON) |
-| `--base-url` | none | Override advertised base URL (supports `{service}` template) |
-| `--portless` | off | Serve over HTTPS via portless (auto-registers aliases) |
+| Flag            | Default     | Description                                                  |
+| --------------- | ----------- | ------------------------------------------------------------ |
+| `-p, --port`    | `4000`      | Base port (auto-increments per service)                      |
+| `-s, --service` | all         | Comma-separated services to enable                           |
+| `--seed`        | auto-detect | Path to seed config (YAML or JSON)                           |
+| `--base-url`    | none        | Override advertised base URL (supports `{service}` template) |
+| `--portless`    | off         | Serve over HTTPS via portless (auto-registers aliases)       |
 
 The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 
@@ -71,60 +71,63 @@ The advertised base URL (used in OAuth redirects, webhook URLs, etc.) can be ove
 ## Programmatic API
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 Each call to `createEmulator` starts a single service:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const github = await createEmulator({ service: 'github', port: 4001 })
-const vercel = await createEmulator({ service: 'vercel', port: 4002 })
+const github = await createEmulator({ service: "github", port: 4001 });
+const vercel = await createEmulator({ service: "vercel", port: 4002 });
 
-github.url   // 'http://localhost:4001'
-vercel.url   // 'http://localhost:4002'
+github.url; // 'http://localhost:4001'
+vercel.url; // 'http://localhost:4002'
 
-await github.close()
-await vercel.close()
+await github.close();
+await vercel.close();
 ```
 
 ### Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `service` | *(required)* | `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, or `'aws'` |
-| `port` | `4000` | Port for the HTTP server |
-| `seed` | none | Inline seed data (same shape as YAML config) |
-| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
+| Option    | Default      | Description                                                                                                                                                                                                                                                                                       |
+| --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `service` | _(required)_ | `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, or `'aws'`                                                                                                                                                                                                               |
+| `port`    | `4000`       | Port for the HTTP server                                                                                                                                                                                                                                                                          |
+| `seed`    | none         | Inline seed data (same shape as YAML config)                                                                                                                                                                                                                                                      |
+| `baseUrl` | none         | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
 
 ### Instance Methods
 
-| Method | Description |
-|--------|-------------|
-| `url` | Base URL of the running server |
-| `reset()` | Wipe the store and replay seed data |
+| Method    | Description                                  |
+| --------- | -------------------------------------------- |
+| `url`     | Base URL of the running server               |
+| `reset()` | Wipe the store and replay seed data          |
 | `close()` | Shut down the HTTP server, returns a Promise |
 
 ## Vitest / Jest Setup
 
 ```typescript
-import { createEmulator, type Emulator } from 'emulate'
+import { createEmulator, type Emulator } from "emuhealth";
 
-let github: Emulator
-let vercel: Emulator
+let github: Emulator;
+let vercel: Emulator;
 
 beforeAll(async () => {
-  ;[github, vercel] = await Promise.all([
-    createEmulator({ service: 'github', port: 4001 }),
-    createEmulator({ service: 'vercel', port: 4002 }),
-  ])
-  process.env.GITHUB_EMULATOR_URL = github.url
-  process.env.VERCEL_EMULATOR_URL = vercel.url
-})
+  [github, vercel] = await Promise.all([
+    createEmulator({ service: "github", port: 4001 }),
+    createEmulator({ service: "vercel", port: 4002 }),
+  ]);
+  process.env.GITHUB_EMULATOR_URL = github.url;
+  process.env.VERCEL_EMULATOR_URL = vercel.url;
+});
 
-afterEach(() => { github.reset(); vercel.reset() })
-afterAll(() => Promise.all([github.close(), vercel.close()]))
+afterEach(() => {
+  github.reset();
+  vercel.reset();
+});
+afterAll(() => Promise.all([github.close(), vercel.close()]));
 ```
 
 ## Configuration
@@ -136,7 +139,7 @@ Configuration is optional. The CLI auto-detects config files in this order:
 3. `service-emulator.config.yaml` / `.yml`
 4. `service-emulator.config.json`
 
-Or pass `--seed <file>` explicitly. Run `npx emulate init` to generate a starter file.
+Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
 
 ### Config Structure
 
@@ -264,7 +267,7 @@ Each service also has a fallback user. If no token is provided, requests authent
 [portless](https://github.com/vercel-labs/portless) gives emulators trusted HTTPS URLs with auto-generated certs. Use the `--portless` flag to auto-register each service as a portless alias:
 
 ```bash
-npx emulate start --portless
+npx emuhealth start --portless
 # github  https://github.emulate.localhost
 # google  https://google.emulate.localhost
 # ...
@@ -283,9 +286,9 @@ portless github.emulate emulate start --service github
 For a custom base URL without portless (any reverse proxy):
 
 ```bash
-npx emulate start --base-url "https://{service}.myproxy.test"
+npx emuhealth start --base-url "https://{service}.myproxy.test"
 # or
-EMULATE_BASE_URL="https://{service}.myproxy.test" npx emulate start
+EMULATE_BASE_URL="https://{service}.myproxy.test" npx emuhealth start
 ```
 
 The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emulate start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
@@ -317,7 +320,7 @@ Then use these in your app to construct API and OAuth URLs. See each service's s
 
 ## Next.js Integration
 
-The `@emulators/adapter-next` package supports embedded JavaScript emulators and native runtime proxy routes on the same Next.js origin. For native Go `aws`, `github`, `resend`, and `vercel` previews on Vercel, run `npx emulate vercel init` to generate `api/emulate.go`, `vercel.json`, and `go.mod`. See the **next** skill (`skills/next/SKILL.md`) for full setup, Auth.js configuration, Vercel Go Function state behavior, persistence, font tracing, and `createEmulateProxy` details.
+The `@emulators/adapter-next` package supports embedded JavaScript emulators and native runtime proxy routes on the same Next.js origin. For native Go `aws`, `github`, `resend`, and `vercel` previews on Vercel, run `npx emuhealth vercel init` to generate `api/emulate.go`, `vercel.json`, and `go.mod`. See the **next** skill (`skills/next/SKILL.md`) for full setup, Auth.js configuration, Vercel Go Function state behavior, persistence, font tracing, and `createEmulateProxy` details.
 
 ## Persistence
 
@@ -326,21 +329,25 @@ By default, all emulator state is in-memory. For persistence across process rest
 ### Built-in file persistence
 
 ```typescript
-import { filePersistence } from '@emulators/core'
+import { filePersistence } from "@emulators/core";
 
 // CLI or local dev: persists to a JSON file
-const adapter = filePersistence('.emulate/state.json')
+const adapter = filePersistence(".emulate/state.json");
 ```
 
 ### Custom adapters
 
 ```typescript
-import type { PersistenceAdapter } from '@emulators/core'
+import type { PersistenceAdapter } from "@emulators/core";
 
 const kvAdapter: PersistenceAdapter = {
-  async load() { return await kv.get('emulate-state') },
-  async save(data) { await kv.set('emulate-state', data) },
-}
+  async load() {
+    return await kv.get("emulate-state");
+  },
+  async save(data) {
+    await kv.set("emulate-state", data);
+  },
+};
 ```
 
 State is loaded on cold start and saved after every mutating request (POST, PUT, PATCH, DELETE). Saves are serialized to prevent race conditions.

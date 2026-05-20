@@ -3,14 +3,14 @@ package runtime
 import (
 	"net/http"
 
-	coreassets "github.com/vercel-labs/emulate/internal/core/assets"
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	"github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/core/ui"
-	"github.com/vercel-labs/emulate/internal/services/aws"
-	"github.com/vercel-labs/emulate/internal/services/github"
-	"github.com/vercel-labs/emulate/internal/services/resend"
-	"github.com/vercel-labs/emulate/internal/services/vercel"
+	coreassets "github.com/emuhealth/emuhealth/internal/core/assets"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	"github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/core/ui"
+	"github.com/emuhealth/emuhealth/internal/services/aws"
+	"github.com/emuhealth/emuhealth/internal/services/github"
+	"github.com/emuhealth/emuhealth/internal/services/resend"
+	"github.com/emuhealth/emuhealth/internal/services/vercel"
 )
 
 const HealthPath = "/_emulate/health"

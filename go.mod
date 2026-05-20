@@ -1,3 +1,3 @@
-module github.com/vercel-labs/emulate
+module github.com/emuhealth/emuhealth
 
 go 1.24

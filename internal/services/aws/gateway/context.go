@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/vercel-labs/emulate/internal/services/aws/auth"
-	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
+	"github.com/emuhealth/emuhealth/internal/services/aws/auth"
+	"github.com/emuhealth/emuhealth/internal/services/aws/protocols"
 )
 
 const (

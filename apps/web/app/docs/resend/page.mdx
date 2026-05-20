@@ -11,7 +11,7 @@ The experimental native Go runtime implements the current Resend routes below, s
 To expose the native Resend emulator in a Vercel preview without separate infrastructure, scaffold the Go Function route:
 
 ```bash
-npx emulate vercel init --service resend
+npx emuhealth vercel init --service resend
 ```
 
 The generated route serves Resend at `/emulate/resend/*`. Set `RESEND_BASE_URL` to the preview origin plus `/emulate/resend`. State uses warm memory by default: cold starts reset to a fresh store, warm invocations reuse mutations, and concurrent function instances can diverge.

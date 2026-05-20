@@ -14,11 +14,11 @@ import (
 	"strings"
 	"time"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
-const docsURL = "https://emulate.dev/github"
+const docsURL = "https://github.com/emuhealth/emuhealth"
 
 type authUser struct {
 	Login  string

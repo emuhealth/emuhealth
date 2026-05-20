@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	emuruntime "github.com/vercel-labs/emulate/internal/runtime"
+	emuruntime "github.com/emuhealth/emuhealth/internal/runtime"
 )
 
 func TestRunListIncludesRegisteredServices(t *testing.T) {
@@ -40,7 +40,7 @@ func TestRunListHelpExitsSuccessfully(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("list help exited with %d, stderr: %s", code, stderr.String())
 	}
-	if !strings.Contains(stderr.String(), "npx emulate list") {
+	if !strings.Contains(stderr.String(), "npx emuhealth list") {
 		t.Fatalf("unexpected stderr: %s", stderr.String())
 	}
 	if strings.Contains(stdout.String(), "Available services") {
@@ -95,7 +95,7 @@ func TestRunStartHelpExitsSuccessfully(t *testing.T) {
 	}
 	help := stderr.String()
 	for _, want := range []string{
-		"npx emulate [start] [options]",
+		"npx emuhealth [start] [options]",
 		"--base-url <url>",
 		"--portless",
 	} {
@@ -308,7 +308,7 @@ func TestRunTopLevelHelpIncludesFullStartOptions(t *testing.T) {
 	}
 	help := stdout.String()
 	for _, want := range []string{
-		"npx emulate [start] [options]",
+		"npx emuhealth [start] [options]",
 		"--seed <file>",
 		"--base-url <url>",
 		"--portless",
@@ -368,7 +368,7 @@ func TestRunInitHelpExitsSuccessfully(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("init help exited with %d, stderr: %s", code, stderr.String())
 	}
-	if !strings.Contains(stderr.String(), "npx emulate init [--service <service>]") {
+	if !strings.Contains(stderr.String(), "npx emuhealth init [--service <service>]") {
 		t.Fatalf("unexpected stderr: %s", stderr.String())
 	}
 }

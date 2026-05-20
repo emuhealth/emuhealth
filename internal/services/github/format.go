@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 func (s *Service) userURLs(login string) map[string]any {

@@ -3,6 +3,7 @@
 ## 0.5.0
 
 <!-- release:start -->
+
 ### New Features
 
 - **Clerk emulator** — local emulation of Clerk authentication and session management (#38)

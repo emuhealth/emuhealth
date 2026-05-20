@@ -31,12 +31,12 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Four products with prices are seeded automatically:
 
-| Product | Price |
-|---------|-------|
-| Emulate T-Shirt | $25.00 |
-| Emulate Mug | $15.00 |
-| Emulate Sticker Pack | $8.00 |
-| Emulate Hoodie | $50.00 |
+| Product              | Price  |
+| -------------------- | ------ |
+| Emulate T-Shirt      | $25.00 |
+| Emulate Mug          | $15.00 |
+| Emulate Sticker Pack | $8.00  |
+| Emulate Hoodie       | $50.00 |
 
 ## Project structure
 

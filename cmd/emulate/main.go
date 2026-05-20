@@ -18,11 +18,11 @@ import (
 	"syscall"
 	"time"
 
-	coreconfig "github.com/vercel-labs/emulate/internal/core/config"
-	emuruntime "github.com/vercel-labs/emulate/internal/runtime"
-	"github.com/vercel-labs/emulate/internal/services/github"
-	"github.com/vercel-labs/emulate/internal/services/resend"
-	"github.com/vercel-labs/emulate/internal/services/vercel"
+	coreconfig "github.com/emuhealth/emuhealth/internal/core/config"
+	emuruntime "github.com/emuhealth/emuhealth/internal/runtime"
+	"github.com/emuhealth/emuhealth/internal/services/github"
+	"github.com/emuhealth/emuhealth/internal/services/resend"
+	"github.com/emuhealth/emuhealth/internal/services/vercel"
 )
 
 var version = "dev"
@@ -47,7 +47,7 @@ func runWithContext(ctx context.Context, args []string, stdout io.Writer, stderr
 		printHelp(stdout)
 		return 0
 	case "-v", "--version", "version":
-		fmt.Fprintf(stdout, "emulate %s\n", version)
+		fmt.Fprintf(stdout, "emuhealth %s\n", version)
 		return 0
 	case "start":
 		return runStart(ctx, args[1:], stdout, stderr)
@@ -191,7 +191,7 @@ func runStart(ctx context.Context, args []string, stdout io.Writer, stderr io.Wr
 		return 1
 	}
 
-	fmt.Fprintf(stdout, "emulate %s native Go runtime is experimental.\n", version)
+	fmt.Fprintf(stdout, "emuhealth %s native Go runtime is experimental.\n", version)
 	fmt.Fprintf(stdout, "Listening on %s\n", baseURL)
 	fmt.Fprintf(stdout, "Health check: %s%s\n", strings.TrimRight(baseURL, "/"), emuruntime.HealthPath)
 
@@ -269,7 +269,7 @@ func runInit(args []string, stdout io.Writer, stderr io.Writer) int {
 	}
 
 	fmt.Fprintf(stdout, "Created %s\n", targetFilename)
-	fmt.Fprintln(stdout, "\nRun 'npx emulate' to start the emulator.")
+	fmt.Fprintln(stdout, "\nRun 'npx emuhealth' to start the emulator.")
 	return 0
 }
 
@@ -306,11 +306,11 @@ func runList(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func printHelp(w io.Writer) {
-	fmt.Fprintf(w, "emulate %s native Go runtime experimental\n\n", version)
+	fmt.Fprintf(w, "emuhealth %s native Go runtime experimental\n\n", version)
 	fmt.Fprintln(w, "Usage:")
-	fmt.Fprintln(w, "  npx emulate [start] [options]")
-	fmt.Fprintln(w, "  npx emulate init [--service <service>]")
-	fmt.Fprintln(w, "  npx emulate list")
+	fmt.Fprintln(w, "  npx emuhealth [start] [options]")
+	fmt.Fprintln(w, "  npx emuhealth init [--service <service>]")
+	fmt.Fprintln(w, "  npx emuhealth list")
 	fmt.Fprintln(w, "\nStart options:")
 	fmt.Fprintln(w, "  -p, --port <port>          Base port")
 	fmt.Fprintln(w, "  -s, --service <services>   Comma-separated services to enable")
@@ -318,12 +318,12 @@ func printHelp(w io.Writer) {
 	fmt.Fprintln(w, "      --base-url <url>       Override advertised base URL")
 	fmt.Fprintln(w, "      --portless             Serve over HTTPS via portless (not supported in native Go yet)")
 	fmt.Fprintln(w, "\nThe published TypeScript CLI remains the default user-facing runtime.")
-	fmt.Fprintln(w, "Use npx emulate for current production behavior.")
+	fmt.Fprintln(w, "Use npx emuhealth for current production behavior.")
 }
 
 func printStartHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage:")
-	fmt.Fprintln(w, "  npx emulate [start] [options]")
+	fmt.Fprintln(w, "  npx emuhealth [start] [options]")
 	fmt.Fprintln(w, "\nOptions:")
 	fmt.Fprintln(w, "  -p, --port <port>          Base port")
 	fmt.Fprintln(w, "  -s, --service <services>   Comma-separated services to enable")
@@ -334,14 +334,14 @@ func printStartHelp(w io.Writer) {
 
 func printInitHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage:")
-	fmt.Fprintln(w, "  npx emulate init [--service <service>]")
+	fmt.Fprintln(w, "  npx emuhealth init [--service <service>]")
 	fmt.Fprintln(w, "\nOptions:")
 	fmt.Fprintln(w, "  -s, --service <service>    Service to generate config for")
 }
 
 func printListHelp(w io.Writer) {
 	fmt.Fprintln(w, "Usage:")
-	fmt.Fprintln(w, "  npx emulate list")
+	fmt.Fprintln(w, "  npx emuhealth list")
 }
 
 func parseServices(value string) ([]string, error) {

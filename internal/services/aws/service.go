@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"strings"
 
-	coreassets "github.com/vercel-labs/emulate/internal/core/assets"
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/services/aws/auth"
-	awsdynamodb "github.com/vercel-labs/emulate/internal/services/aws/dynamodb"
-	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
-	awsiam "github.com/vercel-labs/emulate/internal/services/aws/iam"
-	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
-	awss3 "github.com/vercel-labs/emulate/internal/services/aws/s3"
-	awssqs "github.com/vercel-labs/emulate/internal/services/aws/sqs"
-	awssts "github.com/vercel-labs/emulate/internal/services/aws/sts"
+	coreassets "github.com/emuhealth/emuhealth/internal/core/assets"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/services/aws/auth"
+	awsdynamodb "github.com/emuhealth/emuhealth/internal/services/aws/dynamodb"
+	"github.com/emuhealth/emuhealth/internal/services/aws/gateway"
+	awsiam "github.com/emuhealth/emuhealth/internal/services/aws/iam"
+	"github.com/emuhealth/emuhealth/internal/services/aws/protocols"
+	awss3 "github.com/emuhealth/emuhealth/internal/services/aws/s3"
+	awssqs "github.com/emuhealth/emuhealth/internal/services/aws/sqs"
+	awssts "github.com/emuhealth/emuhealth/internal/services/aws/sts"
 )
 
 type Options struct {

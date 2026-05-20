@@ -154,18 +154,18 @@ function updateGoMod(cwd: string, version: string, result: VercelScaffoldResult)
 }
 
 function getEmulateRequirementVersion(content: string): string | undefined {
-  return content.match(/^[ \t]*(?:require[ \t]+)?github\.com\/vercel-labs\/emulate[ \t]+(v\S+)/m)?.[1];
+  return content.match(/^[ \t]*(?:require[ \t]+)?github\.com\/emuhealth\/emuhealth[ \t]+(v\S+)/m)?.[1];
 }
 
 function updateEmulateRequirement(content: string, moduleVersion: string): string {
   return content.replace(
-    /^([ \t]*(?:require[ \t]+)?github\.com\/vercel-labs\/emulate[ \t]+)v\S+([ \t]*(?:\/\/.*)?$)/m,
+    /^([ \t]*(?:require[ \t]+)?github\.com\/emuhealth\/emuhealth[ \t]+)v\S+([ \t]*(?:\/\/.*)?$)/m,
     `$1${moduleVersion}$2`,
   );
 }
 
 function addEmulateRequirement(content: string, moduleVersion: string): string {
-  const dependency = `github.com/vercel-labs/emulate ${moduleVersion}`;
+  const dependency = `github.com/emuhealth/emuhealth ${moduleVersion}`;
   if (/^require\s*\(/m.test(content)) {
     return content.replace(/^require\s*\(\s*\n/m, (match) => `${match}\t${dependency}\n`);
   }
@@ -338,7 +338,7 @@ function renderHandler(services: string[]): string {
 import (
 \t"net/http"
 
-\temulate "github.com/vercel-labs/emulate/vercel"
+\temulate "github.com/emuhealth/emuhealth/vercel"
 )
 
 var emulateHandler = emulate.NewHandler(emulate.Options{
@@ -361,6 +361,6 @@ function renderGoMod(moduleVersion: string): string {
 
 go ${REQUIRED_GO_VERSION}
 
-require github.com/vercel-labs/emulate ${moduleVersion}
+require github.com/emuhealth/emuhealth ${moduleVersion}
 `;
 }

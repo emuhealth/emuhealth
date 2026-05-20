@@ -1,7 +1,7 @@
 ---
 name: vercel
 description: Emulated Vercel REST API for local development and testing. Use when the user needs to interact with Vercel API endpoints locally, test Vercel integrations, emulate projects/deployments/domains, set up Vercel OAuth flows, manage environment variables, create API keys, configure protection bypass, or test without hitting the real Vercel API. Triggers include "Vercel API", "emulate Vercel", "mock Vercel", "test Vercel OAuth", "Vercel integration", "local Vercel", or any task requiring a local Vercel API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Vercel API Emulator
@@ -12,7 +12,7 @@ Fully stateful Vercel REST API emulation with Vercel-style JSON responses and cu
 
 ```bash
 # Vercel only
-npx emulate --service vercel
+npx emuhealth --service vercel
 
 # Default port
 # http://localhost:4000
@@ -21,9 +21,9 @@ npx emulate --service vercel
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const vercel = await createEmulator({ service: 'vercel', port: 4000 })
+const vercel = await createEmulator({ service: "vercel", port: 4000 });
 // vercel.url === 'http://localhost:4000'
 ```
 
@@ -49,20 +49,20 @@ VERCEL_EMULATOR_URL=http://localhost:4000
 ### Vercel SDK / Custom Fetch
 
 ```typescript
-const VERCEL_API = process.env.VERCEL_EMULATOR_URL ?? 'https://api.vercel.com'
+const VERCEL_API = process.env.VERCEL_EMULATOR_URL ?? "https://api.vercel.com";
 
 const res = await fetch(`${VERCEL_API}/v10/projects`, {
   headers: { Authorization: `Bearer ${token}` },
-})
+});
 ```
 
 ### OAuth URL Mapping
 
-| Real Vercel URL | Emulator URL |
-|-----------------|-------------|
-| `https://vercel.com/integrations/oauth/authorize` | `$VERCEL_EMULATOR_URL/oauth/authorize` |
-| `https://api.vercel.com/login/oauth/token` | `$VERCEL_EMULATOR_URL/login/oauth/token` |
-| `https://api.vercel.com/login/oauth/userinfo` | `$VERCEL_EMULATOR_URL/login/oauth/userinfo` |
+| Real Vercel URL                                   | Emulator URL                                |
+| ------------------------------------------------- | ------------------------------------------- |
+| `https://vercel.com/integrations/oauth/authorize` | `$VERCEL_EMULATOR_URL/oauth/authorize`      |
+| `https://api.vercel.com/login/oauth/token`        | `$VERCEL_EMULATOR_URL/login/oauth/token`    |
+| `https://api.vercel.com/login/oauth/userinfo`     | `$VERCEL_EMULATOR_URL/login/oauth/userinfo` |
 
 ### Auth.js / NextAuth.js
 

@@ -2,7 +2,7 @@
 
 Resend email API emulation with email sending, domain management, API keys, audiences, contacts, and a local inbox for captured messages.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## SDK Support
 
@@ -19,6 +19,7 @@ npm install @emulators/resend
 ## Endpoints
 
 ### Emails
+
 - `POST /emails` — send single email
 - `POST /emails/batch` — send up to 100 emails
 - `GET /emails` — list sent emails
@@ -26,6 +27,7 @@ npm install @emulators/resend
 - `POST /emails/:id/cancel` — cancel scheduled email
 
 ### Domains
+
 - `POST /domains` — create domain
 - `GET /domains` — list domains
 - `GET /domains/:id` — get domain
@@ -33,11 +35,13 @@ npm install @emulators/resend
 - `POST /domains/:id/verify` — trigger domain verification
 
 ### API Keys
+
 - `POST /api-keys` — create API key
 - `GET /api-keys` — list API keys
 - `DELETE /api-keys/:id` — delete API key
 
 ### Audiences & Contacts
+
 - `POST /audiences` — create audience
 - `GET /audiences` — list audiences
 - `DELETE /audiences/:id` — delete audience
@@ -46,6 +50,7 @@ npm install @emulators/resend
 - `DELETE /audiences/:audience_id/contacts/:id` — delete contact
 
 ### Inbox
+
 - `GET /inbox` — list captured emails
 - `GET /inbox/:id` — view captured email
 
@@ -63,5 +68,5 @@ resend:
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

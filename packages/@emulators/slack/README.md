@@ -2,7 +2,7 @@
 
 Fully stateful Slack Web API emulation with channels, messages, threads, reactions, OAuth v2, and incoming webhooks.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -13,6 +13,7 @@ npm install @emulators/slack
 ## Endpoints
 
 ### Auth & Chat
+
 - `POST /api/auth.test` — test authentication
 - `POST /api/chat.postMessage` — post message (supports threads via `thread_ts`)
 - `POST /api/chat.update` — update message
@@ -20,6 +21,7 @@ npm install @emulators/slack
 - `POST /api/chat.meMessage` — /me message
 
 ### Conversations
+
 - `POST /api/conversations.list` — list channels (cursor pagination)
 - `POST /api/conversations.info` — get channel info
 - `POST /api/conversations.create` — create channel
@@ -29,17 +31,20 @@ npm install @emulators/slack
 - `POST /api/conversations.members` — list members
 
 ### Users & Reactions
+
 - `POST /api/users.list` — list users (cursor pagination)
 - `POST /api/users.info` — get user info
 - `POST /api/users.lookupByEmail` — lookup by email
 - `POST /api/reactions.add` / `reactions.remove` / `reactions.get` — manage reactions
 
 ### Team, Bots & Webhooks
+
 - `POST /api/team.info` — workspace info
 - `POST /api/bots.info` — bot info
 - `POST /services/:teamId/:botId/:webhookId` — incoming webhook
 
 ### OAuth
+
 - `GET /oauth/v2/authorize` — authorization (shows user picker)
 - `POST /api/oauth.v2.access` — token exchange
 
@@ -75,5 +80,5 @@ slack:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/slack)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

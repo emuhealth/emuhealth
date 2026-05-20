@@ -1,11 +1,11 @@
-# emulate
+# emuhealth
 
 Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.
 
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services start with sensible defaults. No config file needed:
@@ -27,39 +27,39 @@ All services start with sensible defaults. No config file needed:
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom port
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service vercel
+npx emuhealth init --service vercel
 
 # Scaffold a Vercel Go Function preview route
-npx emulate vercel init
+npx emuhealth vercel init
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ### Options
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `-p, --port` | `4000` | Base port (auto-increments per service) |
-| `-s, --service` | all | Comma-separated services to enable |
-| `--seed` | auto-detect | Path to seed config (YAML or JSON) |
-| `--base-url` | none | Override advertised base URL (supports `{service}` template) |
-| `--portless` | off | Serve over HTTPS via portless (auto-registers aliases) |
+| Flag            | Default     | Description                                                  |
+| --------------- | ----------- | ------------------------------------------------------------ |
+| `-p, --port`    | `4000`      | Base port (auto-increments per service)                      |
+| `-s, --service` | all         | Comma-separated services to enable                           |
+| `--seed`        | auto-detect | Path to seed config (YAML or JSON)                           |
+| `--base-url`    | none        | Override advertised base URL (supports `{service}` template) |
+| `--portless`    | off         | Serve over HTTPS via portless (auto-registers aliases)       |
 
 The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 
@@ -71,8 +71,8 @@ The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 # Start the portless proxy (first time only)
 portless proxy start
 
-# Start emulate with portless integration
-npx emulate start --portless
+# Start emuhealth with portless integration
+npx emuhealth start --portless
 ```
 
 Each service registers as a portless alias and gets a named HTTPS URL:
@@ -83,14 +83,14 @@ google  https://google.emulate.localhost
 slack   https://slack.emulate.localhost
 ```
 
-If portless is not installed, emulate will prompt to install it (`npm i -g portless`).
+If portless is not installed, emuhealth will prompt to install it (`npm i -g portless`).
 
-The `--portless` flag overwrites any existing portless aliases matching `*.emulate`. Aliases are removed automatically when emulate shuts down.
+The `--portless` flag overwrites any existing portless aliases matching `*.emulate`. Aliases are removed automatically when emuhealth shuts down.
 
 For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMULATE_BASE_URL` env var:
 
 ```bash
-npx emulate start --base-url "https://{service}.myproxy.test"
+npx emuhealth start --base-url "https://{service}.myproxy.test"
 ```
 
 The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emulate start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
@@ -105,66 +105,69 @@ github:
 ## Programmatic API
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 Each call to `createEmulator` starts a single service:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const github = await createEmulator({ service: 'github', port: 4001 })
-const vercel = await createEmulator({ service: 'vercel', port: 4002 })
+const github = await createEmulator({ service: "github", port: 4001 });
+const vercel = await createEmulator({ service: "vercel", port: 4002 });
 
-github.url   // 'http://localhost:4001'
-vercel.url   // 'http://localhost:4002'
+github.url; // 'http://localhost:4001'
+vercel.url; // 'http://localhost:4002'
 
-await github.close()
-await vercel.close()
+await github.close();
+await vercel.close();
 ```
 
 ### Vitest / Jest setup
 
 ```typescript
 // vitest.setup.ts
-import { createEmulator, type Emulator } from 'emulate'
+import { createEmulator, type Emulator } from "emuhealth";
 
-let github: Emulator
-let vercel: Emulator
+let github: Emulator;
+let vercel: Emulator;
 
 beforeAll(async () => {
-  ;[github, vercel] = await Promise.all([
-    createEmulator({ service: 'github', port: 4001 }),
-    createEmulator({ service: 'vercel', port: 4002 }),
-  ])
-  process.env.GITHUB_EMULATOR_URL = github.url
-  process.env.VERCEL_EMULATOR_URL = vercel.url
-})
+  [github, vercel] = await Promise.all([
+    createEmulator({ service: "github", port: 4001 }),
+    createEmulator({ service: "vercel", port: 4002 }),
+  ]);
+  process.env.GITHUB_EMULATOR_URL = github.url;
+  process.env.VERCEL_EMULATOR_URL = vercel.url;
+});
 
-afterEach(() => { github.reset(); vercel.reset() })
-afterAll(() => Promise.all([github.close(), vercel.close()]))
+afterEach(() => {
+  github.reset();
+  vercel.reset();
+});
+afterAll(() => Promise.all([github.close(), vercel.close()]));
 ```
 
 ### Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `service` | *(required)* | Service name: `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, `'okta'`, `'aws'`, `'resend'`, `'stripe'`, `'mongoatlas'`, or `'clerk'` |
-| `port` | `4000` | Port for the HTTP server |
-| `seed` | none | Inline seed data (same shape as YAML config) |
-| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
+| Option    | Default      | Description                                                                                                                                                                                                                                                                                       |
+| --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `service` | _(required)_ | Service name: `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, `'okta'`, `'aws'`, `'resend'`, `'stripe'`, `'mongoatlas'`, or `'clerk'`                                                                                                                                    |
+| `port`    | `4000`       | Port for the HTTP server                                                                                                                                                                                                                                                                          |
+| `seed`    | none         | Inline seed data (same shape as YAML config)                                                                                                                                                                                                                                                      |
+| `baseUrl` | none         | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
 
 ### Instance methods
 
-| Method | Description |
-|--------|-------------|
-| `url` | Base URL of the running server |
-| `reset()` | Wipe the store and replay seed data |
+| Method    | Description                                  |
+| --------- | -------------------------------------------- |
+| `url`     | Base URL of the running server               |
+| `reset()` | Wipe the store and replay seed data          |
 | `close()` | Shut down the HTTP server, returns a Promise |
 
 ## Configuration
 
-Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emulate init` to generate a starter file.
+Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
 
 ```yaml
 tokens:
@@ -368,6 +371,7 @@ github:
 JWT authentication: sign a JWT with `{ iss: "<app_id>" }` using the app's private key (RS256). The emulator verifies the signature and resolves the app.
 
 **App webhook delivery**: When events occur on repos where a GitHub App is installed, the emulator mirrors real GitHub behavior:
+
 - All webhook payloads (including repo and org hooks) include an `installation` field with `{ id, node_id }`.
 - If the app has a `webhook_url`, the emulator delivers the event there with the `installation` field and (if configured) an `X-Hub-Signature-256` header signed with `webhook_secret`.
 
@@ -412,6 +416,7 @@ microsoft:
 Every endpoint below is fully stateful with Vercel-style JSON responses and cursor-based pagination. The native Go runtime implements this same Vercel REST surface for local CLI runs and Vercel Go Function previews.
 
 ### User & Teams
+
 - `GET /v2/user` - authenticated user
 - `PATCH /v2/user` - update user
 - `GET /v2/teams` - list teams (cursor paginated)
@@ -422,6 +427,7 @@ Every endpoint below is fully stateful with Vercel-style JSON responses and curs
 - `POST /v2/teams/:teamId/members` - add member
 
 ### Projects
+
 - `POST /v11/projects` - create project (with optional env vars and git integration)
 - `GET /v10/projects` - list projects (search, cursor pagination)
 - `GET /v9/projects/:idOrName` - get project (includes env vars)
@@ -431,6 +437,7 @@ Every endpoint below is fully stateful with Vercel-style JSON responses and curs
 - `PATCH /v1/projects/:idOrName/protection-bypass` - manage bypass secrets
 
 ### Deployments
+
 - `POST /v13/deployments` - create deployment (auto-transitions to READY)
 - `GET /v13/deployments/:idOrUrl` - get deployment (by ID or URL)
 - `GET /v6/deployments` - list deployments (filter by project, target, state)
@@ -442,6 +449,7 @@ Every endpoint below is fully stateful with Vercel-style JSON responses and curs
 - `POST /v2/files` - upload file (by SHA digest)
 
 ### Domains
+
 - `POST /v10/projects/:idOrName/domains` - add domain (with verification challenge)
 - `GET /v9/projects/:idOrName/domains` - list domains
 - `GET /v9/projects/:idOrName/domains/:domain` - get domain
@@ -450,6 +458,7 @@ Every endpoint below is fully stateful with Vercel-style JSON responses and curs
 - `POST /v9/projects/:idOrName/domains/:domain/verify` - verify domain
 
 ### Environment Variables
+
 - `GET /v10/projects/:idOrName/env` - list env vars (with decrypt option)
 - `POST /v10/projects/:idOrName/env` - create env vars (single, batch, upsert)
 - `GET /v10/projects/:idOrName/env/:id` - get env var
@@ -463,6 +472,7 @@ Every endpoint below is fully stateful. Creates, updates, and deletes persist in
 The experimental native Go runtime implements the core SDK-facing GitHub surface for local CLI runs and Vercel Go Function previews: users, orgs, seeded repositories, repository CRUD, topics, languages, branches, refs, issues, issue comments, pull requests, OAuth authorize/token flows, rate limit, and metadata. The JavaScript `@emulators/github` package remains the broader GitHub emulator while native parity continues to expand.
 
 ### Users
+
 - `GET /user` - authenticated user
 - `PATCH /user` - update profile
 - `GET /users/:username` - get user
@@ -473,6 +483,7 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `GET /users/:username/following` - list following
 
 ### Repositories
+
 - `GET /repos/:owner/:repo` - get repo
 - `POST /user/repos` - create user repo
 - `POST /orgs/:org/repos` - create org repo
@@ -489,6 +500,7 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `GET /repos/:owner/:repo/tags` - list tags
 
 ### Issues
+
 - `GET /repos/:owner/:repo/issues` - list (filter by state, labels, assignee, milestone, creator, since)
 - `POST /repos/:owner/:repo/issues` - create
 - `GET /repos/:owner/:repo/issues/:number` - get
@@ -499,6 +511,7 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `POST/DELETE /repos/:owner/:repo/issues/:number/assignees` - manage assignees
 
 ### Pull Requests
+
 - `GET /repos/:owner/:repo/pulls` - list (filter by state, head, base)
 - `POST /repos/:owner/:repo/pulls` - create
 - `GET /repos/:owner/:repo/pulls/:number` - get
@@ -510,12 +523,14 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `PUT /repos/:owner/:repo/pulls/:number/update-branch` - update branch
 
 ### Comments
+
 - Issue comments: full CRUD on `/repos/:owner/:repo/issues/:number/comments`
 - Review comments: full CRUD on `/repos/:owner/:repo/pulls/:number/comments`
 - Commit comments: full CRUD on `/repos/:owner/:repo/commits/:sha/comments`
 - Repo-wide listings for each type
 
 ### Reviews
+
 - `GET /repos/:owner/:repo/pulls/:number/reviews` - list
 - `POST /repos/:owner/:repo/pulls/:number/reviews` - create (with inline comments)
 - `GET/PUT /repos/:owner/:repo/pulls/:number/reviews/:id` - get/update
@@ -523,10 +538,12 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `PUT /repos/:owner/:repo/pulls/:number/reviews/:id/dismissals` - dismiss
 
 ### Labels & Milestones
+
 - Labels: full CRUD, add/remove from issues, replace all
 - Milestones: full CRUD, state transitions, issue counts
 
 ### Branches & Git Data
+
 - Branches: list, get, protection CRUD (status checks, PR reviews, enforce admins)
 - Refs: get, match, create, update, delete
 - Commits: get, create
@@ -535,21 +552,25 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - Tags: get, create
 
 ### Organizations & Teams
+
 - Orgs: get, update, list
 - Org members: list, check, remove, get/set membership
 - Teams: full CRUD, members, repos
 
 ### Releases
+
 - Releases: full CRUD, latest, by tag
 - Release assets: full CRUD, upload
 - Generate release notes
 
 ### Webhooks
+
 - Repo webhooks: full CRUD, ping, test, deliveries
 - Org webhooks: full CRUD, ping
 - Real HTTP delivery to registered URLs on all state changes
 
 ### Search
+
 - `GET /search/repositories` - full query syntax (user, org, language, topic, stars, forks, etc.)
 - `GET /search/issues` - issues + PRs (repo, is, author, label, milestone, state, etc.)
 - `GET /search/users` - users + orgs
@@ -559,6 +580,7 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - `GET /search/labels` - label search
 
 ### Actions
+
 - Workflows: list, get, enable/disable, dispatch
 - Workflow runs: list, get, cancel, rerun, delete, logs
 - Jobs: list, get, logs
@@ -566,11 +588,13 @@ The experimental native Go runtime implements the core SDK-facing GitHub surface
 - Secrets: repo + org CRUD
 
 ### Checks
+
 - Check runs: create, update, get, annotations, rerequest, list by ref/suite
 - Check suites: create, get, preferences, rerequest, list by ref
 - Automatic suite status rollup from check run results
 
 ### Misc
+
 - `GET /rate_limit` - rate limit status
 - `GET /meta` - server metadata
 - `GET /octocat` - ASCII art
@@ -611,6 +635,7 @@ OAuth 2.0, OpenID Connect, and mutable Google Workspace-style surfaces for local
 Fully stateful Slack Web API emulation with channels, messages, threads, reactions, OAuth v2, and incoming webhooks.
 
 ### Auth & Chat
+
 - `POST /api/auth.test` - test authentication
 - `POST /api/chat.postMessage` - post message (supports threads via `thread_ts`)
 - `POST /api/chat.update` - update message
@@ -618,6 +643,7 @@ Fully stateful Slack Web API emulation with channels, messages, threads, reactio
 - `POST /api/chat.meMessage` - /me message
 
 ### Conversations
+
 - `POST /api/conversations.list` - list channels (cursor pagination)
 - `POST /api/conversations.info` - get channel info
 - `POST /api/conversations.create` - create channel
@@ -627,17 +653,20 @@ Fully stateful Slack Web API emulation with channels, messages, threads, reactio
 - `POST /api/conversations.members` - list members
 
 ### Users & Reactions
+
 - `POST /api/users.list` - list users (cursor pagination)
 - `POST /api/users.info` - get user info
 - `POST /api/users.lookupByEmail` - lookup by email
 - `POST /api/reactions.add` / `reactions.remove` / `reactions.get` - manage reactions
 
 ### Team, Bots & Webhooks
+
 - `POST /api/team.info` - workspace info
 - `POST /api/bots.info` - bot info
 - `POST /services/:teamId/:botId/:webhookId` - incoming webhook
 
 ### OAuth
+
 - `GET /oauth/v2/authorize` - authorization (shows user picker)
 - `POST /api/oauth.v2.access` - token exchange
 
@@ -669,7 +698,7 @@ Microsoft Entra ID (Azure AD) v2.0 OAuth 2.0 and OpenID Connect emulation with a
 
 S3, SQS, DynamoDB, IAM, and STS emulation with AWS SDK-compatible S3 paths, AWS JSON RPC endpoints for SQS and DynamoDB, and AWS Query endpoints for SQS/IAM/STS. Query and REST XML operations return AWS-compatible XML. The native Go runtime is verified against current AWS SDK v3 clients for SQS, DynamoDB, IAM, and STS; SQS and DynamoDB use JSON target requests, and IAM/STS use AWS Query XML.
 
-To expose the native AWS emulator in a Vercel preview without separate infrastructure, run `npx emulate vercel init --service aws`. The generated route serves AWS at `/emulate/aws/*`.
+To expose the native AWS emulator in a Vercel preview without separate infrastructure, run `npx emuhealth vercel init --service aws`. The generated route serves AWS at `/emulate/aws/*`.
 
 ### S3
 
@@ -687,6 +716,7 @@ S3 routes use root paths matching the real AWS S3 wire format, so the official A
 - `DELETE /:bucket/:key` - delete object
 
 ### SQS
+
 Manual SQS requests can use `POST /sqs/` with an `Action` form parameter. In the native Go runtime, `@aws-sdk/client-sqs` v3 can use the `/sqs/` endpoint directly; the SDK sends `X-Amz-Target: AmazonSQS.<Action>` JSON requests and receives JSON responses.
 
 - `CreateQueue`, `ListQueues`, `GetQueueUrl`, `GetQueueAttributes`
@@ -694,6 +724,7 @@ Manual SQS requests can use `POST /sqs/` with an `Action` form parameter. In the
 - `PurgeQueue`, `DeleteQueue`
 
 ### DynamoDB
+
 In the native Go runtime, `@aws-sdk/client-dynamodb` v3 can use the `/dynamodb/` endpoint directly. The SDK sends `X-Amz-Target: DynamoDB_20120810.<Action>` JSON requests and receives JSON responses.
 
 - `CreateTable`, `DescribeTable`, `ListTables`, `UpdateTable`, `DeleteTable`
@@ -702,6 +733,7 @@ In the native Go runtime, `@aws-sdk/client-dynamodb` v3 can use the `/dynamodb/`
 - `TagResource`, `UntagResource`, `ListTagsOfResource`
 
 ### IAM
+
 Manual IAM requests can use `POST /iam/` with an `Action` form parameter. In the native Go runtime, `@aws-sdk/client-iam` v3 can use the `/iam/` endpoint directly.
 
 - `CreateUser`, `GetUser`, `ListUsers`, `DeleteUser`
@@ -709,6 +741,7 @@ Manual IAM requests can use `POST /iam/` with an `Action` form parameter. In the
 - `CreateRole`, `GetRole`, `ListRoles`, `DeleteRole`
 
 ### STS
+
 Manual STS requests can use `POST /sts/` with an `Action` form parameter. In the native Go runtime, `@aws-sdk/client-sts` v3 can use the `/sts/` endpoint directly.
 
 - `GetCallerIdentity`, `AssumeRole`
@@ -719,7 +752,7 @@ Resend email API emulation with local capture for sent emails, domains, API keys
 
 The experimental native Go runtime serves the same current Resend routes, supports explicit JSON seed configs for Resend through `--seed`, and is verified against the official `resend` SDK for emails, batch email sends, domains, API keys, and legacy audience contacts.
 
-To expose the native Resend emulator in a Vercel preview without separate infrastructure, run `npx emulate vercel init --service resend`. The generated route serves Resend at `/emulate/resend/*`.
+To expose the native Resend emulator in a Vercel preview without separate infrastructure, run `npx emuhealth vercel init --service resend`. The generated route serves Resend at `/emulate/resend/*`.
 
 - `POST /emails`, `POST /emails/batch`, `GET /emails`, `GET /emails/:id`, `POST /emails/:id/cancel`
 - `POST /domains`, `GET /domains`, `GET /domains/:id`, `DELETE /domains/:id`, `POST /domains/:id/verify`
@@ -737,16 +770,16 @@ Use `@emulators/adapter-next` to run emulator routes on the same origin as your 
 For zero infra Vercel preview deployments with the native Go runtime, scaffold a Go Function and rewrite:
 
 ```bash
-npx emulate vercel init
+npx emuhealth vercel init
 ```
 
 This creates:
 
-- `api/emulate.go`, a Vercel Go Function using `github.com/vercel-labs/emulate/vercel`
+- `api/emulate.go`, a Vercel Go Function using `github.com/emuhealth/emuhealth/vercel`
 - `vercel.json`, with `/emulate/:path*` rewritten to `/api/emulate?path=:path*`
-- `go.mod`, pinned to the installed `emulate` package version
+- `go.mod`, pinned to the installed `emuhealth` package version
 
-The scaffold currently enables the native `aws`, `github`, `resend`, and `vercel` handlers. Use `npx emulate vercel init --service github` to limit the function to one service.
+The scaffold currently enables the native `aws`, `github`, `resend`, and `vercel` handlers. Use `npx emuhealth vercel init --service github` to limit the function to one service.
 
 State uses warm memory by default: cold starts reset to a fresh store, warm invocations reuse mutations, and concurrent function instances can diverge. For snapshots across cold starts, implement `vercel.Persistence` in `api/emulate.go` and pass it to `emulate.NewHandler`.
 
@@ -764,30 +797,30 @@ Create a catch-all route that serves emulator traffic in-process:
 
 ```typescript
 // app/emulate/[...path]/route.ts
-import { createEmulateHandler } from '@emulators/adapter-next'
-import * as github from '@emulators/github'
-import * as google from '@emulators/google'
+import { createEmulateHandler } from "@emulators/adapter-next";
+import * as github from "@emulators/github";
+import * as google from "@emulators/google";
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
   services: {
     github: {
       emulator: github,
       seed: {
-        users: [{ login: 'octocat', name: 'The Octocat' }],
-        repos: [{ owner: 'octocat', name: 'hello-world', auto_init: true }],
+        users: [{ login: "octocat", name: "The Octocat" }],
+        repos: [{ owner: "octocat", name: "hello-world", auto_init: true }],
       },
     },
     google: {
       emulator: google,
       seed: {
-        users: [{ email: 'test@example.com', name: 'Test User' }],
+        users: [{ email: "test@example.com", name: "Test User" }],
       },
     },
   },
-})
+});
 ```
 
-Embedded mode is the broadest zero infra path for JavaScript emulator packages on Vercel preview deployments. The emulator code runs in the Next.js function, so OAuth callback URLs can point at the preview origin. For native Go `aws`, `github`, `resend`, and `vercel` previews, use `npx emulate vercel init`.
+Embedded mode is the broadest zero infra path for JavaScript emulator packages on Vercel preview deployments. The emulator code runs in the Next.js function, so OAuth callback URLs can point at the preview origin. For native Go `aws`, `github`, `resend`, and `vercel` previews, use `npx emuhealth vercel init`.
 
 ### Native runtime proxy
 
@@ -795,14 +828,14 @@ Use `createEmulateProxy` when a native runtime is running separately and the Nex
 
 ```typescript
 // app/emulate/[...path]/route.ts
-import { createEmulateProxy } from '@emulators/adapter-next'
+import { createEmulateProxy } from "@emulators/adapter-next";
 
 export const { GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS } = createEmulateProxy({
   targets: {
-    resend: 'http://127.0.0.1:4018',
-    aws: 'http://127.0.0.1:4020',
+    resend: "http://127.0.0.1:4018",
+    aws: "http://127.0.0.1:4020",
   },
-})
+});
 ```
 
 With `targets`, the first path segment selects the service and is stripped before forwarding. `/emulate/resend/emails` forwards to `http://127.0.0.1:4018/emails`, while response `Location` headers and HTML links are rewritten back to `/emulate/resend/*`.
@@ -812,19 +845,19 @@ If multiple services share one native runtime URL, keep using `targets` and poin
 ```typescript
 export const { GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS } = createEmulateProxy({
   targets: {
-    resend: 'http://127.0.0.1:4000',
-    aws: 'http://127.0.0.1:4000',
+    resend: "http://127.0.0.1:4000",
+    aws: "http://127.0.0.1:4000",
   },
-})
+});
 ```
 
 Use single `target` only when the upstream expects every path segment after the public route prefix:
 
 ```typescript
 export const { GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS } = createEmulateProxy({
-  routePrefix: '/emulate',
-  target: 'http://127.0.0.1:4020',
-})
+  routePrefix: "/emulate",
+  target: "http://127.0.0.1:4020",
+});
 ```
 
 Single target mode preserves every path segment. `/emulate/aws/sqs` forwards to `http://127.0.0.1:4020/aws/sqs`. For deployed previews, the target URL must be reachable from the Next.js serverless function.
@@ -834,19 +867,17 @@ Single target mode preserves every path segment. `/emulate/aws/sqs` forwards to 
 Point your provider at the emulator paths on the same origin:
 
 ```typescript
-import GitHub from 'next-auth/providers/github'
+import GitHub from "next-auth/providers/github";
 
-const baseUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : 'http://localhost:3000'
+const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
 
 GitHub({
-  clientId: 'any-value',
-  clientSecret: 'any-value',
+  clientId: "any-value",
+  clientSecret: "any-value",
   authorization: { url: `${baseUrl}/emulate/github/login/oauth/authorize` },
   token: { url: `${baseUrl}/emulate/github/login/oauth/access_token` },
   userinfo: { url: `${baseUrl}/emulate/github/user` },
-})
+});
 ```
 
 No `oauth_apps` need to be seeded. When none are configured, the emulator skips `client_id`, `client_secret`, and `redirect_uri` validation.
@@ -857,17 +888,17 @@ Emulator UI pages use bundled fonts. Wrap your Next.js config to include them in
 
 ```typescript
 // next.config.mjs
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmulate } from "@emulators/adapter-next";
 
 export default withEmulate({
   // your normal Next.js config
-})
+});
 ```
 
 If you mount the catch-all at a custom path, pass the matching prefix:
 
 ```typescript
-export default withEmulate(nextConfig, { routePrefix: '/api/emulate' })
+export default withEmulate(nextConfig, { routePrefix: "/api/emulate" });
 ```
 
 ### Persistence
@@ -875,18 +906,22 @@ export default withEmulate(nextConfig, { routePrefix: '/api/emulate' })
 By default, emulator state is in-memory and resets on every cold start. To persist state across restarts, pass a `persistence` adapter:
 
 ```typescript
-import { createEmulateHandler } from '@emulators/adapter-next'
-import * as github from '@emulators/github'
+import { createEmulateHandler } from "@emulators/adapter-next";
+import * as github from "@emulators/github";
 
 const kvAdapter = {
-  async load() { return await kv.get('emulate-state') },
-  async save(data: string) { await kv.set('emulate-state', data) },
-}
+  async load() {
+    return await kv.get("emulate-state");
+  },
+  async save(data: string) {
+    await kv.set("emulate-state", data);
+  },
+};
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
   services: { github: { emulator: github } },
   persistence: kvAdapter,
-})
+});
 ```
 
 For local development, `@emulators/core` ships `filePersistence`:

@@ -1,7 +1,7 @@
 ---
 name: apple
 description: Emulated Sign in with Apple / Apple OIDC for local development and testing. Use when the user needs to test Apple sign-in locally, emulate Apple OIDC discovery, handle Apple token exchange, configure Apple OAuth clients, or work with Apple userinfo without hitting real Apple APIs. Triggers include "Apple OAuth", "emulate Apple", "mock Apple login", "test Apple sign-in", "Sign in with Apple", "Apple OIDC", "local Apple auth", or any task requiring a local Apple OAuth/OIDC provider.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Apple Sign In Emulator
@@ -12,7 +12,7 @@ Sign in with Apple emulation with authorization code flow, PKCE support, RS256 I
 
 ```bash
 # Apple only
-npx emulate --service apple
+npx emuhealth --service apple
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -21,9 +21,9 @@ npx emulate --service apple
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from "emuhealth";
 
-const apple = await createEmulator({ service: 'apple', port: 4004 })
+const apple = await createEmulator({ service: "apple", port: 4004 });
 // apple.url === 'http://localhost:4004'
 ```
 
@@ -37,48 +37,51 @@ APPLE_EMULATOR_URL=http://localhost:4004
 
 ### OAuth URL Mapping
 
-| Real Apple URL | Emulator URL |
-|----------------|-------------|
+| Real Apple URL                                               | Emulator URL                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------ |
 | `https://appleid.apple.com/.well-known/openid-configuration` | `$APPLE_EMULATOR_URL/.well-known/openid-configuration` |
-| `https://appleid.apple.com/auth/authorize` | `$APPLE_EMULATOR_URL/auth/authorize` |
-| `https://appleid.apple.com/auth/token` | `$APPLE_EMULATOR_URL/auth/token` |
-| `https://appleid.apple.com/auth/keys` | `$APPLE_EMULATOR_URL/auth/keys` |
-| `https://appleid.apple.com/auth/revoke` | `$APPLE_EMULATOR_URL/auth/revoke` |
+| `https://appleid.apple.com/auth/authorize`                   | `$APPLE_EMULATOR_URL/auth/authorize`                   |
+| `https://appleid.apple.com/auth/token`                       | `$APPLE_EMULATOR_URL/auth/token`                       |
+| `https://appleid.apple.com/auth/keys`                        | `$APPLE_EMULATOR_URL/auth/keys`                        |
+| `https://appleid.apple.com/auth/revoke`                      | `$APPLE_EMULATOR_URL/auth/revoke`                      |
 
 ### Auth.js / NextAuth.js
 
 ```typescript
-import Apple from '@auth/core/providers/apple'
+import Apple from "@auth/core/providers/apple";
 
 Apple({
   clientId: process.env.APPLE_CLIENT_ID,
   clientSecret: process.env.APPLE_CLIENT_SECRET,
   authorization: {
     url: `${process.env.APPLE_EMULATOR_URL}/auth/authorize`,
-    params: { scope: 'openid email name', response_mode: 'form_post' },
+    params: { scope: "openid email name", response_mode: "form_post" },
   },
   token: {
     url: `${process.env.APPLE_EMULATOR_URL}/auth/token`,
   },
   jwks_endpoint: `${process.env.APPLE_EMULATOR_URL}/auth/keys`,
-})
+});
 ```
 
 ### Passport.js
 
 ```typescript
-import { Strategy as AppleStrategy } from 'passport-apple'
+import { Strategy as AppleStrategy } from "passport-apple";
 
-const APPLE_URL = process.env.APPLE_EMULATOR_URL ?? 'https://appleid.apple.com'
+const APPLE_URL = process.env.APPLE_EMULATOR_URL ?? "https://appleid.apple.com";
 
-new AppleStrategy({
-  clientID: process.env.APPLE_CLIENT_ID,
-  teamID: process.env.APPLE_TEAM_ID,
-  keyID: process.env.APPLE_KEY_ID,
-  callbackURL: 'http://localhost:3000/api/auth/callback/apple',
-  authorizationURL: `${APPLE_URL}/auth/authorize`,
-  tokenURL: `${APPLE_URL}/auth/token`,
-}, verifyCallback)
+new AppleStrategy(
+  {
+    clientID: process.env.APPLE_CLIENT_ID,
+    teamID: process.env.APPLE_TEAM_ID,
+    keyID: process.env.APPLE_KEY_ID,
+    callbackURL: "http://localhost:3000/api/auth/callback/apple",
+    authorizationURL: `${APPLE_URL}/auth/authorize`,
+    tokenURL: `${APPLE_URL}/auth/token`,
+  },
+  verifyCallback,
+);
 ```
 
 ## Seed Config
@@ -155,13 +158,13 @@ response_mode=form_post"
 
 Query parameters:
 
-| Param | Description |
-|-------|-------------|
-| `client_id` | OAuth client ID (Apple Services ID) |
-| `redirect_uri` | Callback URL |
-| `scope` | Space-separated scopes (`openid email name`) |
-| `state` | Opaque state for CSRF protection |
-| `nonce` | Nonce for ID token (optional) |
+| Param           | Description                                   |
+| --------------- | --------------------------------------------- |
+| `client_id`     | OAuth client ID (Apple Services ID)           |
+| `redirect_uri`  | Callback URL                                  |
+| `scope`         | Space-separated scopes (`openid email name`)  |
+| `state`         | Opaque state for CSRF protection              |
+| `nonce`         | Nonce for ID token (optional)                 |
 | `response_mode` | `query` (default), `form_post`, or `fragment` |
 
 The emulator renders an HTML page where you select a seeded user. After selection, it redirects (or auto-submits a form for `form_post`) to `redirect_uri` with `code` and `state`. On the **first** authorization per user/client pair, a `user` JSON blob is also included (matching Apple's real behavior).

@@ -19,12 +19,12 @@ describe("createVercelScaffold", () => {
 
     expect(result.created.sort()).toEqual(["api/emulate.go", "go.mod", "vercel.json"]);
     expect(readFileSync(join(cwd, "api/emulate.go"), "utf-8")).toContain(
-      'emulate "github.com/vercel-labs/emulate/vercel"',
+      'emulate "github.com/emuhealth/emuhealth/vercel"',
     );
     expect(readFileSync(join(cwd, "api/emulate.go"), "utf-8")).toContain(
       'Services: []string{"aws", "github", "resend", "vercel"}',
     );
-    expect(readFileSync(join(cwd, "go.mod"), "utf-8")).toContain("require github.com/vercel-labs/emulate v0.5.0");
+    expect(readFileSync(join(cwd, "go.mod"), "utf-8")).toContain("require github.com/emuhealth/emuhealth v0.5.0");
     const vercelConfig = JSON.parse(readFileSync(join(cwd, "vercel.json"), "utf-8")) as {
       rewrites: Array<{ source: string; destination: string }>;
     };
@@ -145,7 +145,7 @@ require (
     const result = createVercelScaffold({ cwd, version: "0.5.0" });
 
     expect(result.updated).toContain("go.mod");
-    expect(readFileSync(join(cwd, "go.mod"), "utf-8")).toContain("github.com/vercel-labs/emulate v0.5.0");
+    expect(readFileSync(join(cwd, "go.mod"), "utf-8")).toContain("github.com/emuhealth/emuhealth v0.5.0");
   });
 
   it("updates an older Go directive to the required Vercel function version", () => {
@@ -156,7 +156,7 @@ require (
 
 go 1.20
 
-require github.com/vercel-labs/emulate v0.5.0
+require github.com/emuhealth/emuhealth v0.5.0
 `,
     );
 
@@ -174,7 +174,7 @@ require github.com/vercel-labs/emulate v0.5.0
       join(cwd, "go.mod"),
       `module example.com/app
 
-require github.com/vercel-labs/emulate v0.5.0
+require github.com/emuhealth/emuhealth v0.5.0
 `,
     );
 
@@ -185,7 +185,7 @@ require github.com/vercel-labs/emulate v0.5.0
 
 go 1.24
 
-require github.com/vercel-labs/emulate v0.5.0`);
+require github.com/emuhealth/emuhealth v0.5.0`);
   });
 
   it("updates an existing Go dependency to the current scaffold version", () => {
@@ -197,7 +197,7 @@ require github.com/vercel-labs/emulate v0.5.0`);
 go 1.24
 
 require (
-\tgithub.com/vercel-labs/emulate v0.4.0 // indirect
+\tgithub.com/emuhealth/emuhealth v0.4.0 // indirect
 )
 `,
     );
@@ -206,7 +206,7 @@ require (
 
     expect(result.updated).toContain("go.mod");
     const content = readFileSync(join(cwd, "go.mod"), "utf-8");
-    expect(content).toContain("github.com/vercel-labs/emulate v0.5.0 // indirect");
+    expect(content).toContain("github.com/emuhealth/emuhealth v0.5.0 // indirect");
     expect(content).not.toContain("v0.4.0");
   });
 

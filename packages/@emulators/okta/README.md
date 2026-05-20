@@ -2,7 +2,7 @@
 
 Okta identity provider emulation with OAuth 2.0 / OIDC, user management, groups, apps, and authorization servers.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -27,6 +27,7 @@ Default org server and custom authorization server paths (`/oauth2/:authServerId
 - `GET /oauth2/v1/logout` — end session
 
 ### Users
+
 - `GET /api/v1/users` — list users
 - `POST /api/v1/users` — create user
 - `GET /api/v1/users/me` — current user (from token)
@@ -42,6 +43,7 @@ Default org server and custom authorization server paths (`/oauth2/:authServerId
 - `POST /api/v1/users/:userId/lifecycle/reactivate` — reactivate
 
 ### Groups
+
 - `GET /api/v1/groups` — list groups
 - `POST /api/v1/groups` — create group
 - `GET /api/v1/groups/:groupId` — get group
@@ -52,6 +54,7 @@ Default org server and custom authorization server paths (`/oauth2/:authServerId
 - `DELETE /api/v1/groups/:groupId/users/:userId` — remove user from group
 
 ### Apps
+
 - `GET /api/v1/apps` — list apps
 - `POST /api/v1/apps` — create app
 - `GET /api/v1/apps/:appId` — get app
@@ -64,6 +67,7 @@ Default org server and custom authorization server paths (`/oauth2/:authServerId
 - `POST /api/v1/apps/:appId/lifecycle/deactivate` — deactivate app
 
 ### Authorization Servers
+
 - `GET /api/v1/authorizationServers` — list
 - `POST /api/v1/authorizationServers` — create
 - `GET /api/v1/authorizationServers/:authServerId` — get
@@ -94,5 +98,5 @@ okta:
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

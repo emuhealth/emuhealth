@@ -3,8 +3,8 @@ package vercel
 import (
 	"net/http"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 func (s *Service) registerAPIKeyRoutes(router *corehttp.Router) {

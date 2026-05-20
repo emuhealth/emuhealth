@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
 )
 
 type keyParts struct {

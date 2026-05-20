@@ -6,6 +6,6 @@
     "test": "node --test test/*.test.mjs"
   },
   "devDependencies": {
-    "emulate": "workspace:*"
+    "emuhealth": "workspace:*"
   }
 }

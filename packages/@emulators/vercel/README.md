@@ -2,7 +2,7 @@
 
 Fully stateful Vercel API emulation with Vercel-style JSON responses and cursor-based pagination. The package remains published through npm while the native Go runtime implements the service surface for local CLI runs and Vercel Go Function previews.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -13,6 +13,7 @@ npm install @emulators/vercel
 ## Endpoints
 
 ### User & Teams
+
 - `GET /v2/user` — authenticated user
 - `PATCH /v2/user` — update user
 - `GET /v2/teams` — list teams (cursor paginated)
@@ -23,6 +24,7 @@ npm install @emulators/vercel
 - `POST /v2/teams/:teamId/members` — add member
 
 ### Projects
+
 - `POST /v11/projects` — create project (with optional env vars and git integration)
 - `GET /v10/projects` — list projects (search, cursor pagination)
 - `GET /v9/projects/:idOrName` — get project (includes env vars)
@@ -32,6 +34,7 @@ npm install @emulators/vercel
 - `PATCH /v1/projects/:idOrName/protection-bypass` — manage bypass secrets
 
 ### Deployments
+
 - `POST /v13/deployments` — create deployment (auto-transitions to READY)
 - `GET /v13/deployments/:idOrUrl` — get deployment (by ID or URL)
 - `GET /v6/deployments` — list deployments (filter by project, target, state)
@@ -43,6 +46,7 @@ npm install @emulators/vercel
 - `POST /v2/files` — upload file (by SHA digest)
 
 ### Domains
+
 - `POST /v10/projects/:idOrName/domains` — add domain (with verification challenge)
 - `GET /v9/projects/:idOrName/domains` — list domains
 - `GET /v9/projects/:idOrName/domains/:domain` — get domain
@@ -51,6 +55,7 @@ npm install @emulators/vercel
 - `POST /v9/projects/:idOrName/domains/:domain/verify` — verify domain
 
 ### Environment Variables
+
 - `GET /v10/projects/:idOrName/env` — list env vars (with decrypt option)
 - `POST /v10/projects/:idOrName/env` — create env vars (single, batch, upsert)
 - `GET /v10/projects/:idOrName/env/:id` — get env var
@@ -86,5 +91,5 @@ vercel:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/vercel)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

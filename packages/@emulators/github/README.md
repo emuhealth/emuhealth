@@ -2,7 +2,7 @@
 
 Fully stateful GitHub API emulation. Creates, updates, and deletes persist in memory and affect related entities.
 
-Part of [emulate](https://github.com/vercel-labs/emulate) — local drop-in replacement services for CI and no-network sandboxes.
+Part of [emulate](https://github.com/emuhealth/emuhealth) — local drop-in replacement services for CI and no-network sandboxes.
 
 ## Install
 
@@ -13,6 +13,7 @@ npm install @emulators/github
 ## Endpoints
 
 ### Users
+
 - `GET /user` — authenticated user
 - `PATCH /user` — update profile
 - `GET /users/:username` — get user
@@ -23,6 +24,7 @@ npm install @emulators/github
 - `GET /users/:username/following` — list following
 
 ### Repositories
+
 - `GET /repos/:owner/:repo` — get repo
 - `POST /user/repos` — create user repo
 - `POST /orgs/:org/repos` — create org repo
@@ -39,6 +41,7 @@ npm install @emulators/github
 - `GET /repos/:owner/:repo/tags` — list tags
 
 ### Issues
+
 - `GET /repos/:owner/:repo/issues` — list (filter by state, labels, assignee, milestone, creator, since)
 - `POST /repos/:owner/:repo/issues` — create
 - `GET /repos/:owner/:repo/issues/:number` — get
@@ -49,6 +52,7 @@ npm install @emulators/github
 - `POST/DELETE /repos/:owner/:repo/issues/:number/assignees` — manage assignees
 
 ### Pull Requests
+
 - `GET /repos/:owner/:repo/pulls` — list (filter by state, head, base)
 - `POST /repos/:owner/:repo/pulls` — create
 - `GET /repos/:owner/:repo/pulls/:number` — get
@@ -60,12 +64,14 @@ npm install @emulators/github
 - `PUT /repos/:owner/:repo/pulls/:number/update-branch` — update branch
 
 ### Comments
+
 - Issue comments: full CRUD on `/repos/:owner/:repo/issues/:number/comments`
 - Review comments: full CRUD on `/repos/:owner/:repo/pulls/:number/comments`
 - Commit comments: full CRUD on `/repos/:owner/:repo/commits/:sha/comments`
 - Repo-wide listings for each type
 
 ### Reviews
+
 - `GET /repos/:owner/:repo/pulls/:number/reviews` — list
 - `POST /repos/:owner/:repo/pulls/:number/reviews` — create (with inline comments)
 - `GET/PUT /repos/:owner/:repo/pulls/:number/reviews/:id` — get/update
@@ -73,10 +79,12 @@ npm install @emulators/github
 - `PUT /repos/:owner/:repo/pulls/:number/reviews/:id/dismissals` — dismiss
 
 ### Labels & Milestones
+
 - Labels: full CRUD, add/remove from issues, replace all
 - Milestones: full CRUD, state transitions, issue counts
 
 ### Branches & Git Data
+
 - Branches: list, get, protection CRUD (status checks, PR reviews, enforce admins)
 - Refs: get, match, create, update, delete
 - Commits: get, create
@@ -85,21 +93,25 @@ npm install @emulators/github
 - Tags: get, create
 
 ### Organizations & Teams
+
 - Orgs: get, update, list
 - Org members: list, check, remove, get/set membership
 - Teams: full CRUD, members, repos
 
 ### Releases
+
 - Releases: full CRUD, latest, by tag
 - Release assets: full CRUD, upload
 - Generate release notes
 
 ### Webhooks
+
 - Repo webhooks: full CRUD, ping, test, deliveries
 - Org webhooks: full CRUD, ping
 - Real HTTP delivery to registered URLs on all state changes
 
 ### Search
+
 - `GET /search/repositories` — full query syntax (user, org, language, topic, stars, forks, etc.)
 - `GET /search/issues` — issues + PRs (repo, is, author, label, milestone, state, etc.)
 - `GET /search/users` — users + orgs
@@ -109,6 +121,7 @@ npm install @emulators/github
 - `GET /search/labels` — label search
 
 ### Actions
+
 - Workflows: list, get, enable/disable, dispatch
 - Workflow runs: list, get, cancel, rerun, delete, logs
 - Jobs: list, get, logs
@@ -116,11 +129,13 @@ npm install @emulators/github
 - Secrets: repo + org CRUD
 
 ### Checks
+
 - Check runs: create, update, get, annotations, rerequest, list by ref/suite
 - Check suites: create, get, preferences, rerequest, list by ref
 - Automatic suite status rollup from check run results
 
 ### Misc
+
 - `GET /rate_limit` — rate limit status
 - `GET /meta` — server metadata
 - `GET /octocat` — ASCII art
@@ -174,5 +189,5 @@ github:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/github)
-- [GitHub](https://github.com/vercel-labs/emulate)
+- [Full documentation](https://github.com/emuhealth/emuhealth)
+- [GitHub](https://github.com/emuhealth/emuhealth)

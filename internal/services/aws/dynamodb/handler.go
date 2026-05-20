@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
-	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/services/aws/gateway"
+	"github.com/emuhealth/emuhealth/internal/services/aws/protocols"
 )
 
 const jsonContentType = "application/x-amz-json-1.0"

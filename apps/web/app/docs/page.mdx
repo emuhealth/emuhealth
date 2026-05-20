@@ -5,7 +5,7 @@ Local drop-in replacement for Vercel, GitHub, Google, Slack, Apple, Microsoft, A
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services start with sensible defaults. No config file needed:
@@ -27,25 +27,25 @@ All services start with sensible defaults. No config file needed:
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom port
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service github
+npx emuhealth init --service github
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ## Options
@@ -60,17 +60,25 @@ npx emulate list
   </thead>
   <tbody>
     <tr>
-      <td><code>-p, --port</code></td>
-      <td><code>4000</code></td>
+      <td>
+        <code>-p, --port</code>
+      </td>
+      <td>
+        <code>4000</code>
+      </td>
       <td>Base port (auto-increments per service)</td>
     </tr>
     <tr>
-      <td><code>-s, --service</code></td>
+      <td>
+        <code>-s, --service</code>
+      </td>
       <td>all</td>
       <td>Comma-separated services to enable</td>
     </tr>
     <tr>
-      <td><code>--seed</code></td>
+      <td>
+        <code>--seed</code>
+      </td>
       <td>auto-detect</td>
       <td>Path to seed config (YAML or JSON)</td>
     </tr>

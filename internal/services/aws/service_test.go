@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	corehttp "github.com/vercel-labs/emulate/internal/core/http"
-	corestore "github.com/vercel-labs/emulate/internal/core/store"
-	"github.com/vercel-labs/emulate/internal/core/ui"
+	corehttp "github.com/emuhealth/emuhealth/internal/core/http"
+	corestore "github.com/emuhealth/emuhealth/internal/core/store"
+	"github.com/emuhealth/emuhealth/internal/core/ui"
 )
 
 func TestServiceHandlesS3ListBuckets(t *testing.T) {
