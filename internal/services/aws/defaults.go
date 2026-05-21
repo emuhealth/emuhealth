@@ -55,6 +55,27 @@ func seedSQSDefaults(store Store, baseURL string, accountID string, region strin
 	})
 }
 
+func seedEventBridgeDefaults(store Store, accountID string, region string) {
+	if accountID == "" {
+		accountID = gateway.DefaultAccountID
+	}
+	if region == "" {
+		region = gateway.DefaultRegion
+	}
+	for _, bus := range store.EventBuses.FindBy("name", "default") {
+		if stringRecordField(bus, "account_id") == accountID && stringRecordField(bus, "region") == region {
+			return
+		}
+	}
+	store.EventBuses.Insert(corestore.Record{
+		"account_id": accountID,
+		"region":     region,
+		"name":       "default",
+		"arn":        "arn:aws:events:" + region + ":" + accountID + ":event-bus/default",
+		"tags":       []corestore.Record{},
+	})
+}
+
 func seedIAMDefaults(store Store, credentialStore *auth.Store, accountID string) {
 	if accountID == "" {
 		accountID = gateway.DefaultAccountID

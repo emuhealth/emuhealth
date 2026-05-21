@@ -15,6 +15,7 @@ import (
 	corehttp "github.com/vercel-labs/emulate/internal/core/http"
 	corestore "github.com/vercel-labs/emulate/internal/core/store"
 	"github.com/vercel-labs/emulate/internal/core/ui"
+	"github.com/vercel-labs/emulate/internal/services/aws/auth"
 )
 
 func TestServiceHandlesS3ListBuckets(t *testing.T) {
@@ -1183,6 +1184,711 @@ func TestServiceDropsOversizedSNSDeliveryToSQS(t *testing.T) {
 	}
 }
 
+func TestServiceHandlesEventBridgeRuleAndSQSTarget(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSQueryRequest(handler, "sqs", "Action=CreateQueue&QueueName=eventbridge-target")
+	if res.Code != http.StatusOK {
+		t.Fatalf("create queue status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueURL := xmlElement(res.Body.String(), "QueueUrl")
+	values := url.Values{}
+	values.Set("Action", "GetQueueAttributes")
+	values.Set("QueueUrl", queueURL)
+	res = executeAWSQueryRequest(handler, "sqs", values.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("queue attrs status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueARN := xmlValueForName(res.Body.String(), "QueueArn")
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "orders",
+		"EventPattern": `{"source":["app.orders"],"detail-type":["OrderCreated"],"detail":{"tenant":["acme"]}}`,
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"RuleArn"`) {
+		t.Fatalf("put rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutTargets", map[string]any{
+		"Rule": "orders",
+		"Targets": []map[string]any{{
+			"Id":  "queue",
+			"Arn": queueARN,
+		}},
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"FailedEntryCount":0`) {
+		t.Fatalf("put targets status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{
+			{"Source": "app.orders", "DetailType": "OrderCreated", "Detail": `{"tenant":"acme","id":"ord_1"}`, "Time": 1577934245},
+			{"Source": "app.orders", "DetailType": "OrderCreated", "Detail": `{"tenant":"other","id":"ord_2"}`},
+		},
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"FailedEntryCount":0`) {
+		t.Fatalf("put events status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	values = url.Values{}
+	values.Set("Action", "ReceiveMessage")
+	values.Set("QueueUrl", queueURL)
+	values.Set("MaxNumberOfMessages", "10")
+	res = executeAWSQueryRequest(handler, "sqs", values.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("receive status = %d, body = %s", res.Code, res.Body.String())
+	}
+	body := res.Body.String()
+	if !strings.Contains(body, "ord_1") || strings.Contains(body, "ord_2") || !strings.Contains(body, "OrderCreated") || !strings.Contains(body, "2020-01-02T03:04:05Z") {
+		t.Fatalf("unexpected EventBridge delivery body: %s", body)
+	}
+}
+
+func TestServiceHandlesEventBridgeCustomBusTagsAndSNSTarget(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "CreateEventBus", map[string]any{
+		"Name": "custom",
+		"Tags": []map[string]any{{"Key": "env", "Value": "test"}},
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"EventBusArn"`) {
+		t.Fatalf("create bus status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var busOut struct {
+		EventBusArn string
+	}
+	decodeJSONBody(t, res, &busOut)
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListTagsForResource", map[string]any{"ResourceARN": busOut.EventBusArn})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"Key":"env"`) {
+		t.Fatalf("list bus tags status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	topicValues := url.Values{}
+	topicValues.Set("Action", "CreateTopic")
+	topicValues.Set("Name", "eventbridge-topic")
+	res = executeAWSQueryRequest(handler, "sns", topicValues.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("create topic status = %d, body = %s", res.Code, res.Body.String())
+	}
+	topicARN := xmlElement(res.Body.String(), "TopicArn")
+
+	res = executeAWSQueryRequest(handler, "sqs", "Action=CreateQueue&QueueName=eventbridge-sns-target")
+	if res.Code != http.StatusOK {
+		t.Fatalf("create queue status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueURL := xmlElement(res.Body.String(), "QueueUrl")
+	queueValues := url.Values{}
+	queueValues.Set("Action", "GetQueueAttributes")
+	queueValues.Set("QueueUrl", queueURL)
+	res = executeAWSQueryRequest(handler, "sqs", queueValues.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("queue attrs status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueARN := xmlValueForName(res.Body.String(), "QueueArn")
+
+	subscribeValues := url.Values{}
+	subscribeValues.Set("Action", "Subscribe")
+	subscribeValues.Set("TopicArn", topicARN)
+	subscribeValues.Set("Protocol", "sqs")
+	subscribeValues.Set("Endpoint", queueARN)
+	res = executeAWSQueryRequest(handler, "sns", subscribeValues.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("subscribe status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "billing",
+		"EventBusName": "custom",
+		"EventPattern": `{"resources":["invoice"],"detail":{"status":["paid"]}}`,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+	res = executeAWSEventBridgeRequest(t, handler, "PutTargets", map[string]any{
+		"Rule":         "billing",
+		"EventBusName": "custom",
+		"Targets":      []map[string]any{{"Id": "topic", "Arn": topicARN}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put targets status = %d, body = %s", res.Code, res.Body.String())
+	}
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{
+			"EventBusName": "custom",
+			"Source":       "app.billing",
+			"DetailType":   "InvoiceUpdated",
+			"Resources":    []string{"invoice"},
+			"Detail":       `{"status":"paid","id":"inv_1"}`,
+		}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put events status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	receiveValues := url.Values{}
+	receiveValues.Set("Action", "ReceiveMessage")
+	receiveValues.Set("QueueUrl", queueURL)
+	receiveValues.Set("MaxNumberOfMessages", "1")
+	res = executeAWSQueryRequest(handler, "sqs", receiveValues.Encode())
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), "inv_1") || !strings.Contains(res.Body.String(), "&quot;Type&quot;:&quot;Notification&quot;") {
+		t.Fatalf("receive status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceDoesNotDeliverEventBridgePutEventsToScheduleOnlyRule(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSQueryRequest(handler, "sqs", "Action=CreateQueue&QueueName=eventbridge-scheduled")
+	if res.Code != http.StatusOK {
+		t.Fatalf("create queue status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueURL := xmlElement(res.Body.String(), "QueueUrl")
+	values := url.Values{}
+	values.Set("Action", "GetQueueAttributes")
+	values.Set("QueueUrl", queueURL)
+	res = executeAWSQueryRequest(handler, "sqs", values.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("queue attrs status = %d, body = %s", res.Code, res.Body.String())
+	}
+	queueARN := xmlValueForName(res.Body.String(), "QueueArn")
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":               "scheduled",
+		"ScheduleExpression": "rate(5 minutes)",
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put scheduled rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutTargets", map[string]any{
+		"Rule":    "scheduled",
+		"Targets": []map[string]any{{"Id": "queue", "Arn": queueARN}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put scheduled target status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{
+			"Source":     "app.timer",
+			"DetailType": "Tick",
+			"Detail":     `{"id":"tick_1"}`,
+		}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put events status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	values = url.Values{}
+	values.Set("Action", "ReceiveMessage")
+	values.Set("QueueUrl", queueURL)
+	values.Set("MaxNumberOfMessages", "1")
+	res = executeAWSQueryRequest(handler, "sqs", values.Encode())
+	if res.Code != http.StatusOK {
+		t.Fatalf("receive status = %d, body = %s", res.Code, res.Body.String())
+	}
+	if strings.Contains(res.Body.String(), "<Message>") {
+		t.Fatalf("schedule-only rule received a PutEvents delivery: %s", res.Body.String())
+	}
+}
+
+func TestServicePreservesEventBridgeRuleTagsOnPutRuleUpdate(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "tagged",
+		"EventPattern": `{}`,
+		"Tags":         []map[string]any{{"Key": "env", "Value": "initial"}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("create rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var created struct {
+		RuleArn string
+	}
+	decodeJSONBody(t, res, &created)
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "tagged",
+		"EventPattern": `{"source":["app.updated"]}`,
+		"Tags":         []map[string]any{{"Key": "env", "Value": "changed"}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("update rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListTagsForResource", map[string]any{"ResourceARN": created.RuleArn})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"Value":"initial"`) || strings.Contains(res.Body.String(), `"Value":"changed"`) {
+		t.Fatalf("rule tags were not preserved on update: status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceAcceptsEventBridgeCloudTrailManagementState(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "cloudtrail",
+		"EventPattern": `{}`,
+		"State":        "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS",
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "DescribeRule", map[string]any{"Name": "cloudtrail"})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"State":"ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS"`) {
+		t.Fatalf("describe rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServicePaginatesEventBridgeLists(t *testing.T) {
+	handler := newTestHandler()
+	type eventBusPage struct {
+		NextToken  string
+		EventBuses []struct {
+			Name string
+		}
+	}
+	type rulePage struct {
+		NextToken string
+		Rules     []struct {
+			Name string
+		}
+	}
+
+	for _, name := range []string{"page-bus-a", "page-bus-b", "page-bus-c"} {
+		res := executeAWSEventBridgeRequest(t, handler, "CreateEventBus", map[string]any{"Name": name})
+		if res.Code != http.StatusOK {
+			t.Fatalf("create bus %s status = %d, body = %s", name, res.Code, res.Body.String())
+		}
+	}
+
+	res := executeAWSEventBridgeRequest(t, handler, "ListEventBuses", map[string]any{
+		"NamePrefix": "page-bus-",
+		"Limit":      2,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("list buses page 1 status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var busesPage eventBusPage
+	decodeJSONBody(t, res, &busesPage)
+	if busesPage.NextToken == "" || len(busesPage.EventBuses) != 2 || busesPage.EventBuses[0].Name != "page-bus-a" || busesPage.EventBuses[1].Name != "page-bus-b" {
+		t.Fatalf("unexpected event bus page 1: %#v", busesPage)
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListEventBuses", map[string]any{
+		"NamePrefix": "page-bus-",
+		"Limit":      2,
+		"NextToken":  busesPage.NextToken,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("list buses page 2 status = %d, body = %s", res.Code, res.Body.String())
+	}
+	busesPage = eventBusPage{}
+	decodeJSONBody(t, res, &busesPage)
+	if busesPage.NextToken != "" || len(busesPage.EventBuses) != 1 || busesPage.EventBuses[0].Name != "page-bus-c" {
+		t.Fatalf("unexpected event bus page 2: %#v", busesPage)
+	}
+
+	for _, name := range []string{"page-rule-a", "page-rule-b", "page-rule-c"} {
+		res = executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+			"Name":         name,
+			"EventPattern": `{}`,
+		})
+		if res.Code != http.StatusOK {
+			t.Fatalf("put rule %s status = %d, body = %s", name, res.Code, res.Body.String())
+		}
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListRules", map[string]any{
+		"NamePrefix": "page-rule-",
+		"Limit":      2,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("list rules page 1 status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var rulesPage rulePage
+	decodeJSONBody(t, res, &rulesPage)
+	if rulesPage.NextToken == "" || len(rulesPage.Rules) != 2 || rulesPage.Rules[0].Name != "page-rule-a" || rulesPage.Rules[1].Name != "page-rule-b" {
+		t.Fatalf("unexpected rule page 1: %#v", rulesPage)
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListRules", map[string]any{
+		"NamePrefix": "page-rule-",
+		"Limit":      2,
+		"NextToken":  rulesPage.NextToken,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("list rules page 2 status = %d, body = %s", res.Code, res.Body.String())
+	}
+	rulesPage = rulePage{}
+	decodeJSONBody(t, res, &rulesPage)
+	if rulesPage.NextToken != "" || len(rulesPage.Rules) != 1 || rulesPage.Rules[0].Name != "page-rule-c" {
+		t.Fatalf("unexpected rule page 2: %#v", rulesPage)
+	}
+}
+
+func TestServiceRequiresEventBridgeTargetsRemovedBeforeDeleteRule(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "targeted",
+		"EventPattern": `{}`,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutTargets", map[string]any{
+		"Rule": "targeted",
+		"Targets": []map[string]any{{
+			"Id":  "queue",
+			"Arn": "arn:aws:sqs:us-east-1:123456789012:targeted",
+		}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put target status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "DeleteRule", map[string]any{"Name": "targeted"})
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ValidationException") || !strings.Contains(res.Body.String(), "targets") {
+		t.Fatalf("delete rule with target status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "ListTargetsByRule", map[string]any{"Rule": "targeted"})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"Id":"queue"`) {
+		t.Fatalf("target was removed by failed delete: status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "RemoveTargets", map[string]any{
+		"Rule": "targeted",
+		"Ids":  []string{"queue"},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("remove target status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "DeleteRule", map[string]any{"Name": "targeted"})
+	if res.Code != http.StatusOK {
+		t.Fatalf("delete rule after removing target status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceRejectsEventBridgeNonObjectJSON(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "null-pattern",
+		"EventPattern": `null`,
+	})
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ValidationException") {
+		t.Fatalf("put null pattern status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{
+			"Source":     "app.test",
+			"DetailType": "NonObject",
+			"Detail":     `null`,
+		}},
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put null detail status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var body struct {
+		FailedEntryCount int
+		Entries          []struct {
+			ErrorCode string
+		}
+	}
+	decodeJSONBody(t, res, &body)
+	if body.FailedEntryCount != 1 || len(body.Entries) != 1 || body.Entries[0].ErrorCode != "MalformedDetail" {
+		t.Fatalf("unexpected null detail response: %#v", body)
+	}
+}
+
+func TestServiceValidatesEventBridgePutEventsEntries(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{
+			"Source":     "app.missing",
+			"DetailType": "MissingDetail",
+		}},
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"FailedEntryCount":1`) || !strings.Contains(res.Body.String(), "Detail, DetailType, and Source are required") {
+		t.Fatalf("missing detail status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	entries := make([]map[string]any, 11)
+	for i := range entries {
+		entries[i] = map[string]any{
+			"Source":     "app.batch",
+			"DetailType": "Batch",
+			"Detail":     `{}`,
+		}
+	}
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{"Entries": entries})
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ValidationException") {
+		t.Fatalf("oversized batch status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceReturnsEventBridgeModeledErrors(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{"Name": "bad"})
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ValidationException") {
+		t.Fatalf("validation status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequest(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{"EventBusName": "missing", "Source": "app", "DetailType": "Test", "Detail": `{}`}},
+	})
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"FailedEntryCount":1`) || !strings.Contains(res.Body.String(), "ResourceNotFoundException") {
+		t.Fatalf("missing bus status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceScopesEventBridgeTargetsByAccount(t *testing.T) {
+	handler := newTestHandlerWithCredentialStore(auth.NewStore(
+		auth.Credential{AccessKeyID: "AKIAEVENTSA", AccountID: "111111111111", PrincipalARN: "arn:aws:iam::111111111111:user/a"},
+		auth.Credential{AccessKeyID: "AKIAEVENTSB", AccountID: "222222222222", PrincipalARN: "arn:aws:iam::222222222222:user/b"},
+	))
+
+	for _, accessKeyID := range []string{"AKIAEVENTSA", "AKIAEVENTSB"} {
+		res := executeAWSEventBridgeRequestWithAccessKey(t, handler, "CreateEventBus", map[string]any{"Name": "shared"}, accessKeyID)
+		if res.Code != http.StatusOK {
+			t.Fatalf("create bus for %s status = %d, body = %s", accessKeyID, res.Code, res.Body.String())
+		}
+		res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutRule", map[string]any{
+			"Name":         "same-rule",
+			"EventBusName": "shared",
+			"EventPattern": `{}`,
+		}, accessKeyID)
+		if res.Code != http.StatusOK {
+			t.Fatalf("put rule for %s status = %d, body = %s", accessKeyID, res.Code, res.Body.String())
+		}
+	}
+
+	res := executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutTargets", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+		"Targets": []map[string]any{{
+			"Id":  "target",
+			"Arn": "arn:aws:sqs:us-east-1:111111111111:queue-a",
+		}},
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK {
+		t.Fatalf("put target for account A status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListTargetsByRule", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+	}, "AKIAEVENTSB")
+	if res.Code != http.StatusOK {
+		t.Fatalf("list targets for account B status = %d, body = %s", res.Code, res.Body.String())
+	}
+	var listed struct {
+		Targets []struct {
+			ID  string `json:"Id"`
+			Arn string `json:"Arn"`
+		}
+	}
+	decodeJSONBody(t, res, &listed)
+	if len(listed.Targets) != 0 {
+		t.Fatalf("account B saw account A targets: %#v", listed.Targets)
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "RemoveTargets", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+		"Ids":          []string{"target"},
+	}, "AKIAEVENTSB")
+	if res.Code != http.StatusOK {
+		t.Fatalf("remove target for account B status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListTargetsByRule", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK {
+		t.Fatalf("list targets for account A status = %d, body = %s", res.Code, res.Body.String())
+	}
+	decodeJSONBody(t, res, &listed)
+	if len(listed.Targets) != 1 || listed.Targets[0].Arn != "arn:aws:sqs:us-east-1:111111111111:queue-a" {
+		t.Fatalf("account A target was not preserved: %#v", listed.Targets)
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutTargets", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+		"Targets": []map[string]any{{
+			"Id":  "target",
+			"Arn": "arn:aws:sqs:us-east-1:222222222222:queue-b",
+		}},
+	}, "AKIAEVENTSB")
+	if res.Code != http.StatusOK {
+		t.Fatalf("put target for account B status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListTargetsByRule", map[string]any{
+		"Rule":         "same-rule",
+		"EventBusName": "shared",
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK {
+		t.Fatalf("list targets for account A after account B put status = %d, body = %s", res.Code, res.Body.String())
+	}
+	decodeJSONBody(t, res, &listed)
+	if len(listed.Targets) != 1 || listed.Targets[0].Arn != "arn:aws:sqs:us-east-1:111111111111:queue-a" {
+		t.Fatalf("account B target update affected account A: %#v", listed.Targets)
+	}
+}
+
+func TestServiceProvidesEventBridgeDefaultBusPerAccount(t *testing.T) {
+	handler := newTestHandlerWithCredentialStore(auth.NewStore(
+		auth.Credential{AccessKeyID: "AKIAEVENTSA", AccountID: "111111111111", PrincipalARN: "arn:aws:iam::111111111111:user/a"},
+		auth.Credential{AccessKeyID: "AKIAEVENTSB", AccountID: "222222222222", PrincipalARN: "arn:aws:iam::222222222222:user/b"},
+	))
+
+	for _, test := range []struct {
+		accessKeyID string
+		accountID   string
+	}{
+		{accessKeyID: "AKIAEVENTSA", accountID: "111111111111"},
+		{accessKeyID: "AKIAEVENTSB", accountID: "222222222222"},
+	} {
+		res := executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutRule", map[string]any{
+			"Name":         "default-rule",
+			"EventPattern": `{}`,
+		}, test.accessKeyID)
+		if res.Code != http.StatusOK {
+			t.Fatalf("put default rule for %s status = %d, body = %s", test.accountID, res.Code, res.Body.String())
+		}
+		if !strings.Contains(res.Body.String(), `"RuleArn":"arn:aws:events:us-east-1:`+test.accountID+`:rule/default-rule"`) {
+			t.Fatalf("put default rule for %s returned wrong ARN: %s", test.accountID, res.Body.String())
+		}
+
+		res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListEventBuses", map[string]any{}, test.accessKeyID)
+		if res.Code != http.StatusOK {
+			t.Fatalf("list buses for %s status = %d, body = %s", test.accountID, res.Code, res.Body.String())
+		}
+		if !strings.Contains(res.Body.String(), `"Arn":"arn:aws:events:us-east-1:`+test.accountID+`:event-bus/default"`) {
+			t.Fatalf("list buses for %s missing scoped default bus: %s", test.accountID, res.Body.String())
+		}
+	}
+}
+
+func TestServiceDoesNotResolveForeignEventBridgeBusARNToLocalBus(t *testing.T) {
+	handler := newTestHandlerWithCredentialStore(auth.NewStore(
+		auth.Credential{AccessKeyID: "AKIAEVENTSA", AccountID: "111111111111", PrincipalARN: "arn:aws:iam::111111111111:user/a"},
+		auth.Credential{AccessKeyID: "AKIAEVENTSB", AccountID: "222222222222", PrincipalARN: "arn:aws:iam::222222222222:user/b"},
+	))
+
+	for _, accessKeyID := range []string{"AKIAEVENTSA", "AKIAEVENTSB"} {
+		res := executeAWSEventBridgeRequestWithAccessKey(t, handler, "CreateEventBus", map[string]any{"Name": "shared"}, accessKeyID)
+		if res.Code != http.StatusOK {
+			t.Fatalf("create shared bus for %s status = %d, body = %s", accessKeyID, res.Code, res.Body.String())
+		}
+	}
+
+	foreignARN := "arn:aws:events:us-east-1:222222222222:event-bus/shared"
+	res := executeAWSEventBridgeRequestWithAccessKey(t, handler, "DeleteEventBus", map[string]any{"Name": foreignARN}, "AKIAEVENTSA")
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ResourceNotFoundException") {
+		t.Fatalf("delete foreign ARN status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListEventBuses", map[string]any{"NamePrefix": "shared"}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"Arn":"arn:aws:events:us-east-1:111111111111:event-bus/shared"`) {
+		t.Fatalf("local same-name bus was not preserved: status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutRule", map[string]any{
+		"Name":         "foreign-rule",
+		"EventBusName": foreignARN,
+		"EventPattern": `{}`,
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ResourceNotFoundException") {
+		t.Fatalf("put rule with foreign ARN status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "ListRules", map[string]any{"EventBusName": "shared"}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK || strings.Contains(res.Body.String(), "foreign-rule") {
+		t.Fatalf("foreign ARN created or exposed a local rule: status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	localARN := "arn:aws:events:us-east-1:111111111111:event-bus/shared"
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutRule", map[string]any{
+		"Name":         "local-rule",
+		"EventBusName": localARN,
+		"EventPattern": `{}`,
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK {
+		t.Fatalf("put rule with local ARN status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	res = executeAWSEventBridgeRequestWithAccessKey(t, handler, "PutEvents", map[string]any{
+		"Entries": []map[string]any{{
+			"EventBusName": foreignARN,
+			"Source":       "app.test",
+			"DetailType":   "Foreign",
+			"Detail":       `{}`,
+		}},
+	}, "AKIAEVENTSA")
+	if res.Code != http.StatusOK || !strings.Contains(res.Body.String(), `"FailedEntryCount":1`) || !strings.Contains(res.Body.String(), "ResourceNotFoundException") {
+		t.Fatalf("put events with foreign ARN status = %d, body = %s", res.Code, res.Body.String())
+	}
+}
+
+func TestServiceRejectsUnsupportedEventBridgeTargetInputShaping(t *testing.T) {
+	handler := newTestHandler()
+
+	res := executeAWSEventBridgeRequest(t, handler, "PutRule", map[string]any{
+		"Name":         "input-shaping",
+		"EventPattern": `{}`,
+	})
+	if res.Code != http.StatusOK {
+		t.Fatalf("put rule status = %d, body = %s", res.Code, res.Body.String())
+	}
+
+	for _, test := range []struct {
+		name   string
+		target map[string]any
+	}{
+		{
+			name: "input path",
+			target: map[string]any{
+				"Id":        "path",
+				"Arn":       "arn:aws:sqs:us-east-1:123456789012:queue",
+				"InputPath": "$.detail",
+			},
+		},
+		{
+			name: "input transformer",
+			target: map[string]any{
+				"Id":  "transformer",
+				"Arn": "arn:aws:sqs:us-east-1:123456789012:queue",
+				"InputTransformer": map[string]any{
+					"InputTemplate": `"transformed"`,
+				},
+			},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			res := executeAWSEventBridgeRequest(t, handler, "PutTargets", map[string]any{
+				"Rule":    "input-shaping",
+				"Targets": []map[string]any{test.target},
+			})
+			if res.Code != http.StatusBadRequest || !strings.Contains(res.Body.String(), "ValidationException") || !strings.Contains(res.Body.String(), "not supported") {
+				t.Fatalf("put target status = %d, body = %s", res.Code, res.Body.String())
+			}
+		})
+	}
+}
+
 func TestServiceHandlesSNSTagsPermissionsAndErrors(t *testing.T) {
 	handler := newTestHandler()
 
@@ -2125,7 +2831,7 @@ func TestNewStoreCreatesAWSCollections(t *testing.T) {
 	awsStore.IAMUsers.Insert(corestore.Record{"user_name": "developer", "user_id": "AIDAEXAMPLE"})
 
 	snapshot := runtimeStore.Snapshot()
-	for _, name := range []string{"aws.s3_buckets", "aws.s3_objects", "aws.sqs_queues", "aws.sqs_messages", "aws.sns_topics", "aws.sns_subscriptions", "aws.sns_deliveries", "aws.iam_users", "aws.iam_roles", "aws.dynamodb_tables", "aws.dynamodb_items"} {
+	for _, name := range []string{"aws.s3_buckets", "aws.s3_objects", "aws.sqs_queues", "aws.sqs_messages", "aws.sns_topics", "aws.sns_subscriptions", "aws.sns_deliveries", "aws.event_buses", "aws.event_rules", "aws.event_targets", "aws.event_deliveries", "aws.iam_users", "aws.iam_roles", "aws.dynamodb_tables", "aws.dynamodb_items"} {
 		if _, ok := snapshot.Collections[name]; !ok {
 			t.Fatalf("missing collection %s", name)
 		}
@@ -2133,9 +2839,13 @@ func TestNewStoreCreatesAWSCollections(t *testing.T) {
 }
 
 func newTestHandler() http.Handler {
+	return newTestHandlerWithCredentialStore(nil)
+}
+
+func newTestHandlerWithCredentialStore(credentialStore *auth.Store) http.Handler {
 	router := corehttp.NewRouter()
 	ui.RegisterAssetRoutes(router)
-	Register(router, Options{Store: corestore.New()})
+	Register(router, Options{Store: corestore.New(), CredentialStore: credentialStore})
 	router.NotFound(func(c *corehttp.Context) {
 		c.JSON(http.StatusNotFound, map[string]any{"message": "Not Found"})
 	})
@@ -2205,6 +2915,27 @@ func executeAWSDynamoDBRequest(t *testing.T, handler http.Handler, action string
 	req.Header.Set("Content-Type", "application/x-amz-json-1.0")
 	req.Header.Set("X-Amz-Target", "DynamoDB_20120810."+action)
 	signAWSRequest(req, "dynamodb")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	return res
+}
+
+func executeAWSEventBridgeRequest(t *testing.T, handler http.Handler, action string, payload map[string]any) *httptest.ResponseRecorder {
+	t.Helper()
+	return executeAWSEventBridgeRequestWithAccessKey(t, handler, action, payload, "AKIAEXAMPLE")
+}
+
+func executeAWSEventBridgeRequestWithAccessKey(t *testing.T, handler http.Handler, action string, payload map[string]any, accessKeyID string) *httptest.ResponseRecorder {
+	t.Helper()
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := httptest.NewRequest(http.MethodPost, "http://127.0.0.1/events/", bytes.NewReader(raw))
+	req.Header.Set("Content-Type", "application/x-amz-json-1.1")
+	req.Header.Set("X-Amz-Target", "AWSEvents."+action)
+	req.Header.Set("X-Access-Key", accessKeyID)
+	signAWSRequest(req, "events")
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
 	return res
