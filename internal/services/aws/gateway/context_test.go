@@ -158,14 +158,53 @@ func TestBuildContextSignedNonS3ServicePathDoesNotFallBackToS3(t *testing.T) {
 	if ctx.Service != "lambda" {
 		t.Fatalf("service = %q, want lambda", ctx.Service)
 	}
-	if ctx.Protocol != protocols.ProtocolUnknown {
-		t.Fatalf("protocol = %q, want %q", ctx.Protocol, protocols.ProtocolUnknown)
+	if ctx.Protocol != protocols.ProtocolRESTJSON {
+		t.Fatalf("protocol = %q, want %q", ctx.Protocol, protocols.ProtocolRESTJSON)
 	}
-	if ctx.Action != "" {
-		t.Fatalf("action = %q, want empty", ctx.Action)
+	if ctx.Action != "ListFunctions" {
+		t.Fatalf("action = %q, want ListFunctions", ctx.Action)
 	}
 	if ctx.S3 != nil {
 		t.Fatalf("S3 route = %#v, want nil", ctx.S3)
+	}
+}
+
+func TestBuildContextRootLambdaRESTPath(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1/2015-03-31/functions", nil)
+
+	ctx, err := BuildContext(req, nil, fixedOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if ctx.Service != "lambda" {
+		t.Fatalf("service = %q, want lambda", ctx.Service)
+	}
+	if ctx.Protocol != protocols.ProtocolRESTJSON {
+		t.Fatalf("protocol = %q, want %q", ctx.Protocol, protocols.ProtocolRESTJSON)
+	}
+	if ctx.Action != "ListFunctions" {
+		t.Fatalf("action = %q, want ListFunctions", ctx.Action)
+	}
+}
+
+func TestBuildContextSignedS3LambdaLikePathDoesNotParseLambda(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "http://127.0.0.1/2015-03-31/functions", nil)
+	signRequestForService(req, "s3")
+
+	ctx, err := BuildContext(req, nil, fixedOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if ctx.Service != "s3" {
+		t.Fatalf("service = %q, want s3", ctx.Service)
+	}
+	if ctx.Protocol != protocols.ProtocolRESTXML {
+		t.Fatalf("protocol = %q, want %q", ctx.Protocol, protocols.ProtocolRESTXML)
+	}
+	if ctx.S3 == nil || ctx.S3.Bucket != "2015-03-31" || ctx.S3.Key != "functions" {
+		t.Fatalf("unexpected S3 route: %#v", ctx.S3)
 	}
 }
 

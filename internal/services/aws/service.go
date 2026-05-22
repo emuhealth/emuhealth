@@ -13,6 +13,7 @@ import (
 	"github.com/vercel-labs/emulate/internal/services/aws/gateway"
 	awsiam "github.com/vercel-labs/emulate/internal/services/aws/iam"
 	awskms "github.com/vercel-labs/emulate/internal/services/aws/kms"
+	awslambda "github.com/vercel-labs/emulate/internal/services/aws/lambda"
 	awslogs "github.com/vercel-labs/emulate/internal/services/aws/logs"
 	"github.com/vercel-labs/emulate/internal/services/aws/protocols"
 	awss3 "github.com/vercel-labs/emulate/internal/services/aws/s3"
@@ -54,6 +55,7 @@ type Service struct {
 	secretsmanager   awssecretsmanager.Handler
 	ssm              awsssm.Handler
 	kms              awskms.Handler
+	lambda           awslambda.Handler
 }
 
 func Register(router *corehttp.Router, options Options) {
@@ -188,6 +190,16 @@ func New(options Options) *Service {
 			AccountID: defaultAccountID,
 			Region:    defaultRegion,
 		},
+		lambda: awslambda.Handler{
+			Functions:  awsStore.LambdaFunctions,
+			Versions:   awsStore.LambdaVersions,
+			Aliases:    awsStore.LambdaAliases,
+			LogGroups:  awsStore.LogGroups,
+			LogStreams: awsStore.LogStreams,
+			LogEvents:  awsStore.LogEvents,
+			AccountID:  defaultAccountID,
+			Region:     defaultRegion,
+		},
 	}
 }
 
@@ -262,6 +274,10 @@ func (s *Service) handleAWS(c *corehttp.Context) {
 		writeErrorResponse(c, s.kms.Handle(c.Request, ctx))
 		return
 	}
+	if ctx.Service == "lambda" && ctx.Protocol == protocols.ProtocolRESTJSON {
+		writeErrorResponse(c, s.lambda.Handle(c.Request, ctx))
+		return
+	}
 
 	s.writeAWSError(c, ctx, notImplementedError(ctx))
 }
@@ -281,6 +297,9 @@ func (s *Service) looksLikeAWSRequest(req *http.Request) bool {
 		return true
 	}
 	if hasKnownServiceEndpointPath(req.URL.Path) {
+		return true
+	}
+	if hasLambdaRESTEndpointPath(req.URL.Path) {
 		return true
 	}
 	return looksLikeS3RESTRequest(req, s.s3PathFallback)
@@ -319,6 +338,18 @@ func hasKnownServiceEndpointPath(pathValue string) bool {
 	default:
 		return false
 	}
+}
+
+func hasLambdaRESTEndpointPath(pathValue string) bool {
+	first, rest := splitFirstPathSegment(pathValue)
+	if rest == "" {
+		return false
+	}
+	second, _ := splitFirstPathSegment(rest)
+	if first == "2015-03-31" && second == "functions" {
+		return true
+	}
+	return first == "2017-03-31" && second == "tags"
 }
 
 func looksLikeS3RESTRequest(req *http.Request, pathFallback bool) bool {
