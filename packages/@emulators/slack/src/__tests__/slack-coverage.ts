@@ -3,7 +3,7 @@ export type SlackCoverageStatus = "supported" | "partial" | "not_started";
 export interface SlackCoverageEntry {
   family: string;
   method: string;
-  route: string;
+  route: string | string[];
   status: SlackCoverageStatus;
   testedBy: string[];
   notes: string;
@@ -25,23 +25,31 @@ export const slackCoverageMatrix: SlackCoverageEntry[] = [
     status: "partial",
     testedBy: ["slack.test.ts", "slack-sdk.test.ts", "slack-events.test.ts"],
     notes:
-      "Text, thread replies, blocks, attachments, metadata, formatting flags, unfurl flags, and client message ids round trip. DMs, permalinks, and membership checks are future work.",
+      "Text, thread replies, blocks, attachments, metadata, formatting flags, unfurl flags, and client message ids round trip. DMs and membership checks are future work.",
   },
   {
     family: "chat",
     method: "chat.update",
     route: "POST /api/chat.update",
     status: "partial",
-    testedBy: ["slack.test.ts", "slack-sdk.test.ts"],
-    notes: "Stored text and rich message fields are updated. Slack shaped message_changed events are future work.",
+    testedBy: ["slack.test.ts", "slack-sdk.test.ts", "slack-events.test.ts"],
+    notes: "Stored text and rich message fields are updated and message_changed events are dispatched.",
   },
   {
     family: "chat",
     method: "chat.delete",
     route: "POST /api/chat.delete",
     status: "partial",
+    testedBy: ["slack.test.ts", "slack-sdk.test.ts", "slack-events.test.ts"],
+    notes: "Stored messages are deleted and message_deleted events are dispatched.",
+  },
+  {
+    family: "chat",
+    method: "chat.getPermalink",
+    route: ["GET /api/chat.getPermalink", "POST /api/chat.getPermalink"],
+    status: "partial",
     testedBy: ["slack.test.ts", "slack-sdk.test.ts"],
-    notes: "Stored messages are deleted. Slack shaped message_deleted events are future work.",
+    notes: "Returns deterministic emulator permalinks for top-level messages and threaded replies.",
   },
   {
     family: "chat",
