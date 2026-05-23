@@ -1,7 +1,10 @@
 import { randomBytes } from "crypto";
 import type { Context } from "@emulators/core";
 import type { ContentfulStatusCode } from "@emulators/core";
+import type { Store } from "@emulators/core";
 import type { SlackChannel, SlackJsonObject, SlackMessage, SlackScheduledMessage } from "./entities.js";
+
+export type SlackScopeRequirement = string | string[];
 
 let tsCounter = 0;
 
@@ -51,6 +54,66 @@ export function slackOk<T extends Record<string, unknown>>(c: Context, data: T) 
 
 export function slackError(c: Context, error: string, status: ContentfulStatusCode = 200) {
   return c.json({ ok: false, error }, status);
+}
+
+export function isSlackStrictScopes(store: Store): boolean {
+  return store.getData<boolean>("slack.strict_scopes") === true;
+}
+
+export function requireSlackScopes(c: Context, store: Store, requirements: SlackScopeRequirement[]) {
+  if (!isSlackStrictScopes(store)) return undefined;
+
+  const provided = slackProvidedScopes(c);
+  const providedSet = new Set(provided);
+  const missing = requirements.filter((requirement) => {
+    if (Array.isArray(requirement)) {
+      return !requirement.some((scope) => providedSet.has(scope));
+    }
+    return !providedSet.has(requirement);
+  });
+
+  if (missing.length === 0) return undefined;
+
+  return c.json({
+    ok: false,
+    error: "missing_scope",
+    needed: missing.map((requirement) => (Array.isArray(requirement) ? requirement.join("|") : requirement)).join(","),
+    provided: provided.join(","),
+  });
+}
+
+export function hasSlackScope(c: Context, scope: string): boolean {
+  return slackProvidedScopes(c).includes(scope);
+}
+
+function slackProvidedScopes(c: Context): string[] {
+  return c.get("authScopes") ?? c.get("authUser")?.scopes ?? [];
+}
+
+export function slackConversationReadScope(ch: SlackChannel): string {
+  if (ch.is_im) return "im:read";
+  if (ch.is_mpim) return "mpim:read";
+  if (ch.is_private) return "groups:read";
+  return "channels:read";
+}
+
+export function slackConversationHistoryScope(ch: SlackChannel): string {
+  if (ch.is_im) return "im:history";
+  if (ch.is_mpim) return "mpim:history";
+  if (ch.is_private) return "groups:history";
+  return "channels:history";
+}
+
+export function slackConversationWriteScope(ch: SlackChannel): SlackScopeRequirement {
+  if (ch.is_im) return "im:write";
+  if (ch.is_mpim) return "mpim:write";
+  if (ch.is_private) return "groups:write";
+  return ["channels:manage", "channels:write"];
+}
+
+export function slackConversationJoinScope(ch: SlackChannel): SlackScopeRequirement {
+  if (ch.is_private) return "groups:write";
+  return ["channels:join", "channels:write"];
 }
 
 export async function parseSlackBody(c: Context): Promise<Record<string, unknown>> {

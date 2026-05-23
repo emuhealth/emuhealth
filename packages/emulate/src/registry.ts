@@ -221,7 +221,11 @@ export const SERVICE_REGISTRY: Record<ServiceName, ServiceEntry> = {
       return { plugin: mod.slackPlugin, seedFromConfig: mod.seedFromConfig };
     },
     defaultFallback() {
-      return { login: "U000000001", id: 1, scopes: ["chat:write", "channels:read", "users:read", "reactions:write"] };
+      return {
+        login: "U000000001",
+        id: 1,
+        scopes: [],
+      };
     },
     initConfig: {
       slack: {
@@ -236,10 +240,15 @@ export const SERVICE_REGISTRY: Record<ServiceName, ServiceEntry> = {
           {
             client_id: "12345.67890",
             client_secret: "example_client_secret",
+            app_id: "A000000001",
             name: "My Slack App",
             redirect_uris: ["http://localhost:3000/api/auth/callback/slack"],
+            scopes: ["chat:write", "channels:read"],
+            user_scopes: ["users:read"],
+            bot_name: "my-bot",
           },
         ],
+        strict_scopes: false,
       },
     },
   },
