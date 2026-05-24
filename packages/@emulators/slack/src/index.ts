@@ -12,6 +12,8 @@ import { teamRoutes } from "./routes/team.js";
 import { oauthRoutes } from "./routes/oauth.js";
 import { webhookRoutes } from "./routes/webhooks.js";
 import { filesRoutes } from "./routes/files.js";
+import { pinsRoutes } from "./routes/pins.js";
+import { bookmarksRoutes } from "./routes/bookmarks.js";
 import { inspectorRoutes } from "./routes/inspector.js";
 
 export { getSlackStore, type SlackStore } from "./store.js";
@@ -96,6 +98,10 @@ const DEFAULT_SLACK_SCOPES = [
   "users:write",
   "files:read",
   "files:write",
+  "pins:read",
+  "pins:write",
+  "bookmarks:read",
+  "bookmarks:write",
   "reactions:read",
   "reactions:write",
   "team:read",
@@ -308,7 +314,8 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: SlackSeed
       const value = token.token.trim();
       if (!value || ss.tokens.findOneBy("token", value)) continue;
 
-      const userId = token.user_id ?? token.user ?? ss.users.all()[0]?.user_id ?? "U000000001";
+      const userId =
+        resolveSeedTokenUserId(ss, token.user_id ?? token.user) ?? ss.users.all()[0]?.user_id ?? "U000000001";
       ss.tokens.insert({
         token: value,
         token_type: token.type ?? "test",
@@ -368,6 +375,8 @@ export const slackPlugin: ServicePlugin = {
     oauthRoutes(ctx);
     webhookRoutes(ctx);
     filesRoutes(ctx);
+    pinsRoutes(ctx);
+    bookmarksRoutes(ctx);
     inspectorRoutes(ctx);
   },
   seed(store: Store, baseUrl: string): void {
@@ -501,6 +510,11 @@ function seedOAuthInstallation(
       ...data,
     });
   }
+}
+
+function resolveSeedTokenUserId(ss: ReturnType<typeof getSlackStore>, userRef: string | undefined): string | undefined {
+  if (!userRef) return undefined;
+  return ss.users.findOneBy("user_id", userRef)?.user_id ?? ss.users.findOneBy("name", userRef)?.user_id ?? userRef;
 }
 
 function slugifySlackBotName(value: string): string {

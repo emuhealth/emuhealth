@@ -42,6 +42,13 @@ export function chatRoutes(ctx: RouteContext): void {
   };
   const isChannelMember = (channel: SlackChannel, user: SlackUser) =>
     channel.members.includes(user.user_id) || channel.members.includes(user.name);
+  const deletePinsForMessage = (channel: string, ts: string) => {
+    for (const pin of ss()
+      .pins.findBy("message_ts", ts)
+      .filter((pin) => pin.channel_id === channel)) {
+      ss().pins.delete(pin.id);
+    }
+  };
   const dispatchConversationEvent = async (type: string, event: Record<string, unknown>) => {
     await webhooks.dispatch(
       type,
@@ -126,12 +133,13 @@ export function chatRoutes(ctx: RouteContext): void {
     if (!ch) return slackError(c, "channel_not_found");
     if (ch.is_archived) return slackError(c, "is_archived");
     if (!canAccessConversation(ch, authUser)) return slackError(c, "not_in_channel");
+    const authUserId = getAuthUserId(authUser);
 
     const ts = generateTs();
     const msg = ss().messages.insert({
       ts,
       channel_id: ch.channel_id,
-      user: authUser.login,
+      user: authUserId,
       text,
       type: "message" as const,
       thread_ts,
@@ -147,9 +155,9 @@ export function chatRoutes(ctx: RouteContext): void {
         .messages.all()
         .find((m) => m.ts === thread_ts && m.channel_id === ch.channel_id);
       if (parent) {
-        const replyUsers = parent.reply_users.includes(authUser.login)
+        const replyUsers = parent.reply_users.includes(authUserId)
           ? parent.reply_users
-          : [...parent.reply_users, authUser.login];
+          : [...parent.reply_users, authUserId];
         ss().messages.update(parent.id, {
           reply_count: parent.reply_count + 1,
           reply_users: replyUsers,
@@ -205,12 +213,13 @@ export function chatRoutes(ctx: RouteContext): void {
     const targetUser = ss().users.findOneBy("user_id", user);
     if (!targetUser) return slackError(c, "user_not_found");
     if (!isChannelMember(ch, targetUser)) return slackError(c, "user_not_in_channel");
+    const authUserId = getAuthUserId(authUser);
 
     const ts = generateTs();
     ss().ephemeralMessages.insert({
       ts,
       channel_id: ch.channel_id,
-      user: authUser.login,
+      user: authUserId,
       target_user: targetUser.user_id,
       text,
       type: "message" as const,
@@ -261,10 +270,11 @@ export function chatRoutes(ctx: RouteContext): void {
       return slackError(c, "no_text");
     }
 
+    const authUserId = getAuthUserId(authUser);
     const eventTs = generateTs();
     const updated = ss().messages.update(msg.id, {
       ...updates,
-      edited: { user: authUser.login, ts: eventTs },
+      edited: { user: authUserId, ts: eventTs },
     })!;
 
     await webhooks.dispatch(
@@ -317,6 +327,7 @@ export function chatRoutes(ctx: RouteContext): void {
     if (!isAuthoredByUser(msg, authUser)) return slackError(c, "cant_delete_message");
 
     ss().messages.delete(msg.id);
+    deletePinsForMessage(channel, ts);
 
     const eventTs = generateTs();
     await webhooks.dispatch(
@@ -399,11 +410,12 @@ export function chatRoutes(ctx: RouteContext): void {
     if (!ch) return slackError(c, "channel_not_found");
     if (ch.is_archived) return slackError(c, "is_archived");
     if (!canAccessConversation(ch, authUser)) return slackError(c, "not_in_channel");
+    const authUserId = getAuthUserId(authUser);
 
     const scheduled = ss().scheduledMessages.insert({
       scheduled_message_id: generateSlackId("Q"),
       channel_id: ch.channel_id,
-      user: authUser.login,
+      user: authUserId,
       text,
       type: "delayed_message" as const,
       subtype: "bot_message" as const,
@@ -524,12 +536,13 @@ export function chatRoutes(ctx: RouteContext): void {
     if (!ch) return slackError(c, "channel_not_found");
     if (ch.is_archived) return slackError(c, "is_archived");
     if (!canAccessConversation(ch, authUser)) return slackError(c, "not_in_channel");
+    const authUserId = getAuthUserId(authUser);
 
     const ts = generateTs();
     ss().messages.insert({
       ts,
       channel_id: ch.channel_id,
-      user: authUser.login,
+      user: authUserId,
       text,
       type: "message" as const,
       subtype: "me_message",
