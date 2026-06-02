@@ -149,10 +149,10 @@ export function adminRoutes(ctx: RouteContext): void {
       name: body.name,
       group_id: groupId,
       state: "IDLE",
-      mongo_uri: `mongodb+srv://${body.name}.emulate.mongodb.net`,
+      mongo_uri: `mongodb+srv://${body.name}.emuhealth.mongodb.net`,
       connection_strings: {
-        standard: `mongodb://${body.name}.emulate.mongodb.net:27017`,
-        standard_srv: `mongodb+srv://${body.name}.emulate.mongodb.net`,
+        standard: `mongodb://${body.name}.emuhealth.mongodb.net:27017`,
+        standard_srv: `mongodb+srv://${body.name}.emuhealth.mongodb.net`,
       },
       provider_settings: {
         provider_name: body.providerSettings?.providerName ?? "AWS",

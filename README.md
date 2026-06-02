@@ -1,11 +1,11 @@
-# emulate
+# emuhealth
 
 Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.
 
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services start with sensible defaults. No config file needed:
@@ -22,25 +22,25 @@ All services start with sensible defaults. No config file needed:
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom port
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service vercel
+npx emuhealth init --service vercel
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ### Options
@@ -63,41 +63,41 @@ The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 # Start the portless proxy (first time only)
 portless proxy start
 
-# Start emulate with portless integration
-npx emulate start --portless
+# Start emuhealth with portless integration
+npx emuhealth start --portless
 ```
 
 Each service registers as a portless alias and gets a named HTTPS URL:
 
 ```
-github  https://github.emulate.localhost
-google  https://google.emulate.localhost
-slack   https://slack.emulate.localhost
+github  https://github.emuhealth.localhost
+google  https://google.emuhealth.localhost
+slack   https://slack.emuhealth.localhost
 ```
 
-If portless is not installed, emulate will prompt to install it (`npm i -g portless`).
+If portless is not installed, emuhealth will prompt to install it (`npm i -g portless`).
 
-The `--portless` flag overwrites any existing portless aliases matching `*.emulate`. Aliases are removed automatically when emulate shuts down.
+The `--portless` flag overwrites any existing portless aliases matching `*.emuhealth`. Aliases are removed automatically when emuhealth shuts down.
 
-For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMULATE_BASE_URL` env var:
+For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMUHEALTH_BASE_URL` env var:
 
 ```bash
-npx emulate start --base-url "https://{service}.myproxy.test"
+npx emuhealth start --base-url "https://{service}.myproxy.test"
 ```
 
-The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emulate start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
+The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emuhealth emuhealth start`), typically to a value like `https://{service}.emuhealth.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMUHEALTH_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
 
 Per-service overrides are also supported in the seed config (these take highest priority over all other base URL sources):
 
 ```yaml
 github:
-  baseUrl: https://github.emulate.localhost
+  baseUrl: https://github.emuhealth.localhost
 ```
 
 ## Programmatic API
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 Each call to `createEmulator` starts a single service:
@@ -144,7 +144,7 @@ afterAll(() => Promise.all([github.close(), vercel.close()]))
 | `service` | *(required)* | Service name: `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, or `'aws'` |
 | `port` | `4000` | Port for the HTTP server |
 | `seed` | none | Inline seed data (same shape as YAML config) |
-| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
+| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMUHEALTH_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
 
 ### Instance methods
 
@@ -156,7 +156,7 @@ afterAll(() => Promise.all([github.close(), vercel.close()]))
 
 ## Configuration
 
-Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emulate init` to generate a starter file.
+Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
 
 ```yaml
 tokens:
@@ -829,7 +829,7 @@ Only install the emulators you need. Each `@emulators/*` package is published in
 Create a catch-all route that serves emulator traffic:
 
 ```typescript
-// app/emulate/[...path]/route.ts
+// app/emuhealth/[...path]/route.ts
 import { createEmulateHandler } from '@emulators/adapter-next'
 import * as github from '@emulators/github'
 import * as google from '@emulators/google'
@@ -867,9 +867,9 @@ const baseUrl = process.env.VERCEL_URL
 GitHub({
   clientId: 'any-value',
   clientSecret: 'any-value',
-  authorization: { url: `${baseUrl}/emulate/github/login/oauth/authorize` },
-  token: { url: `${baseUrl}/emulate/github/login/oauth/access_token` },
-  userinfo: { url: `${baseUrl}/emulate/github/user` },
+  authorization: { url: `${baseUrl}/emuhealth/github/login/oauth/authorize` },
+  token: { url: `${baseUrl}/emuhealth/github/login/oauth/access_token` },
+  userinfo: { url: `${baseUrl}/emuhealth/github/user` },
 })
 ```
 
@@ -881,9 +881,9 @@ Emulator UI pages use bundled fonts. Wrap your Next.js config to include them in
 
 ```typescript
 // next.config.mjs
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmuhealth } from '@emulators/adapter-next'
 
-export default withEmulate({
+export default withEmuhealth({
   // your normal Next.js config
 })
 ```
@@ -891,7 +891,7 @@ export default withEmulate({
 If you mount the catch-all at a custom path, pass the matching prefix:
 
 ```typescript
-export default withEmulate(nextConfig, { routePrefix: '/api/emulate' })
+export default withEmuhealth(nextConfig, { routePrefix: '/api/emuhealth' })
 ```
 
 ### Persistence
@@ -903,8 +903,8 @@ import { createEmulateHandler } from '@emulators/adapter-next'
 import * as github from '@emulators/github'
 
 const kvAdapter = {
-  async load() { return await kv.get('emulate-state') },
-  async save(data: string) { await kv.set('emulate-state', data) },
+  async load() { return await kv.get('emuhealth-state') },
+  async save(data: string) { await kv.set('emuhealth-state', data) },
 }
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
@@ -919,7 +919,7 @@ For local development, `@emulators/core` ships `filePersistence`:
 import { filePersistence } from '@emulators/core'
 
 // ...
-persistence: filePersistence('.emulate/state.json'),
+persistence: filePersistence('.emuhealth/state.json'),
 ```
 
 The persistence adapter is called on cold start (load) and after every mutating request (save). Saves are serialized via an internal queue to prevent race conditions.
@@ -928,7 +928,7 @@ The persistence adapter is called on cold start (load) and after every mutating 
 
 ```
 packages/
-  emulate/          # CLI entry point (commander)
+  emuhealth/          # CLI entry point (commander)
   @emulators/
     core/           # HTTP server, in-memory store, plugin interface, middleware
     adapter-next/   # Next.js App Router integration

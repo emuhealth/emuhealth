@@ -303,7 +303,7 @@ export function createEmulateHandler(config: EmulateHandlerConfig) {
   };
 }
 
-export function withEmulate<T>(nextConfig: T, options?: { routePrefix?: string }): T {
+export function withEmuhealth<T>(nextConfig: T, options?: { routePrefix?: string }): T {
   const config = nextConfig as Record<string, unknown>;
   const prefix = options?.routePrefix ?? "/emulate";
   const routePattern = `${prefix}/**`;

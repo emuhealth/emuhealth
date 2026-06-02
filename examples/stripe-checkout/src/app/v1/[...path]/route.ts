@@ -1,4 +1,4 @@
-const STRIPE_URL = `http://localhost:${process.env.PORT ?? "3000"}/emulate/stripe`;
+const STRIPE_URL = `http://localhost:${process.env.PORT ?? "3000"}/emuhealth/stripe`;
 
 async function handler(req: Request, ctx: { params: Promise<{ path: string[] }> }) {
   const { path } = await ctx.params;

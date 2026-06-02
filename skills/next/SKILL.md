@@ -1,7 +1,7 @@
 ---
 name: next
-description: Next.js adapter for embedding emulators directly in a Next.js app via @emulators/adapter-next. Use when the user needs to embed emulators in Next.js, set up same-origin OAuth for Vercel preview deployments, create an emulate catch-all route handler, configure Auth.js/NextAuth with embedded emulators, add persistence to embedded emulators, or wrap next.config with withEmulate. Triggers include "Next.js emulator", "adapter-next", "embedded emulator", "same-origin OAuth", "Vercel preview", "createEmulateHandler", "withEmulate", or any task requiring emulators inside a Next.js app.
-allowed-tools: Bash(npx emulate:*), Bash(emulate:*)
+description: Next.js adapter for embedding emulators directly in a Next.js app via @emulators/adapter-next. Use when the user needs to embed emulators in Next.js, set up same-origin OAuth for Vercel preview deployments, create an emulate catch-all route handler, configure Auth.js/NextAuth with embedded emulators, add persistence to embedded emulators, or wrap next.config with withEmuhealth. Triggers include "Next.js emulator", "adapter-next", "embedded emulator", "same-origin OAuth", "Vercel preview", "createEmulateHandler", "withEmuhealth", or any task requiring emulators inside a Next.js app.
+allowed-tools: Bash(npx emuhealth:*), Bash(emuhealth:*)
 ---
 
 # Next.js Integration
@@ -21,7 +21,7 @@ Only install the emulators you need. Each `@emulators/*` package is published in
 Create a catch-all route that serves emulator traffic:
 
 ```typescript
-// app/emulate/[...path]/route.ts
+// app/emuhealth/[...path]/route.ts
 import { createEmulateHandler } from '@emulators/adapter-next'
 import * as github from '@emulators/github'
 import * as google from '@emulators/google'
@@ -47,8 +47,8 @@ export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
 
 This creates the following routes:
 
-- `/emulate/github/**` serves the GitHub emulator
-- `/emulate/google/**` serves the Google emulator
+- `/emuhealth/github/**` serves the GitHub emulator
+- `/emuhealth/google/**` serves the Google emulator
 
 ## Auth.js / NextAuth Configuration
 
@@ -64,9 +64,9 @@ const baseUrl = process.env.VERCEL_URL
 GitHub({
   clientId: 'any-value',
   clientSecret: 'any-value',
-  authorization: { url: `${baseUrl}/emulate/github/login/oauth/authorize` },
-  token: { url: `${baseUrl}/emulate/github/login/oauth/access_token` },
-  userinfo: { url: `${baseUrl}/emulate/github/user` },
+  authorization: { url: `${baseUrl}/emuhealth/github/login/oauth/authorize` },
+  token: { url: `${baseUrl}/emuhealth/github/login/oauth/access_token` },
+  userinfo: { url: `${baseUrl}/emuhealth/github/user` },
 })
 ```
 
@@ -78,9 +78,9 @@ Emulator UI pages use bundled fonts. Wrap your Next.js config to include them in
 
 ```typescript
 // next.config.mjs
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmuhealth } from '@emulators/adapter-next'
 
-export default withEmulate({
+export default withEmuhealth({
   // your normal Next.js config
 })
 ```
@@ -88,7 +88,7 @@ export default withEmulate({
 If you mount the catch-all at a custom path, pass the matching prefix:
 
 ```typescript
-export default withEmulate(nextConfig, { routePrefix: '/api/emulate' })
+export default withEmuhealth(nextConfig, { routePrefix: '/api/emuhealth' })
 ```
 
 ## Persistence
@@ -102,8 +102,8 @@ import { createEmulateHandler } from '@emulators/adapter-next'
 import * as github from '@emulators/github'
 
 const kvAdapter = {
-  async load() { return await kv.get('emulate-state') },
-  async save(data: string) { await kv.set('emulate-state', data) },
+  async load() { return await kv.get('emuhealth-state') },
+  async save(data: string) { await kv.set('emuhealth-state', data) },
 }
 
 export const { GET, POST, PUT, PATCH, DELETE } = createEmulateHandler({
@@ -120,7 +120,7 @@ For local development, `@emulators/core` ships a file-based adapter:
 import { filePersistence } from '@emulators/core'
 
 // persists to a JSON file
-persistence: filePersistence('.emulate/state.json'),
+persistence: filePersistence('.emuhealth/state.json'),
 ```
 
 ### How Persistence Works
@@ -131,7 +131,7 @@ persistence: filePersistence('.emulate/state.json'),
 
 ## How It Works
 
-1. **Incoming request**: `/emulate/github/login/oauth/authorize?client_id=...`
+1. **Incoming request**: `/emuhealth/github/login/oauth/authorize?client_id=...`
 2. **Parse**: service = `github`, rest = `/login/oauth/authorize`
 3. **Strip prefix**: A new `Request` is created with the stripped path and forwarded to the GitHub service app
 4. **Rewrite response**: HTML `action` and `href` attributes, CSS `url()` font references, and `Location` headers get the service prefix prepended
@@ -158,13 +158,13 @@ Each `EmulatorEntry`:
 | `emulator` | `EmulatorModule` | The emulator package (e.g. `import * as github from '@emulators/github'`) |
 | `seed?` | `Record<string, unknown>` | Seed data matching the service's config schema |
 
-### `withEmulate(nextConfig, options?)`
+### `withEmuhealth(nextConfig, options?)`
 
 Wraps a Next.js config to include emulator font files in the serverless output trace. Call it around your exported config in `next.config.mjs` or `next.config.ts`.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `routePrefix` | `string` | `"/emulate"` | The path prefix where the catch-all route is mounted |
+| `routePrefix` | `string` | `"/emuhealth"` | The path prefix where the catch-all route is mounted |
 
 ### `PersistenceAdapter`
 

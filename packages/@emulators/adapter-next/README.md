@@ -21,7 +21,7 @@ npm install @emulators/adapter-next @emulators/github @emulators/google
 Create a catch-all route that serves emulator traffic:
 
 ```typescript
-// app/emulate/[...path]/route.ts
+// app/emuhealth/[...path]/route.ts
 import { createEmulateHandler } from '@emulators/adapter-next'
 import * as github from '@emulators/github'
 import * as google from '@emulators/google'
@@ -59,9 +59,9 @@ const baseUrl = process.env.VERCEL_URL
 GitHub({
   clientId: 'any-value',
   clientSecret: 'any-value',
-  authorization: { url: `${baseUrl}/emulate/github/login/oauth/authorize` },
-  token: { url: `${baseUrl}/emulate/github/login/oauth/access_token` },
-  userinfo: { url: `${baseUrl}/emulate/github/user` },
+  authorization: { url: `${baseUrl}/emuhealth/github/login/oauth/authorize` },
+  token: { url: `${baseUrl}/emuhealth/github/login/oauth/access_token` },
+  userinfo: { url: `${baseUrl}/emuhealth/github/user` },
 })
 ```
 
@@ -73,9 +73,9 @@ Emulator UI pages use bundled fonts. Wrap your Next.js config to include them in
 
 ```typescript
 // next.config.mjs
-import { withEmulate } from '@emulators/adapter-next'
+import { withEmuhealth } from '@emulators/adapter-next'
 
-export default withEmulate({
+export default withEmuhealth({
   // your normal Next.js config
 })
 ```
@@ -83,7 +83,7 @@ export default withEmulate({
 If you mount the catch-all at a custom path, pass the matching prefix:
 
 ```typescript
-export default withEmulate(nextConfig, { routePrefix: '/api/emulate' })
+export default withEmuhealth(nextConfig, { routePrefix: '/api/emulate' })
 ```
 
 ## Persistence
@@ -111,7 +111,7 @@ For local development, `@emulators/core` ships `filePersistence`:
 import { filePersistence } from '@emulators/core'
 
 // ...
-persistence: filePersistence('.emulate/state.json'),
+persistence: filePersistence('.emuhealth/state.json'),
 ```
 
 ## Links

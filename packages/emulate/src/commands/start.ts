@@ -139,7 +139,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
     const port = (svcSeedConfig?.port as number | undefined) ?? basePort + i;
 
     if (options.portless) {
-      portlessAliases.push({ name: `${svc}.emulate`, port });
+      portlessAliases.push({ name: `${svc}.emuhealth`, port });
     }
 
     const seedBaseUrl =

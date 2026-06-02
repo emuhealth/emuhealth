@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import type { NextConfig } from "next";
-import { withEmulate } from "@emulators/adapter-next";
+import { withEmuhealth } from "@emulators/adapter-next";
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -8,4 +8,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withEmulate(nextConfig);
+export default withEmuhealth(nextConfig);

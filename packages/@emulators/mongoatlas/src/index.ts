@@ -52,10 +52,10 @@ function seedDefaults(store: Store, _baseUrl: string): void {
     name: "Cluster0",
     group_id: groupId,
     state: "IDLE",
-    mongo_uri: "mongodb+srv://Cluster0.emulate.mongodb.net",
+    mongo_uri: "mongodb+srv://Cluster0.emuhealth.mongodb.net",
     connection_strings: {
-      standard: "mongodb://Cluster0.emulate.mongodb.net:27017",
-      standard_srv: "mongodb+srv://Cluster0.emulate.mongodb.net",
+      standard: "mongodb://Cluster0.emuhealth.mongodb.net:27017",
+      standard_srv: "mongodb+srv://Cluster0.emuhealth.mongodb.net",
     },
     provider_settings: {
       provider_name: "AWS",
@@ -127,10 +127,10 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: MongoAtla
         name: cl.name,
         group_id: groupId,
         state: "IDLE",
-        mongo_uri: `mongodb+srv://${cl.name}.emulate.mongodb.net`,
+        mongo_uri: `mongodb+srv://${cl.name}.emuhealth.mongodb.net`,
         connection_strings: {
-          standard: `mongodb://${cl.name}.emulate.mongodb.net:27017`,
-          standard_srv: `mongodb+srv://${cl.name}.emulate.mongodb.net`,
+          standard: `mongodb://${cl.name}.emuhealth.mongodb.net:27017`,
+          standard_srv: `mongodb+srv://${cl.name}.emuhealth.mongodb.net`,
         },
         provider_settings: {
           provider_name: cl.provider ?? "AWS",
