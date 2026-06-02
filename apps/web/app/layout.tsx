@@ -8,28 +8,28 @@ import { getStarCount } from "@/lib/github";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://emulate.dev"),
+  metadataBase: new URL("https://github.com/emuhealth/emuhealth"),
   title: {
-    default: "emulate | Local API Emulation for CI & Sandboxes",
-    template: "%s | emulate",
+    default: "EmuHealth | Healthcare & Life Science API Emulation",
+    template: "%s | EmuHealth",
   },
   description:
-    "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.",
+    "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://emulate.dev",
-    siteName: "emulate",
-    title: "emulate | Local API Emulation for CI & Sandboxes",
+    url: "https://github.com/emuhealth/emuhealth",
+    siteName: "EmuHealth",
+    title: "EmuHealth | Healthcare & Life Science API Emulation",
     description:
-      "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.",
-    images: [{ url: "/og", width: 1200, height: 630, alt: "emulate" }],
+      "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
+    images: [{ url: "/og", width: 1200, height: 630, alt: "EmuHealth" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "emulate | Local API Emulation for CI & Sandboxes",
+    title: "EmuHealth | Healthcare & Life Science API Emulation",
     description:
-      "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.",
+      "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
     images: ["/og"],
   },
 };
@@ -69,7 +69,7 @@ function Header({ stars }: { stars?: string }) {
             </svg>
           </span>
           <Link href="/">
-            <span className={`${GeistPixelSquare.className} text-lg`}>emulate</span>
+            <span className={`${GeistPixelSquare.className} text-lg`}>emuhealth</span>
           </Link>
         </div>
         <nav className="flex items-center gap-4">
@@ -81,7 +81,7 @@ function Header({ stars }: { stars?: string }) {
             Docs
           </Link>
           <a
-            href="https://github.com/vercel-labs/emulate"
+            href="https://github.com/emuhealth/emuhealth"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition-colors dark:text-neutral-400 dark:hover:text-neutral-100"
@@ -92,7 +92,7 @@ function Header({ stars }: { stars?: string }) {
             {stars && <span>{stars}</span>}
           </a>
           <a
-            href="https://www.npmjs.com/package/emulate"
+            href="https://www.npmjs.com/package/emuhealth"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors dark:text-neutral-400 dark:hover:text-neutral-100"

@@ -23,7 +23,7 @@ export default function LandingPage() {
             Get started
           </Link>
           <a
-            href="https://github.com/vercel-labs/emulate"
+            href="https://github.com/emuhealth/emuhealth"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-200 px-4 text-sm text-neutral-700 hover:border-neutral-300 dark:border-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-700"
@@ -101,7 +101,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emulate</div>
+              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emuhealth</div>
               <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-950 dark:border-neutral-800">
                 <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-neutral-400 font-mono">
                   <code>
@@ -132,7 +132,7 @@ stripe.config.host = `}</span>
                 Run alongside your dev server. Pick which services you need.
               </p>
               <div className="overflow-x-auto rounded-md bg-neutral-100 px-3 py-2 font-mono text-xs text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-                npx emulate --service github,stripe
+                npx emuhealth --service github,stripe
               </div>
             </div>
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
@@ -142,7 +142,7 @@ stripe.config.host = `}</span>
               </p>
               <div className="overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-900">
                 <pre className="overflow-x-auto px-3 py-2 font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                  <code>{`import { createEmulator } from "emulate"
+                  <code>{`import { createEmulator } from "emuhealth"
 
 const github = await createEmulator({ service: "github", port: 4001 })
 afterEach(() => github.reset())
@@ -175,14 +175,14 @@ afterAll(() => github.close())`}</code>
                 <path fillRule="evenodd" clipRule="evenodd" d="M8 1L16 15H0L8 1Z" fill="currentColor" />
               </svg>
             </Link>
-            <span className="dark:text-neutral-500">Vercel Labs</span>
+            <span className="dark:text-neutral-500">EmuHealth</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-neutral-500">
             <Link href="/docs" className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors">
               Docs
             </Link>
             <a
-              href="https://github.com/vercel-labs/emulate"
+              href="https://github.com/emuhealth/emuhealth"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
@@ -190,7 +190,7 @@ afterAll(() => github.close())`}</code>
               GitHub
             </a>
             <a
-              href="https://www.npmjs.com/package/emulate"
+              href="https://www.npmjs.com/package/emuhealth"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
