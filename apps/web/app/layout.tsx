@@ -10,26 +10,26 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://emuhealth.dev"),
   title: {
-    default: "EmuHealth | Healthcare & Life Science API Emulation",
+    default: "EmuHealth | Local API Emulation for CI & Sandboxes",
     template: "%s | EmuHealth",
   },
   description:
-    "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
+    "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://emuhealth.dev",
     siteName: "EmuHealth",
-    title: "EmuHealth | Healthcare & Life Science API Emulation",
+    title: "EmuHealth | Local API Emulation for CI & Sandboxes",
     description:
-      "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
+      "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
     images: [{ url: "/og", width: 1200, height: 630, alt: "EmuHealth" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "EmuHealth | Healthcare & Life Science API Emulation",
+    title: "EmuHealth | Local API Emulation for CI & Sandboxes",
     description:
-      "Local drop-in replacement services for healthcare and life science APIs. Fully stateful, production-fidelity emulation for CI and no-network sandboxes.",
+      "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
     images: ["/og"],
   },
 };
