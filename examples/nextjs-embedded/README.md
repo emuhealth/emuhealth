@@ -34,7 +34,7 @@ The session cookie in this example is a plain base64url-encoded JSON blob with n
 
 | | `examples/oauth` | `examples/nextjs-embedded` |
 |---|---|---|
-| Emulator process | Separate `npx emulate` process | Embedded in the Next.js app |
+| Emulator process | Separate `npx emuhealth` process | Embedded in the Next.js app |
 | Config | `emuhealth.config.yaml` + `.env.local` | Seed data in `route.ts` |
 | OAuth URLs | `http://localhost:4001/login/oauth/...` | `/emuhealth/github/login/oauth/...` (same origin) |
 | Client credentials | Must match config | `"any"` (validation skipped) |
