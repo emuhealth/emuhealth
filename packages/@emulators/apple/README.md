@@ -39,5 +39,5 @@ apple:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/apple)
+- [Full documentation](https://emuhealth.dev/apple)
 - [GitHub](https://github.com/vercel-labs/emulate)

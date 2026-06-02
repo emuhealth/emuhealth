@@ -126,5 +126,5 @@ google:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/google)
+- [Full documentation](https://emuhealth.dev/google)
 - [GitHub](https://github.com/vercel-labs/emulate)

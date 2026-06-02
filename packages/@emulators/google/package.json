@@ -11,7 +11,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "homepage": "https://emulate.dev",
+  "homepage": "https://emuhealth.dev",
   "repository": {
     "type": "git",
     "url": "https://github.com/vercel-labs/emulate.git",

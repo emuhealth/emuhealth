@@ -16,14 +16,14 @@ function insertSlackTestUser(store: Store, userId: string, name: string) {
     team_id: "T000000001",
     name,
     real_name: name,
-    email: `${name}@emulate.dev`,
+    email: `${name}@emuhealth.dev`,
     is_admin: false,
     is_bot: false,
     deleted: false,
     profile: {
       display_name: name,
       real_name: name,
-      email: `${name}@emulate.dev`,
+      email: `${name}@emuhealth.dev`,
       image_48: "",
       image_192: "",
     },
@@ -620,14 +620,14 @@ describe("Slack plugin - chat.postEphemeral", () => {
       team_id: "T000000001",
       name: "outsider",
       real_name: "Outsider",
-      email: "outsider@emulate.dev",
+      email: "outsider@emuhealth.dev",
       is_admin: false,
       is_bot: false,
       deleted: false,
       profile: {
         display_name: "outsider",
         real_name: "Outsider",
-        email: "outsider@emulate.dev",
+        email: "outsider@emuhealth.dev",
         image_48: "",
         image_192: "",
       },
@@ -1822,11 +1822,11 @@ describe("Slack plugin - users", () => {
     const res = await app.request(`${base}/api/users.lookupByEmail`, {
       method: "POST",
       headers: authHeaders(),
-      body: JSON.stringify({ email: "admin@emulate.dev" }),
+      body: JSON.stringify({ email: "admin@emuhealth.dev" }),
     });
     const body = (await res.json()) as any;
     expect(body.ok).toBe(true);
-    expect(body.user.profile.email).toBe("admin@emulate.dev");
+    expect(body.user.profile.email).toBe("admin@emuhealth.dev");
   });
 
   it("gets and sets profile fields", async () => {
@@ -2558,7 +2558,7 @@ describe("Slack plugin - scope modes", () => {
     });
     const email = (await emailRes.json()) as any;
     expect(email.ok).toBe(true);
-    expect(email.user.profile.email).toBe("admin@emulate.dev");
+    expect(email.user.profile.email).toBe("admin@emuhealth.dev");
   });
 
   it("allows lookup by email with only users:read.email in strict mode", async () => {
@@ -2572,11 +2572,11 @@ describe("Slack plugin - scope modes", () => {
     const res = await app.request(`${base}/api/users.lookupByEmail`, {
       method: "POST",
       headers: { Authorization: "Bearer xoxb-users-email-only-token", "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "admin@emulate.dev" }),
+      body: JSON.stringify({ email: "admin@emuhealth.dev" }),
     });
     const body = (await res.json()) as any;
     expect(body.ok).toBe(true);
-    expect(body.user.profile.email).toBe("admin@emulate.dev");
+    expect(body.user.profile.email).toBe("admin@emuhealth.dev");
   });
 
   it("requires team and bot info scopes in strict mode", async () => {
@@ -3138,14 +3138,14 @@ describe("Slack plugin - files", () => {
       team_id: "T000000001",
       name: "files-outsider",
       real_name: "Files Outsider",
-      email: "files-outsider@emulate.dev",
+      email: "files-outsider@emuhealth.dev",
       is_admin: false,
       is_bot: false,
       deleted: false,
       profile: {
         display_name: "files-outsider",
         real_name: "Files Outsider",
-        email: "files-outsider@emulate.dev",
+        email: "files-outsider@emuhealth.dev",
         image_48: "",
         image_192: "",
       },
@@ -3223,14 +3223,14 @@ describe("Slack plugin - files", () => {
       team_id: "T000000001",
       name: "mixed-outsider",
       real_name: "Mixed Outsider",
-      email: "mixed-outsider@emulate.dev",
+      email: "mixed-outsider@emuhealth.dev",
       is_admin: false,
       is_bot: false,
       deleted: false,
       profile: {
         display_name: "mixed-outsider",
         real_name: "Mixed Outsider",
-        email: "mixed-outsider@emulate.dev",
+        email: "mixed-outsider@emuhealth.dev",
         image_48: "",
         image_192: "",
       },

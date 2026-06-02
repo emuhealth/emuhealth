@@ -71,5 +71,5 @@ aws:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/aws)
+- [Full documentation](https://emuhealth.dev/aws)
 - [GitHub](https://github.com/vercel-labs/emulate)

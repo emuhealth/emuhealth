@@ -47,5 +47,5 @@ The persistence adapter is called on cold start (load) and after every mutating 
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
+- [Full documentation](https://emuhealth.dev)
 - [GitHub](https://github.com/vercel-labs/emulate)

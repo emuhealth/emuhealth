@@ -125,14 +125,14 @@ function seedDefaults(store: Store, _baseUrl: string): void {
     team_id: teamId,
     name: "admin",
     real_name: "Admin User",
-    email: "admin@emulate.dev",
+    email: "admin@emuhealth.dev",
     is_admin: true,
     is_bot: false,
     deleted: false,
     profile: {
       display_name: "admin",
       real_name: "Admin User",
-      email: "admin@emulate.dev",
+      email: "admin@emuhealth.dev",
       image_48: "",
       image_192: "",
       real_name_normalized: "Admin User",
@@ -213,7 +213,7 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: SlackSeed
       if (existing) continue;
 
       const userId = generateSlackId("U");
-      const email = u.profile?.email ?? u.email ?? `${u.name}@emulate.dev`;
+      const email = u.profile?.email ?? u.email ?? `${u.name}@emuhealth.dev`;
       const realName = u.real_name ?? u.name;
       const profile = normalizeSeedProfile({
         display_name: u.name,
@@ -465,14 +465,14 @@ function seedOAuthInstallation(
       team_id: teamId,
       name: botName,
       real_name: app.name,
-      email: `${botName}@bots.emulate.dev`,
+      email: `${botName}@bots.emuhealth.dev`,
       is_admin: false,
       is_bot: true,
       deleted: false,
       profile: {
         display_name: botName,
         real_name: app.name,
-        email: `${botName}@bots.emulate.dev`,
+        email: `${botName}@bots.emuhealth.dev`,
         image_48: "",
         image_192: "",
         real_name_normalized: app.name,

@@ -44,5 +44,5 @@ microsoft:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/microsoft)
+- [Full documentation](https://emuhealth.dev/microsoft)
 - [GitHub](https://github.com/vercel-labs/emulate)

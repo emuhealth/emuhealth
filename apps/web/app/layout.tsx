@@ -8,7 +8,7 @@ import { getStarCount } from "@/lib/github";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://github.com/emuhealth/emuhealth"),
+  metadataBase: new URL("https://emuhealth.dev"),
   title: {
     default: "EmuHealth | Healthcare & Life Science API Emulation",
     template: "%s | EmuHealth",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://github.com/emuhealth/emuhealth",
+    url: "https://emuhealth.dev",
     siteName: "EmuHealth",
     title: "EmuHealth | Healthcare & Life Science API Emulation",
     description:

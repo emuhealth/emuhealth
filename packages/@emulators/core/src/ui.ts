@@ -279,7 +279,7 @@ body{
 }
 `;
 
-const POWERED_BY = `<div class="powered-by">Powered by <a href="https://emulate.dev" target="_blank" rel="noopener">emulate</a></div>`;
+const POWERED_BY = `<div class="powered-by">Powered by <a href="https://emuhealth.dev" target="_blank" rel="noopener">EmuHealth</a></div>`;
 
 function emuBar(service?: string): string {
   const title = service ? `${escapeHtml(service)} Emulator` : "Emulator";
@@ -288,7 +288,7 @@ function emuBar(service?: string): string {
   <nav class="emu-bar-links">
     <a href="https://github.com/vercel-labs/emulate/issues" target="_blank" rel="noopener"><span class="full">Report Issue</span><span class="short">Report</span></a>
     <a href="https://github.com/vercel-labs/emulate" target="_blank" rel="noopener"><span class="full">Source Code</span><span class="short">Source</span></a>
-    <a href="https://emulate.dev" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
+    <a href="https://emuhealth.dev" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
   </nav>
 </div>`;
 }

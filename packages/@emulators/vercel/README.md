@@ -86,5 +86,5 @@ vercel:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/vercel)
+- [Full documentation](https://emuhealth.dev/vercel)
 - [GitHub](https://github.com/vercel-labs/emulate)

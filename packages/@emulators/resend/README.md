@@ -55,5 +55,5 @@ resend:
 
 ## Links
 
-- [Full documentation](https://emulate.dev)
+- [Full documentation](https://emuhealth.dev)
 - [GitHub](https://github.com/vercel-labs/emulate)

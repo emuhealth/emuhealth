@@ -174,5 +174,5 @@ github:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/github)
+- [Full documentation](https://emuhealth.dev/github)
 - [GitHub](https://github.com/vercel-labs/emulate)

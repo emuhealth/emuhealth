@@ -215,14 +215,14 @@ describe("Slack plugin - real @slack/web-api WebClient baseline", () => {
       team_id: "T000000001",
       name: "sdk-membership-peer",
       real_name: "sdk-membership-peer",
-      email: "sdk-membership-peer@emulate.dev",
+      email: "sdk-membership-peer@emuhealth.dev",
       is_admin: false,
       is_bot: false,
       deleted: false,
       profile: {
         display_name: "sdk-membership-peer",
         real_name: "sdk-membership-peer",
-        email: "sdk-membership-peer@emulate.dev",
+        email: "sdk-membership-peer@emuhealth.dev",
         image_48: "",
         image_192: "",
       },
@@ -288,14 +288,14 @@ describe("Slack plugin - real @slack/web-api WebClient baseline", () => {
       team_id: "T000000001",
       name: "sdk-teammate",
       real_name: "sdk-teammate",
-      email: "sdk-teammate@emulate.dev",
+      email: "sdk-teammate@emuhealth.dev",
       is_admin: false,
       is_bot: false,
       deleted: false,
       profile: {
         display_name: "sdk-teammate",
         real_name: "sdk-teammate",
-        email: "sdk-teammate@emulate.dev",
+        email: "sdk-teammate@emuhealth.dev",
         image_48: "",
         image_192: "",
       },
@@ -355,7 +355,7 @@ describe("Slack plugin - real @slack/web-api WebClient baseline", () => {
     expect(user.ok).toBe(true);
     expect(user.user?.name).toBe("admin");
 
-    const byEmail = await client.users.lookupByEmail({ email: "admin@emulate.dev" });
+    const byEmail = await client.users.lookupByEmail({ email: "admin@emuhealth.dev" });
     expect(byEmail.ok).toBe(true);
     expect(byEmail.user?.id).toBe("U000000001");
 

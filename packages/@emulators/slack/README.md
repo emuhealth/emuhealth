@@ -199,5 +199,5 @@ slack:
 
 ## Links
 
-- [Full documentation](https://emulate.dev/slack)
+- [Full documentation](https://emuhealth.dev/slack)
 - [GitHub](https://github.com/vercel-labs/emulate)

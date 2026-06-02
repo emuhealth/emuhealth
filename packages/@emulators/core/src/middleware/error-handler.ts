@@ -1,6 +1,6 @@
 import type { Context, ContentfulStatusCode, ErrorHandler, MiddlewareHandler } from "../http.js";
 
-const DEFAULT_DOCS_URL = "https://emulate.dev";
+const DEFAULT_DOCS_URL = "https://emuhealth.dev";
 
 function getDocsUrl(c: Context): string {
   return (c.get("docsUrl") as string | undefined) ?? DEFAULT_DOCS_URL;
