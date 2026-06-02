@@ -9,7 +9,7 @@ export function pageMetadata(slug: string): Metadata {
   if (!title) return {};
 
   const displayTitle = title.replace(/\n/g, " ");
-  const fullTitle = `${displayTitle} | EmuHealth`;
+  const fullTitle = `${displayTitle} | emuhealth`;
   const ogImageUrl = slug ? `/og/${slug}` : "/og";
 
   return {
@@ -18,7 +18,7 @@ export function pageMetadata(slug: string): Metadata {
     openGraph: {
       type: "website",
       locale: "en_US",
-      siteName: "EmuHealth",
+      siteName: "emuhealth",
       title: fullTitle,
       description: DESCRIPTION,
       images: [
@@ -26,7 +26,7 @@ export function pageMetadata(slug: string): Metadata {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${displayTitle} - EmuHealth`,
+          alt: `${displayTitle} - emuhealth`,
         },
       ],
     },

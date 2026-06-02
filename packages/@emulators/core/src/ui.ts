@@ -279,7 +279,7 @@ body{
 }
 `;
 
-const POWERED_BY = `<div class="powered-by">Powered by <a href="https://emuhealth.dev" target="_blank" rel="noopener">EmuHealth</a></div>`;
+const POWERED_BY = `<div class="powered-by">Powered by <a href="https://emuhealth.dev" target="_blank" rel="noopener">emuhealth</a></div>`;
 
 function emuBar(service?: string): string {
   const title = service ? `${escapeHtml(service)} Emulator` : "Emulator";

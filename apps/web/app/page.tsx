@@ -61,7 +61,7 @@ export default function LandingPage() {
             <div>
               <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Zero config</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Run <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">npx emulate</code>{" "}
+                Run <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">npx emuhealth</code>{" "}
                 and all 11 services start with sensible defaults. Seed data via YAML when you need it.
               </p>
             </div>
@@ -175,7 +175,7 @@ afterAll(() => github.close())`}</code>
                 <path fillRule="evenodd" clipRule="evenodd" d="M8 1L16 15H0L8 1Z" fill="currentColor" />
               </svg>
             </Link>
-            <span className="dark:text-neutral-500">EmuHealth</span>
+            <span className="dark:text-neutral-500">emuhealth</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-neutral-500">
             <Link href="/docs" className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors">

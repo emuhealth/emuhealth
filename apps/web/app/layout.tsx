@@ -10,8 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://emuhealth.dev"),
   title: {
-    default: "EmuHealth | Local API Emulation for CI & Sandboxes",
-    template: "%s | EmuHealth",
+    default: "emuhealth | Local API Emulation for CI & Sandboxes",
+    template: "%s | emuhealth",
   },
   description:
     "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
@@ -19,15 +19,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://emuhealth.dev",
-    siteName: "EmuHealth",
-    title: "EmuHealth | Local API Emulation for CI & Sandboxes",
+    siteName: "emuhealth",
+    title: "emuhealth | Local API Emulation for CI & Sandboxes",
     description:
       "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
-    images: [{ url: "/og", width: 1200, height: 630, alt: "EmuHealth" }],
+    images: [{ url: "/og", width: 1200, height: 630, alt: "emuhealth" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "EmuHealth | Local API Emulation for CI & Sandboxes",
+    title: "emuhealth | Local API Emulation for CI & Sandboxes",
     description:
       "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks. Built for healthcare and life science.",
     images: ["/og"],
