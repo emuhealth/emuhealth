@@ -128,3 +128,29 @@ google:
       mime_type: application/vnd.google-apps.folder
       parent_ids:
         - root
+
+fhir:
+  resources:
+    - resourceType: Patient
+      id: pat-001
+      name:
+        - family: Rivera
+          given: [Avery]
+      gender: unknown
+      birthDate: "1990-01-01"
+    - resourceType: Observation
+      id: obs-001
+      status: final
+      code:
+        coding:
+          - system: http://loinc.org
+            code: 8867-4
+            display: Heart rate
+        text: Heart rate
+      subject:
+        reference: Patient/pat-001
+      valueQuantity:
+        value: 72
+        unit: beats/minute
+        system: http://unitsofmeasure.org
+        code: /min

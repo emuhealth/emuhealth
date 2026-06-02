@@ -16,7 +16,13 @@ All services start with sensible defaults. No config file needed:
 - **Slack** on `http://localhost:4003`
 - **Apple** on `http://localhost:4004`
 - **Microsoft** on `http://localhost:4005`
-- **AWS** on `http://localhost:4006`
+- **Okta** on `http://localhost:4006`
+- **AWS** on `http://localhost:4007`
+- **Resend** on `http://localhost:4008`
+- **Stripe** on `http://localhost:4009`
+- **MongoDB Atlas** on `http://localhost:4010`
+- **Clerk** on `http://localhost:4011`
+- **FHIR** on `http://localhost:4012`
 
 ## CLI
 
@@ -141,7 +147,7 @@ afterAll(() => Promise.all([github.close(), vercel.close()]))
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `service` | *(required)* | Service name: `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, or `'aws'` |
+| `service` | *(required)* | Service name: `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, `'aws'`, `'okta'`, `'mongoatlas'`, `'resend'`, `'stripe'`, `'clerk'`, or `'fhir'` |
 | `port` | `4000` | Port for the HTTP server |
 | `seed` | none | Inline seed data (same shape as YAML config) |
 | `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
@@ -812,6 +818,18 @@ All operations via `POST /iam/` with `Action` parameter:
 All operations via `POST /sts/` with `Action` parameter:
 - `GetCallerIdentity`, `AssumeRole`
 
+## FHIR API
+
+FHIR R4 healthcare API emulation for local healthcare and life-science integration tests.
+
+- `GET /metadata` returns a FHIR R4 CapabilityStatement
+- `GET /.well-known/smart-configuration` returns SMART on FHIR discovery metadata
+- `GET /:resourceType` returns a FHIR searchset Bundle
+- `POST /:resourceType` creates a resource
+- `GET /:resourceType/:id` reads a resource
+- `PUT /:resourceType/:id` replaces a resource
+- `DELETE /:resourceType/:id` deletes a resource
+
 ## Next.js Integration
 
 Embed emulators directly in your Next.js app so they run on the same origin. This solves the Vercel preview deployment problem where OAuth callback URLs change with every deployment.
@@ -939,6 +957,7 @@ packages/
     apple/          # Apple Sign In / OIDC
     microsoft/      # Microsoft Entra ID OAuth 2.0 / OIDC + Graph /me
     aws/            # AWS S3, SQS, IAM, STS
+    fhir/           # FHIR R4 healthcare API
 apps/
   web/              # Documentation site (Next.js)
 ```

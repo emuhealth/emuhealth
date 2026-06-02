@@ -380,3 +380,20 @@ stripe:
       recurring:
         interval: month
 ```
+
+## FHIR Seed Config
+
+```yaml
+fhir:
+  resources:
+    - resourceType: Patient
+      id: pat-001
+      name:
+        - family: Rivera
+          given: [Avery]
+    - resourceType: Observation
+      id: obs-001
+      status: final
+      subject:
+        reference: Patient/pat-001
+```

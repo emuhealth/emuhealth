@@ -84,6 +84,33 @@ describe("createEmulator", () => {
     await slack.close();
   });
 
+  it("starts fhir with seeded resources", async () => {
+    const fhir = await createEmulator({
+      service: "fhir",
+      port: 14040,
+      seed: {
+        fhir: {
+          resources: [
+            {
+              resourceType: "Patient",
+              id: "pat-001",
+              name: [{ family: "Rivera" }],
+            },
+          ],
+        },
+      },
+    });
+
+    const res = await fetch(`${fhir.url}/Patient/pat-001`, {
+      headers: { Authorization: "Bearer test_token_admin" },
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { resourceType: string; id: string };
+    expect(body).toMatchObject({ resourceType: "Patient", id: "pat-001" });
+
+    await fhir.close();
+  });
+
   it("throws on unknown service", async () => {
     // @ts-expect-error testing invalid service name
     await expect(createEmulator({ service: "unknown-svc" })).rejects.toThrow("Unknown service");

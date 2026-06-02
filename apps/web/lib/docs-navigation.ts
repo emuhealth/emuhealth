@@ -19,6 +19,7 @@ export const allDocsPages: NavItem[] = [
   { name: "MongoDB Atlas", href: "/docs/mongoatlas" },
   { name: "Resend", href: "/docs/resend" },
   { name: "Stripe", href: "/docs/stripe" },
+  { name: "FHIR", href: "/docs/fhir" },
   { name: "Authentication", href: "/docs/authentication" },
   { name: "Architecture", href: "/docs/architecture" },
 ];

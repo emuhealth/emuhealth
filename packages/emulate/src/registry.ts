@@ -27,6 +27,7 @@ const SERVICE_NAME_LIST = [
   "stripe",
   "mongoatlas",
   "clerk",
+  "fhir",
 ] as const;
 export type ServiceName = (typeof SERVICE_NAME_LIST)[number];
 export const SERVICE_NAMES: readonly ServiceName[] = SERVICE_NAME_LIST;
@@ -497,6 +498,41 @@ export const SERVICE_REGISTRY: Record<ServiceName, ServiceEntry> = {
             client_secret: "clerk_emulate_secret",
             name: "Emulate App",
             redirect_uris: ["http://localhost:3000/api/auth/callback/clerk"],
+          },
+        ],
+      },
+    },
+  },
+  fhir: {
+    label: "FHIR R4 healthcare API emulator",
+    endpoints: "FHIR metadata, SMART discovery, resource search, create, read, update, and delete",
+    async load() {
+      const mod = await import("@emulators/fhir");
+      return { plugin: mod.fhirPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "fhir-test-user", id: 1, scopes: ["patient/*.read", "patient/*.write"] };
+    },
+    initConfig: {
+      fhir: {
+        resources: [
+          {
+            resourceType: "Patient",
+            id: "pat-001",
+            name: [{ family: "Rivera", given: ["Avery"] }],
+            gender: "unknown",
+            birthDate: "1990-01-01",
+          },
+          {
+            resourceType: "Observation",
+            id: "obs-001",
+            status: "final",
+            code: {
+              coding: [{ system: "http://loinc.org", code: "8867-4", display: "Heart rate" }],
+              text: "Heart rate",
+            },
+            subject: { reference: "Patient/pat-001" },
+            valueQuantity: { value: 72, unit: "beats/minute", system: "http://unitsofmeasure.org", code: "/min" },
           },
         ],
       },

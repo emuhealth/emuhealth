@@ -1,6 +1,6 @@
 ---
 name: emulate
-description: Local drop-in API emulator for Vercel, GitHub, Google, Slack, Apple, Microsoft, and AWS. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, or work with the emulate CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emulate", or any task requiring local service emulation.
+description: Local drop-in API emulator for Vercel, GitHub, Google, Slack, Apple, Microsoft, AWS, Okta, MongoDB Atlas, Resend, Stripe, Clerk, and FHIR. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, or work with the emulate CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emulate", or any task requiring local service emulation.
 allowed-tools: Bash(npx emulate:*), Bash(emulate:*)
 ---
 
@@ -24,7 +24,13 @@ All services start with sensible defaults:
 | Slack     | 4003        |
 | Apple     | 4004        |
 | Microsoft | 4005        |
-| AWS       | 4006        |
+| Okta      | 4006        |
+| AWS       | 4007        |
+| Resend    | 4008        |
+| Stripe    | 4009        |
+| MongoDB Atlas | 4010   |
+| Clerk     | 4011        |
+| FHIR      | 4012        |
 
 ## CLI
 
@@ -90,7 +96,7 @@ await vercel.close()
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `service` | *(required)* | `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, or `'aws'` |
+| `service` | *(required)* | `'vercel'`, `'github'`, `'google'`, `'slack'`, `'apple'`, `'microsoft'`, `'aws'`, `'okta'`, `'mongoatlas'`, `'resend'`, `'stripe'`, `'clerk'`, or `'fhir'` |
 | `port` | `4000` | Port for the HTTP server |
 | `seed` | none | Inline seed data (same shape as YAML config) |
 | `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
@@ -307,7 +313,8 @@ GOOGLE_EMULATOR_URL=http://localhost:4002
 SLACK_EMULATOR_URL=http://localhost:4003
 APPLE_EMULATOR_URL=http://localhost:4004
 MICROSOFT_EMULATOR_URL=http://localhost:4005
-AWS_EMULATOR_URL=http://localhost:4006
+AWS_EMULATOR_URL=http://localhost:4007
+FHIR_EMULATOR_URL=http://localhost:4012
 ```
 
 Then use these in your app to construct API and OAuth URLs. See each service's skill for SDK-specific override instructions.
@@ -357,6 +364,7 @@ packages/
     apple/           # Sign in with Apple / OIDC plugin
     microsoft/       # Microsoft Entra ID OAuth 2.0 / OIDC plugin
     aws/             # AWS S3, SQS, IAM, STS plugin
+    fhir/            # FHIR R4 healthcare API plugin
 ```
 
 The core provides a generic `Store` with typed `Collection<T>` instances supporting CRUD, indexing, filtering, and pagination. Each service plugin registers routes with the shared internal app and uses the store for state.
