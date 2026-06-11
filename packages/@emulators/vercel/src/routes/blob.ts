@@ -114,7 +114,7 @@ interface BlobRef {
   storeId?: string;
 }
 
-function resolveBlobRef(urlOrPathname: string): BlobRef {
+function resolveBlobRef(urlOrPathname: string, baseUrl?: URL): BlobRef {
   if (!/^https?:\/\//i.test(urlOrPathname)) {
     return { pathname: urlOrPathname };
   }
@@ -124,7 +124,11 @@ function resolveBlobRef(urlOrPathname: string): BlobRef {
   } catch {
     return { pathname: urlOrPathname };
   }
-  const path = decodeURIComponent(url.pathname);
+  let path = decodeURIComponent(url.pathname);
+  const basePath = baseUrl?.pathname.replace(/\/$/, "") ?? "";
+  if (basePath && url.origin === baseUrl?.origin && path.startsWith(`${basePath}/blob/`)) {
+    path = path.slice(basePath.length);
+  }
   const match = /^\/blob\/([^/]+)\/(.+)$/.exec(path);
   if (match) {
     return { storeId: match[1], pathname: match[2] };
@@ -162,6 +166,7 @@ function headResponse(baseUrl: string, blob: VercelBlob): Record<string, unknown
 
 export function blobRoutes({ app, store, baseUrl }: RouteContext): void {
   const vs = getVercelStore(store);
+  const parsedBaseUrl = new URL(baseUrl);
 
   // Upload. The SDK sends PUT <api>/?pathname=<pathname> with the raw bytes as body.
 
@@ -197,7 +202,7 @@ export function blobRoutes({ app, store, baseUrl }: RouteContext): void {
     }
 
     const fromUrl = c.req.query("fromUrl");
-    const source = fromUrl === undefined ? undefined : findBlobRef(vs, storeId, resolveBlobRef(fromUrl));
+    const source = fromUrl === undefined ? undefined : findBlobRef(vs, storeId, resolveBlobRef(fromUrl, parsedBaseUrl));
     if (fromUrl !== undefined && !source) {
       return blobErr(c, 404, "not_found", "The requested blob does not exist");
     }
@@ -250,7 +255,7 @@ export function blobRoutes({ app, store, baseUrl }: RouteContext): void {
 
     const urlParam = c.req.query("url");
     if (urlParam !== undefined) {
-      const blob = findBlobRef(vs, storeId, resolveBlobRef(urlParam));
+      const blob = findBlobRef(vs, storeId, resolveBlobRef(urlParam, parsedBaseUrl));
       if (!blob) {
         return blobErr(c, 404, "not_found", "The requested blob does not exist");
       }
@@ -330,7 +335,7 @@ export function blobRoutes({ app, store, baseUrl }: RouteContext): void {
 
     const ifMatch = c.req.header("x-if-match");
     for (const urlOrPathname of urls) {
-      const blob = findBlobRef(vs, storeId, resolveBlobRef(urlOrPathname));
+      const blob = findBlobRef(vs, storeId, resolveBlobRef(urlOrPathname, parsedBaseUrl));
       if (!blob) continue;
       if (ifMatch) {
         const normalized = ifMatch.startsWith('"') ? ifMatch : `"${ifMatch}"`;
