@@ -11,9 +11,9 @@ import { config } from "@/lib/geistdocs/config";
 import { isPreview, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const title = "emulate | Local API Emulation for CI & Sandboxes";
+const title = "emuhealth | Local API Emulation for Health Apps";
 const description =
-  "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.";
+  "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only. Not mocks.";
 
 export const viewport: Viewport = { viewportFit: "cover" };
 
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: title,
-    template: "%s | emulate",
+    template: "%s | emuhealth",
   },
   description,
   alternates: { canonical: "/" },
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "emulate",
+    siteName: "emuhealth",
     title,
     description,
-    images: [{ url: "/og", width: 1200, height: 630, alt: "emulate" }],
+    images: [{ url: "/og", width: 1200, height: 630, alt: "emuhealth" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "emulate",
+    name: "emuhealth",
     url: siteUrl,
     description,
   };

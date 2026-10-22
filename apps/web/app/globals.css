@@ -105,3 +105,9 @@
 button {
   cursor: pointer;
 }
+
+/* emuhealth is a community fork, not a Vercel product: hide the geistdocs Vercel mark and its slash separator. */
+header a[aria-label="Vercel"][href="https://vercel.com/"],
+header a[aria-label="Vercel"][href="https://vercel.com/"] + div {
+  display: none;
+}

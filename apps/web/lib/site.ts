@@ -1,7 +1,7 @@
-export const siteName = "emulate";
-export const siteUrl = "https://emulate.dev";
+export const siteName = "emuhealth";
+export const siteUrl = "https://www.emuhealth.dev";
 export const siteDescription =
-  "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.";
+  "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.";
 export const isPreview = Boolean(process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production");
 
 export function canonicalUrlFor(pathname: string): string {

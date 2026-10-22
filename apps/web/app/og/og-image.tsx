@@ -37,19 +37,6 @@ export async function renderOgImage(title: string) {
           gap: "16px",
         }}
       >
-        <svg width="36" height="36" viewBox="0 0 16 16" fill="white">
-          <path fillRule="evenodd" clipRule="evenodd" d="M8 1L16 15H0L8 1Z" />
-        </svg>
-        <span
-          style={{
-            fontSize: 36,
-            color: "#666",
-            fontFamily: "Geist",
-            fontWeight: 400,
-          }}
-        >
-          /
-        </span>
         <span
           style={{
             fontSize: 36,
@@ -58,7 +45,7 @@ export async function renderOgImage(title: string) {
             color: "white",
           }}
         >
-          emulate
+          emuhealth
         </span>
       </div>
 

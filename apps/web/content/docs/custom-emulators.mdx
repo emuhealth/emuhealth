@@ -5,7 +5,7 @@ navTitle: "Custom Emulators"
 
 Bring the third-party APIs your app depends on into your local development environment. Define a provider's HTTP behavior in TypeScript, run it alongside built-in emulators, and share it as a package.
 
-emulate provides seeds, resets, snapshots, optional persistence, and a request/state inspector. Reuse the same definition in local development, tests, and Next.js or Nuxt adapters.
+emuhealth provides seeds, resets, snapshots, optional persistence, and a request/state inspector. Reuse the same definition in local development, tests, and Next.js or Nuxt adapters.
 
 Requires Node 24 or later.
 
@@ -204,13 +204,13 @@ node --test emulators/inventory.test.ts
 
 The scaffold creates `emulators/inventory.ts` and a Node test, then adds a service entry to a discovered YAML, JSON, TypeScript, or JavaScript config. The test runs on Node 24 without a test-framework dependency. If the executable config uses an unusual default export, follow the manual import and service entry printed by the command. The generated example implements reservations that consume stock, cancellation that returns stock, and an out-of-stock response. Adapt its routes and state to the provider you are emulating, and update the generated test to cover that behavior.
 
-`init` prints the generated test command. Run `npx emuhealth start --watch` and use the printed service URL and inspector links to exercise the emulator. The [inventory example](https://github.com/vercel-labs/emulate/tree/main/examples/custom-api) contains the complete scaffold workflow and test.
+`init` prints the generated test command. Run `npx emuhealth start --watch` and use the printed service URL and inspector links to exercise the emulator. The [inventory example](https://github.com/emuhealth/emuhealth/tree/main/examples/custom-api) contains the complete scaffold workflow and test.
 
 ## Share your emulator
 
 Package a provider's emulator so teammates and other projects can use the same local API behavior.
 
-Export the definition as your package's default export, compile it to JavaScript, and publish declarations. Declare `emulate` as a peer dependency compatible with the version you tested. An import-only ESM package export is supported. Consumers install the package themselves and reference it from their config; emulate does not automatically install missing plugins.
+Export the definition as your package's default export, compile it to JavaScript, and publish declarations. Declare `emuhealth` as a peer dependency compatible with the version you tested. An import-only ESM package export is supported. Consumers install the package themselves and reference it from their config; emulate does not automatically install missing plugins.
 
 ## Troubleshooting
 

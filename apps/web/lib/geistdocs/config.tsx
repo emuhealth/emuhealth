@@ -2,22 +2,21 @@ import { defineConfig } from "@vercel/geistdocs/config";
 import { siteUrl } from "@/lib/site";
 
 export const config = defineConfig({
-  title: "emulate",
+  title: "emuhealth",
   siteUrl,
   defaultLanguage: "en",
-  logo: <span className="font-[family-name:var(--font-geist-pixel-square)] text-lg">emulate</span>,
-  navbarActiveProduct: "emulate",
-  navbarBrand: "labs",
+  logo: <span className="font-[family-name:var(--font-geist-pixel-square)] text-lg">emuhealth</span>,
+  navbarVariant: "standard",
   github: {
-    owner: "vercel-labs",
-    repo: "emulate",
+    owner: "emuhealth",
+    repo: "emuhealth",
     branch: "main",
     editPath: "apps/web/content/docs",
   },
   content: [{ id: "docs", label: "Documentation", dir: "content/docs", route: "/docs" }],
   nav: [
     { label: "Docs", href: "/docs" },
-    { label: "npm", href: "https://www.npmjs.com/package/emulate", external: true },
+    { label: "npm", href: "https://www.npmjs.com/package/emuhealth", external: true },
   ],
   ai: { enabled: false },
   feedback: { enabled: false },

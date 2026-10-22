@@ -90,7 +90,7 @@ Custom state uses your own record shapes and IDs. Seeds replace the complete ini
 
 Streamed responses persist state changes when their bodies finish or are canceled. Reset and close cancel active streams before running cleanup. `c.header('Set-Cookie', value, { append: true })` retains cookies already set on the response. In a Next.js route, export `OPTIONS` from `createEmulateHandler` to forward preflight requests and custom OPTIONS handlers.
 
-See the [custom emulator guide](https://emulate.dev/docs/custom-emulators) and [complete inventory example](examples/custom-api) for validation, middleware, persistence, adapters, package sharing, and troubleshooting.
+See the [custom emulator guide](https://www.emuhealth.dev/docs/custom-emulators) and [complete inventory example](examples/custom-api) for validation, middleware, persistence, adapters, package sharing, and troubleshooting.
 
 ## CLI
 

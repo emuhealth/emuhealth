@@ -26,7 +26,7 @@ Data policy:
 
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
-  Docs: https://emulate.dev/docs/nextjs and https://emulate.dev/docs/nuxt
+  Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt
 
 Networking:
   Built-in and custom listeners bind to 127.0.0.1 by default.
@@ -57,7 +57,7 @@ Custom emulators:
   Structured inspection redacts token and secret fields, including access_token and client_secret.
   Framework adapters keep root-relative custom redirects under the service mount.
   Export OPTIONS from the Next.js handler to forward preflight and custom OPTIONS routes.
-  Docs: https://emulate.dev/docs/custom-emulators
+  Docs: https://www.emuhealth.dev/docs/custom-emulators
 
 GitHub API coverage:
   Includes repository contents, raw downloads, raw media negotiation for file Contents and README responses,

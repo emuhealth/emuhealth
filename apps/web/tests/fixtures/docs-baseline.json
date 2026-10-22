@@ -2,10 +2,10 @@
   "source": "origin/main 3edeb2d production build",
   "pages": {
     "/": {
-      "title": "emulate | Local API Emulation for CI & Sandboxes",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.",
+      "title": "emuhealth | Local API Emulation for Health Apps",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only. Not mocks.",
       "ogImage": "/og",
-      "ogTitle": "emulate | Local API Emulation for CI & Sandboxes",
+      "ogTitle": "emuhealth | Local API Emulation for Health Apps",
       "headings": [
         "What this gives you",
         "Stateful",
@@ -17,17 +17,17 @@
       ]
     },
     "/docs": {
-      "title": "emulate | Local API Emulation for CI & Sandboxes",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.",
+      "title": "emuhealth | Local API Emulation for Health Apps",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only. Not mocks.",
       "ogImage": "/og",
-      "ogTitle": "emulate | Local API Emulation for CI & Sandboxes",
+      "ogTitle": "emuhealth | Local API Emulation for Health Apps",
       "headings": ["Quick Start", "CLI", "Options", "Programmatic API", "Framework Integration"]
     },
     "/docs/custom-emulators": {
-      "title": "Custom Emulators | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Custom Emulators | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/custom-emulators",
-      "ogTitle": "Custom Emulators | emulate",
+      "ogTitle": "Custom Emulators | emuhealth",
       "headings": [
         "Define an emulator",
         "Run alongside built-ins",
@@ -42,10 +42,10 @@
       ]
     },
     "/docs/programmatic-api": {
-      "title": "Programmatic API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Programmatic API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/programmatic-api",
-      "ogTitle": "Programmatic API | emulate",
+      "ogTitle": "Programmatic API | emuhealth",
       "headings": [
         "CLI package",
         "Generated secrets",
@@ -59,10 +59,10 @@
       ]
     },
     "/docs/configuration": {
-      "title": "Configuration | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Configuration | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/configuration",
-      "ogTitle": "Configuration | emulate",
+      "ogTitle": "Configuration | emuhealth",
       "headings": [
         "Vercel Seed Config",
         "Vercel Integrations",
@@ -86,10 +86,10 @@
       ]
     },
     "/docs/nextjs": {
-      "title": "Next.js Integration | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Next.js Integration | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/nextjs",
-      "ogTitle": "Next.js Integration | emulate",
+      "ogTitle": "Next.js Integration | emuhealth",
       "headings": [
         "Install",
         "Route Handler",
@@ -106,10 +106,10 @@
       ]
     },
     "/docs/nuxt": {
-      "title": "Nuxt Integration | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Nuxt Integration | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/nuxt",
-      "ogTitle": "Nuxt Integration | emulate",
+      "ogTitle": "Nuxt Integration | emuhealth",
       "headings": [
         "Install",
         "Server Route",
@@ -127,17 +127,17 @@
       ]
     },
     "/docs/vercel": {
-      "title": "Vercel API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Vercel API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/vercel",
-      "ogTitle": "Vercel API | emulate",
+      "ogTitle": "Vercel API | emuhealth",
       "headings": ["User & Teams", "Projects", "Deployments", "Domains", "Environment Variables", "Blob"]
     },
     "/docs/github": {
-      "title": "GitHub API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "GitHub API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/github",
-      "ogTitle": "GitHub API | emulate",
+      "ogTitle": "GitHub API | emuhealth",
       "headings": [
         "GitHub App keys",
         "Installation token inspection",
@@ -161,10 +161,10 @@
       ]
     },
     "/docs/google": {
-      "title": "Google API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Google API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/google",
-      "ogTitle": "Google API | emulate",
+      "ogTitle": "Google API | emuhealth",
       "headings": [
         "OAuth & OpenID Connect",
         "Gmail",
@@ -178,10 +178,10 @@
       ]
     },
     "/docs/slack": {
-      "title": "Slack API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Slack API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/slack",
-      "ogTitle": "Slack API | emulate",
+      "ogTitle": "Slack API | emuhealth",
       "headings": [
         "Auth",
         "Chat",
@@ -201,10 +201,10 @@
       ]
     },
     "/docs/linear": {
-      "title": "Linear API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Linear API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/linear",
-      "ogTitle": "Linear API | emulate",
+      "ogTitle": "Linear API | emuhealth",
       "headings": [
         "Start",
         "URL Mapping",
@@ -218,10 +218,10 @@
       ]
     },
     "/docs/twilio": {
-      "title": "Twilio API | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Twilio API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/twilio",
-      "ogTitle": "Twilio API | emulate",
+      "ogTitle": "Twilio API | emuhealth",
       "headings": [
         "Start",
         "Defaults",
@@ -235,17 +235,17 @@
       ]
     },
     "/docs/apple": {
-      "title": "Apple Sign In | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Apple Sign In | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/apple",
-      "ogTitle": "Apple Sign In | emulate",
+      "ogTitle": "Apple Sign In | emuhealth",
       "headings": ["Endpoints", "Authorization Flow", "ID Token", "Supported Parameters"]
     },
     "/docs/microsoft": {
-      "title": "Microsoft Entra ID | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Microsoft Entra ID | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/microsoft",
-      "ogTitle": "Microsoft Entra ID | emulate",
+      "ogTitle": "Microsoft Entra ID | emuhealth",
       "headings": [
         "Endpoints",
         "Authorization Code Flow",
@@ -257,38 +257,38 @@
       ]
     },
     "/docs/aws": {
-      "title": "AWS | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "AWS | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/aws",
-      "ogTitle": "AWS | emulate",
+      "ogTitle": "AWS | emuhealth",
       "headings": ["S3", "SQS", "IAM", "STS", "Inspector"]
     },
     "/docs/okta": {
-      "title": "Okta | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Okta | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/okta",
-      "ogTitle": "Okta | emulate",
+      "ogTitle": "Okta | emuhealth",
       "headings": ["OAuth / OIDC", "Users", "Groups", "Apps", "Authorization Servers"]
     },
     "/docs/mongoatlas": {
-      "title": "MongoDB Atlas | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "MongoDB Atlas | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/mongoatlas",
-      "ogTitle": "MongoDB Atlas | emulate",
+      "ogTitle": "MongoDB Atlas | emuhealth",
       "headings": ["Admin API", "Projects", "Clusters", "Database Users", "Data Explorer", "Data API"]
     },
     "/docs/resend": {
-      "title": "Resend | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Resend | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/resend",
-      "ogTitle": "Resend | emulate",
+      "ogTitle": "Resend | emuhealth",
       "headings": ["Emails", "Idempotency", "Domains", "API Keys", "Audiences & Contacts", "Inbox"]
     },
     "/docs/stripe": {
-      "title": "Stripe | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Stripe | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/stripe",
-      "ogTitle": "Stripe | emulate",
+      "ogTitle": "Stripe | emuhealth",
       "headings": [
         "Customers",
         "Payment Methods",
@@ -302,10 +302,10 @@
       ]
     },
     "/docs/authentication": {
-      "title": "Authentication | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Authentication | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/authentication",
-      "ogTitle": "Authentication | emulate",
+      "ogTitle": "Authentication | emuhealth",
       "headings": [
         "Vercel",
         "GitHub",
@@ -318,10 +318,10 @@
       ]
     },
     "/docs/architecture": {
-      "title": "Architecture | emulate",
-      "description": "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation.",
+      "title": "Architecture | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only.",
       "ogImage": "/og/architecture",
-      "ogTitle": "Architecture | emulate",
+      "ogTitle": "Architecture | emuhealth",
       "headings": ["Core", "Plugin System", "In-Memory State", "Middleware", "Custom emulators"]
     }
   },

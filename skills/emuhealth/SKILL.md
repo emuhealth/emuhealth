@@ -1,10 +1,10 @@
 ---
-name: emulate
-description: Local drop-in API emulator for Vercel, GitHub, Google, Slack, Apple, Microsoft, AWS, Clerk, Linear, Twilio, and other developer APIs. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, or work with the emulate CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emuhealth", or any task requiring local service emulation.
+name: emuhealth
+description: Local drop-in API emulator (emuhealth, a fork of emulate for healthcare and life science APIs) for Vercel, GitHub, Google, Slack, Apple, Microsoft, AWS, Clerk, Linear, Twilio, and other developer APIs. Use when the user needs to start emulated services, configure seed data, write tests against local APIs, set up CI without network access, or work with the emuhealth CLI or programmatic API. Triggers include "start the emulator", "emulate services", "mock API locally", "create emulator config", "test against local API", "npx emuhealth", or any task requiring local service emulation.
 allowed-tools: Bash(npx emuhealth:*)
 ---
 
-# Service Emulation with emulate
+# Service Emulation with emuhealth
 
 Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation, not mocks.
 
@@ -81,7 +81,7 @@ The port can also be set via the `EMUHEALTH_PORT` or `PORT` environment variable
 
 For access from a container or another machine, use `npx emuhealth start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
 
-The generated-secrets destination must not exist. emulate removes inherited ACLs, verifies effective owner-only access, and publishes complete JSON before opening listeners or configuring portless. Handled startup failures remove the invocation-owned artifact. A hard termination can leave a complete artifact that must be removed manually after confirming no invocation is using it. Only service-generated values appear in the artifact. Linux requires `setfacl` and `getfacl` from the `acl` package. The flag fails closed when access controls cannot be verified and is not supported on Windows.
+The generated-secrets destination must not exist. emuhealth removes inherited ACLs, verifies effective owner-only access, and publishes complete JSON before opening listeners or configuring portless. Handled startup failures remove the invocation-owned artifact. A hard termination can leave a complete artifact that must be removed manually after confirming no invocation is using it. Only service-generated values appear in the artifact. Linux requires `setfacl` and `getfacl` from the `acl` package. The flag fails closed when access controls cannot be verified and is not supported on Windows.
 
 The advertised base URL (used in OAuth redirects, webhook URLs, etc.) can be overridden via `--base-url`, the `EMUHEALTH_BASE_URL` env var (`EMULATE_BASE_URL` also works; supports `{service}` template), or per-service `baseUrl` in the seed config. When running under portless, the `PORTLESS_URL` env var is also detected automatically.
 
@@ -459,7 +459,7 @@ npx emuhealth start --portless
 # ...
 ```
 
-This requires the portless proxy to be running (`portless proxy start`). If portless is not installed, emulate will prompt to install it.
+This requires the portless proxy to be running (`portless proxy start`). If portless is not installed, emuhealth will prompt to install it.
 
 The `--portless` flag overwrites any existing portless aliases matching `*.emulate`. Aliases are removed automatically when emulate shuts down.
 

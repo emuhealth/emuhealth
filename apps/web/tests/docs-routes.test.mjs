@@ -6,7 +6,7 @@ import { test } from "node:test";
 const base = process.env.DOCS_TEST_URL;
 if (!base) throw new Error("Set DOCS_TEST_URL to a running production build.");
 const noindex = process.env.DOCS_EXPECT_NOINDEX === "1";
-const origin = "https://emulate.dev";
+const origin = "https://www.emuhealth.dev";
 const { pages, redirects } = JSON.parse(
   await readFile(new URL("./fixtures/docs-baseline.json", import.meta.url), "utf8"),
 );

@@ -57,8 +57,8 @@ export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
           <span className="text-neutral-500">$</span>{" "}
           <span className="text-neutral-200">npx emuhealth{portless ? " --portless" : ""}</span>
           {"\n\n"}
-          <span className={`${pixelFont} text-neutral-200`}>emulate</span>
-          {" v0.4.1\n\n"}
+          <span className={`${pixelFont} text-neutral-200`}>emuhealth</span>
+          {" v0.1.1\n\n"}
           {services.map((s) => (
             <span key={s.name}>
               {"  "}

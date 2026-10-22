@@ -8,11 +8,11 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-6 pb-20 pt-16 sm:pt-24">
         <h1 className="mb-4 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl dark:text-neutral-50">
-          Local API emulation for dev and CI
+          Local API emulation for health apps
         </h1>
         <p className="mb-8 max-w-xl text-base text-neutral-600 dark:text-neutral-400">
-          Stateful, production-fidelity replacements for Stripe, GitHub, Google, AWS, and 7 more services. No API keys.
-          No network. Not mocks.
+          Stateful, production-fidelity API emulators for healthcare and life science development, plus Stripe, GitHub,
+          Google, AWS, and 10 more services from emulate. No API keys. No network. Not mocks. Synthetic data only.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -23,7 +23,7 @@ export default function LandingPage() {
             Get started
           </Link>
           <a
-            href="https://github.com/vercel-labs/emulate"
+            href="https://github.com/emuhealth/emuhealth"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-200 px-4 text-sm text-neutral-700 hover:border-neutral-300 dark:border-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-700"
@@ -102,7 +102,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emulate</div>
+              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emuhealth</div>
               <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-950 dark:border-neutral-800">
                 <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-neutral-400 font-mono">
                   <code>
@@ -172,23 +172,23 @@ afterAll(() => github.close())`}</code>
       {/* Footer */}
       <footer className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
-          <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <Link
-              href="https://vercel.com"
+          <div className="text-sm text-neutral-500">
+            A fork of{" "}
+            <a
+              href="https://github.com/vercel-labs/emulate"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
             >
-              <svg height="14" strokeLinejoin="round" viewBox="0 0 16 16" width="14" style={{ color: "currentcolor" }}>
-                <path fillRule="evenodd" clipRule="evenodd" d="M8 1L16 15H0L8 1Z" fill="currentColor" />
-              </svg>
-            </Link>
-            <span className="dark:text-neutral-500">Vercel Labs</span>
+              vercel-labs/emulate
+            </a>
           </div>
           <div className="flex items-center gap-4 text-xs text-neutral-500">
             <Link href="/docs" className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors">
               Docs
             </Link>
             <a
-              href="https://github.com/vercel-labs/emulate"
+              href="https://github.com/emuhealth/emuhealth"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
@@ -196,7 +196,7 @@ afterAll(() => github.close())`}</code>
               GitHub
             </a>
             <a
-              href="https://www.npmjs.com/package/emulate"
+              href="https://www.npmjs.com/package/emuhealth"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
