@@ -176,7 +176,7 @@ Slack event callbacks:
 program
   .command("start", { isDefault: true })
   .description("Start the emulator server")
-  .option("-p, --port <port>", "Base port", defaultPort)
+  .option("-p, --port <port>", "Base port (health services start at base + 100)", defaultPort)
   .option("--host <host>", "Listening address (use 0.0.0.0 for network access)", "127.0.0.1")
   .option("-s, --service <services>", "Comma-separated services to enable")
   .option("--seed <file>", "Path to seed config file")

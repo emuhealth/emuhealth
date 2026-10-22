@@ -1,4 +1,5 @@
 import type { ServicePlugin, Store, AppKeyResolver, AuthFallback, WebhookDispatcher } from "@emulators/core";
+import { HEALTH_SERVICE_NAMES, HEALTH_SERVICE_REGISTRY, type HealthServiceName } from "./registry-health.js";
 
 export interface PreparedServiceSeed {
   config: Record<string, unknown>;
@@ -41,10 +42,11 @@ const SERVICE_NAME_LIST = [
   "linear",
   "twilio",
 ] as const;
-export type ServiceName = (typeof SERVICE_NAME_LIST)[number];
-export const SERVICE_NAMES: readonly ServiceName[] = SERVICE_NAME_LIST;
+export type ServiceName = (typeof SERVICE_NAME_LIST)[number] | HealthServiceName;
+export const SERVICE_NAMES: readonly ServiceName[] = [...SERVICE_NAME_LIST, ...HEALTH_SERVICE_NAMES];
 
 export const SERVICE_REGISTRY: Record<ServiceName, ServiceEntry> = {
+  ...HEALTH_SERVICE_REGISTRY,
   vercel: {
     label: "Vercel REST API emulator",
     endpoints: "projects, deployments, domains, env vars, users, teams, file uploads, protection bypass, blob storage",

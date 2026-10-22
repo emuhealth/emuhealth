@@ -35,6 +35,8 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default:
 | Linear    | 4012        |
 | Twilio    | 4013        |
 
+Health and life science services use a fixed range starting at port 4100 (base port + 100). Each keeps its port regardless of which other services run.
+
 ## CLI
 
 ```bash
@@ -67,7 +69,7 @@ npx emuhealth list
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-p, --port` | `4000` | Base port (auto-increments per service) |
+| `-p, --port` | `4000` | Base port (auto-increments per service; health services start at base + 100) |
 | `--host` | `127.0.0.1` | Listening address; use `0.0.0.0` to allow network access |
 | `-s, --service` | all | Comma-separated services to enable |
 | `--seed` | auto-detect | Path to seed config (YAML or JSON) |

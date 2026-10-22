@@ -29,6 +29,8 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file ne
 - **Linear** on `http://localhost:4012`
 - **Twilio** on `http://localhost:4013`
 
+Health and life science services use a fixed range starting at `http://localhost:4100`. Each health service keeps its port no matter which other services run or how many upstream services exist.
+
 ## CLI
 
 ```bash
@@ -71,7 +73,7 @@ npx emuhealth list
     <tr>
       <td><code>-p, --port</code></td>
       <td><code>4000</code></td>
-      <td>Base port (auto-increments per service)</td>
+      <td>Base port (auto-increments per service; health services start at base + 100)</td>
     </tr>
     <tr>
       <td><code>--host</code></td>

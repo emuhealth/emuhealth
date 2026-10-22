@@ -15,6 +15,7 @@ import {
 } from "./commands/start.js";
 import { closeHttpServer, waitForListening } from "./api.js";
 import { resolveBaseUrl } from "./base-url.js";
+import { defaultServicePort } from "./registry-health.js";
 import { portlessBaseUrl, type PortlessAlias } from "./portless.js";
 import type { GeneratedSecretRecord } from "./generated-secrets-file.js";
 
@@ -80,14 +81,14 @@ export async function prepareProject(
   try {
     const ports = new Set<number>();
     for (const [index, service] of config.services.entries()) {
-      const port = service.port ?? options.port + index;
+      const port = service.port ?? defaultServicePort(service.name, options.port, index);
       if (!Number.isInteger(port) || port < 1 || port > 65535)
         throw new Error(`Invalid port for ${service.name}: ${port}`);
       if (ports.has(port)) throw new Error(`Duplicate port ${port} for ${service.name}`);
       ports.add(port);
     }
     for (const [index, service] of config.services.entries()) {
-      const port = service.port ?? options.port + index;
+      const port = service.port ?? defaultServicePort(service.name, options.port, index);
       const baseUrl = resolveBaseUrl({
         service: service.name,
         port,

@@ -22,6 +22,7 @@ import { SERVICE_REGISTRY } from "./registry.js";
 export type { ServiceName } from "./registry.js";
 import type { ServiceName } from "./registry.js";
 import { resolveBaseUrl } from "./base-url.js";
+import { defaultServicePort } from "./registry-health.js";
 
 export interface SeedConfig {
   tokens?: Record<string, { login: string; scopes?: string[] }>;
@@ -141,7 +142,7 @@ export function closeHttpServer(server: Server): Promise<void> {
 }
 
 async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator> {
-  const { service, port = 4000, seed: seedConfig } = options;
+  const { service, port = defaultServicePort(service, 4000, 0), seed: seedConfig } = options;
 
   const entry = SERVICE_REGISTRY[service];
   if (!entry) {

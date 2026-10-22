@@ -42,7 +42,7 @@ Each service is a plugin that:
 3. Provides a seed function to populate initial state from config
 4. Uses shared middleware for auth, error handling, and pagination
 
-Multiple services can run simultaneously, each on its own port (auto-incremented from the base port).
+Multiple services can run simultaneously, each on its own port (auto-incremented from the base port). Health and life science services use a fixed range at base port + 100 (4100 by default), so their ports never shift when upstream services are added.
 
 ## In-Memory State
 
