@@ -4,7 +4,7 @@ import { parseDocument } from "yaml";
 import { findConfig, isBuiltin } from "../config-loader.js";
 
 export function inventorySource(name: string): string {
-  return `import { defineEmulator } from "emulate";
+  return `import { defineEmulator } from "emuhealth";
 
 export default defineEmulator({
   name: ${JSON.stringify(name)},
@@ -45,7 +45,7 @@ export default defineEmulator({
 export function inventoryTest(name: string): string {
   return `import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createEmulator } from "emulate";
+import { createEmulator } from "emuhealth";
 import inventory from "./${name}.ts";
 
 test("reservations update inventory, cancellation restores it, and reset re-seeds", async () => {
@@ -206,7 +206,7 @@ export function scaffoldCommand(name: string, configOption?: string, cwd = proce
   const config = existing ?? resolve(directory, "emulate.config.ts");
   let output: string | undefined;
   if (!existing)
-    output = `import { defineConfig } from "emulate";\n${importLine}\n// @emulate:imports\n\nexport default defineConfig({\n  services: {\n${entryLine}\n    // @emulate:services\n  },\n});\n`;
+    output = `import { defineConfig } from "emuhealth";\n${importLine}\n// @emulate:imports\n\nexport default defineConfig({\n  services: {\n${entryLine}\n    // @emulate:services\n  },\n});\n`;
   else if ([".yaml", ".yml", ".json"].includes(extname(config))) {
     const original = readFileSync(config, "utf8");
     const document = parseDocument(original);
@@ -242,6 +242,6 @@ export function scaffoldCommand(name: string, configOption?: string, cwd = proce
     console.log(`\nAdd this import to ${config}:\n${importLine}\n\nAdd this entry to services:\n${entryLine}`);
   else console.log(`${existing ? "Updated" : "Created"} ${relative(cwd, config)}`);
   console.log(
-    `\nStart: npx emulate start --watch${configOption ? ` --config ${JSON.stringify(configOption)}` : ""}\nTest: node --test ${relative(cwd, test)}\nUse the ${name} URL and Inspector link printed by start to send requests and inspect state.`,
+    `\nStart: npx emuhealth start --watch${configOption ? ` --config ${JSON.stringify(configOption)}` : ""}\nTest: node --test ${relative(cwd, test)}\nUse the ${name} URL and Inspector link printed by start to send requests and inspect state.`,
   );
 }

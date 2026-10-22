@@ -38,7 +38,7 @@ The session cookie in this example is a plain base64url-encoded JSON blob with n
 
 | | `examples/oauth` | `examples/nuxt-embedded` |
 |---|---|---|
-| Emulator process | Separate `npx emulate` process | Embedded in the Nuxt app |
+| Emulator process | Separate `npx emuhealth` process | Embedded in the Nuxt app |
 | Config | `emulate.config.yaml` + `.env.local` | Seed data in `[...path].ts` |
 | OAuth URLs | `http://localhost:4001/login/oauth/...` | `/emulate/github/login/oauth/...` (same origin) |
 | Client credentials | Must match config | `"any"` (validation skipped) |

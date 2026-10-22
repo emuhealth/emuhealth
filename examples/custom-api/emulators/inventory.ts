@@ -1,4 +1,4 @@
-import { defineEmulator } from "emulate";
+import { defineEmulator } from "emuhealth";
 
 export default defineEmulator({
   name: "inventory",

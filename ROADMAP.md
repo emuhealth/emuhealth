@@ -15,16 +15,18 @@ Status legend: `[ ]` not started, `[~]` in progress, `[x]` done.
 
 Goal: the fork builds, publishes, and identifies itself as emuhealth without diverging from upstream more than needed.
 
-- [ ] Rename the CLI package to `emuhealth` (binary `emuhealth`), keep `@emulators/*` upstream packages as they are ([ADR 0002](docs/decisions/0002-naming-and-publishing.md))
+- [x] Rename the CLI package and folder to `emuhealth` (binary `emuhealth`, version `0.1.0`), keep `@emulators/*` upstream packages as they are ([ADR 0002](docs/decisions/0002-naming-and-publishing.md), [ADR 0005](docs/decisions/0005-cli-package-layout.md)) ([#9](https://github.com/emuhealth/emuhealth/pull/9))
 - [ ] Confirm ownership of the `@emuhealth` npm scope and publish rights
-- [ ] Point the release workflow (`.github/workflows/release.yml`) at our package names and repo
-- [ ] Update `repository`, `homepage`, and `bugs` fields in every `package.json` we publish
+- [x] Point the release workflow (`.github/workflows/release.yml`) at `emuhealth` and `@emuhealth/*` only ([#9](https://github.com/emuhealth/emuhealth/pull/9))
+- [ ] Configure npm trusted publishing for `emuhealth`, then restore the release workflow's push trigger on `main`
+- [x] Update `repository`, `homepage`, and `bugs` fields in every `package.json` we publish ([#9](https://github.com/emuhealth/emuhealth/pull/9))
 - [ ] Add a `NOTICE` file stating this is a modified fork of vercel-labs/emulate (Apache-2.0 section 4)
-- [ ] Rebrand README header and badges, `apps/web`, the `emuBar()` and footer in `core/src/ui.ts`, and CLI `--help`
+- [ ] Rebrand README header and badges, `apps/web` (titles, npm links, prose), the `emuBar()` and footer in `core/src/ui.ts`, CLI `--help` docs links, and the `skills/emulate` skill name
+- [ ] Branded config and environment names (`emuhealth.config.*`, `EMUHEALTH_PORT`) with fallback to the `emulate` names
 - [ ] Stable port range for health services starting at 4100, independent of upstream service order ([ADR 0001](docs/decisions/0001-soft-fork-strategy.md))
-- [ ] Health service registry in its own file (`packages/emulate/src/registry-health.ts`), merged into `SERVICE_REGISTRY` with a minimal change
+- [ ] Health service registry in its own file (`packages/emuhealth/src/registry-health.ts`), merged into `SERVICE_REGISTRY` with a minimal change
 - [ ] Synthetic data warning in README, docs, and the CLI start banner ([ADR 0004](docs/decisions/0004-synthetic-data-only.md))
-- [ ] Document the upstream sync procedure in `docs/upstream-sync.md`
+- [x] Document the upstream sync procedure in [`docs/upstream-sync.md`](docs/upstream-sync.md) ([#9](https://github.com/emuhealth/emuhealth/pull/9))
 
 ## Phase 1: Shared health core
 

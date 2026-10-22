@@ -6,7 +6,7 @@ This repository is emuhealth, a soft fork of [vercel-labs/emulate](https://githu
 
 - Read [ROADMAP.md](ROADMAP.md) before starting work. Work one roadmap item at a time, on its own branch, and tick the item (with a PR link) when it ships.
 - Read the decision records in [`docs/decisions/`](docs/decisions/) before changing structure, naming, or scope. Never rewrite an accepted record; add a new one that supersedes it.
-- New health and life science emulators go in `packages/@emuhealth/<name>` and are registered in `packages/emulate/src/registry-health.ts`. Do not add them to `packages/@emulators/`.
+- New health and life science emulators go in `packages/@emuhealth/<name>` and are registered in `packages/emuhealth/src/registry-health.ts`. Do not add them to `packages/@emulators/`.
 - Keep edits to upstream-owned files minimal and isolated so `git merge upstream/main` stays easy.
 - Synthetic data only. Never add real patient data, real-looking identifiers of real people, or terminology content whose license forbids redistribution.
 
@@ -14,11 +14,11 @@ This repository is emuhealth, a soft fork of [vercel-labs/emulate](https://githu
 
 Use `pnpm` for all package management commands (not npm or yarn).
 
-Exception: End-user install instructions should use `npm` (e.g. `npx emulate`, `npm install emulate`) since npm is universal.
+Exception: End-user install instructions should use `npm` (e.g. `npx emuhealth`, `npm install emuhealth`) since npm is universal.
 
 ## CLI Invocation
 
-`emulate` is a zsh built-in command (it sets shell emulation mode). Running bare `emulate` in zsh invokes the shell built-in, not the npm binary. Always use `npx emulate` in user-facing CLI examples, docs, skills, help output, and post-command messages. The only exception is when `emulate` appears as a subprocess argument to another tool (e.g. `portless github.emulate emulate start`), where the binary is resolved by the parent process rather than the shell.
+The CLI binary is `emuhealth`. Use `npx emuhealth` in user-facing CLI examples, docs, skills, help output, and post-command messages so they work without a global install. When the binary appears as a subprocess argument to another tool (e.g. `portless github.emulate emuhealth start`), use bare `emuhealth`.
 
 ## Dependencies
 
@@ -56,22 +56,22 @@ When a change affects how humans or agents use emulate (new/changed/removed comm
 1. `README.md`
 2. `skills/*/SKILL.md` (agent skills for each service)
 3. `apps/web/` (docs site pages)
-4. CLI `--help` output in `packages/emulate/src/index.ts`
+4. CLI `--help` output in `packages/emuhealth/src/index.ts`
 
 ## Releasing
 
-Releases are manual, single-PR affairs. The maintainer controls the changelog voice and format. All packages share a single version number (`emulate` + every `@emulators/*`).
+Releases are manual, single-PR affairs. The maintainer controls the changelog voice and format. All published packages share a single version number (`emuhealth` + every `@emuhealth/*`). Upstream `@emulators/*` packages keep their upstream versions; they are bundled into the CLI and never published by this fork.
 
 To prepare a release:
 
 1. Create a branch (e.g. `prepare-v0.5.0`)
-2. Bump the version in `packages/emulate/package.json`
-3. Run `pnpm sync-versions` to update all `@emulators/*` packages
+2. Bump the version in `packages/emuhealth/package.json`
+3. Run `pnpm sync-versions` to update all `@emuhealth/*` packages
 4. Write the changelog entry in `CHANGELOG.md`, wrapped in `<!-- release:start -->` and `<!-- release:end -->` markers
 5. Remove the `<!-- release:start -->` and `<!-- release:end -->` markers from the previous release entry (only the latest release should have markers)
 6. Open a PR and merge to `main`
 
-CI compares the version in `packages/emulate/package.json` to what's on npm. If it differs, it builds, publishes all packages with provenance, and creates the GitHub release automatically. The release body is extracted from the content between the markers.
+The release workflow compares the version in `packages/emuhealth/package.json` to what's on npm. If it differs, it builds, publishes `emuhealth` and every `@emuhealth/*` package with provenance, and creates the GitHub release. Until npm trusted publishing is configured, the workflow runs only when triggered manually. The release body is extracted from the content between the markers.
 
 <!-- opensrc:start -->
 

@@ -1,7 +1,7 @@
 ---
 name: stripe
 description: Emulated Stripe API for local development and testing. Use when the user needs to process payments locally, test checkout flows, create customers, manage products and prices, handle payment intents, work with webhooks, or use the Stripe SDK without hitting real Stripe servers. Triggers include "Stripe API", "emulate Stripe", "test payments locally", "checkout flow", "payment intent", "Stripe webhook", "Stripe SDK", "STRIPE_API_KEY", or any task requiring a local Stripe API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Stripe API Emulator
@@ -16,7 +16,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Stripe only
-npx emulate --service stripe
+npx emuhealth --service stripe
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -25,7 +25,7 @@ npx emulate --service stripe
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const stripe = await createEmulator({ service: 'stripe', port: 4000 })
 // stripe.url === 'http://localhost:4000'
@@ -389,4 +389,4 @@ console.log(confirmed.status) // 'succeeded'
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "stripe" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "stripe" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

@@ -1,7 +1,7 @@
 ---
 name: microsoft
 description: Emulated Microsoft Entra ID (Azure AD) OAuth 2.0 / OpenID Connect for local development and testing. Use when the user needs to test Microsoft sign-in locally, emulate Entra ID OIDC discovery, handle Microsoft token exchange, configure Azure AD OAuth clients, work with Microsoft Graph /me, or test PKCE/client credentials flows without hitting real Microsoft APIs. Triggers include "Microsoft OAuth", "Entra ID", "Azure AD", "emulate Microsoft", "mock Microsoft login", "test Microsoft sign-in", "Microsoft OIDC", "local Microsoft auth", or any task requiring a local Microsoft OAuth/OIDC provider.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Microsoft Entra ID Emulator
@@ -14,7 +14,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Microsoft only
-npx emulate --service microsoft
+npx emuhealth --service microsoft
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -23,7 +23,7 @@ npx emulate --service microsoft
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const microsoft = await createEmulator({ service: 'microsoft', port: 4005 })
 // microsoft.url === 'http://localhost:4005'
@@ -366,4 +366,4 @@ const client = new microsoftIssuer.Client({
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "microsoft" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "microsoft" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

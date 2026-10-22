@@ -1,6 +1,6 @@
 # SMS Verification with Twilio
 
-A Next.js app demonstrating phone number verification (SMS OTP) using the [Twilio Verify](https://www.twilio.com/docs/verify) API, powered by the emulated Twilio service from `emulate`.
+A Next.js app demonstrating phone number verification (SMS OTP) using the [Twilio Verify](https://www.twilio.com/docs/verify) API, powered by the emulated Twilio service from `emuhealth`.
 
 No real SMS is sent. The emulator runs the Verify flow entirely in-memory, so you can complete the verification with the seeded code or inspect state through the inspector UI.
 

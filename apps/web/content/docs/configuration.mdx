@@ -144,7 +144,7 @@ JWT authentication: sign a JWT with `{ iss: "<app_id>" }` using the app's privat
 When using the programmatic `createEmulator` API, omit `private_key`. The instance generates an RSA-2048 PKCS#1 key, exposes it through `generatedSecrets`, and keeps it stable across `reset()` calls. The CLI only generates an omitted key when you request a private delivery file:
 
 ```bash
-npx emulate start --service github --seed emulate.config.yaml \
+npx emuhealth start --service github --seed emulate.config.yaml \
   --generated-secrets-file .emulate-secrets.json
 ```
 
@@ -504,4 +504,4 @@ twilio:
 
 ## Custom emulators
 
-Custom definitions created with `defineEmulator` from `emulate` work in the CLI, in-process tests, and both framework adapters. The same definition provides typed state, HTTP handlers, reset, versioned snapshots, and optional inspection/persistence. See [Custom emulators](/docs/custom-emulators) for the quickstart, API reference, and complete lifecycle semantics.
+Custom definitions created with `defineEmulator` from `emuhealth` work in the CLI, in-process tests, and both framework adapters. The same definition provides typed state, HTTP handlers, reset, versioned snapshots, and optional inspection/persistence. See [Custom emulators](/docs/custom-emulators) for the quickstart, API reference, and complete lifecycle semantics.

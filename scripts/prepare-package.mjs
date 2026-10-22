@@ -9,6 +9,6 @@ for (const file of ["LICENSE", "THIRD_PARTY_NOTICES.md"]) {
   copyFileSync(new URL(file, root), resolve(packageDir, file));
 }
 
-if (pkg.name === "emulate") {
+if (pkg.name === "emuhealth") {
   copyFileSync(new URL("README.md", root), resolve(packageDir, "README.md"));
 }

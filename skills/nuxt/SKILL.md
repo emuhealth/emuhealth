@@ -1,7 +1,7 @@
 ---
 name: nuxt
 description: Nuxt adapter for embedding emulators directly in a Nuxt app via @emulators/adapter-nuxt. Use when the user needs to embed emulators in Nuxt, set up same-origin OAuth for preview deployments, create an emulate catch-all server route, configure persistence for embedded Nuxt emulators, or wrap nuxt.config with withEmulate. Triggers include "Nuxt emulator", "adapter-nuxt", "embedded emulator", "same-origin OAuth", "createEmulateHandler", "withEmulate", or any task requiring emulators inside a Nuxt app.
-allowed-tools: Bash(npx emulate:*)
+allowed-tools: Bash(npx emuhealth:*)
 ---
 
 # Nuxt Integration
@@ -176,4 +176,4 @@ interface PersistenceAdapter {
 
 ## Custom emulators
 
-The adapter accepts definitions created with `defineEmulator` from `emulate` in `services[name].emulator`. Reuse the definition from CLI/tests; custom inspector is opt-in. Root-relative redirect locations stay under the service mount, while custom HTML bodies pass through unchanged. Await the returned handler's `close()` in test teardown. Install `emulate` as a runtime dependency for deployed definitions. See https://emulate.dev/docs/custom-emulators for seeds, snapshots, persistence, and lifecycle rules.
+The adapter accepts definitions created with `defineEmulator` from `emuhealth` in `services[name].emulator`. Reuse the definition from CLI/tests; custom inspector is opt-in. Root-relative redirect locations stay under the service mount, while custom HTML bodies pass through unchanged. Await the returned handler's `close()` in test teardown. Install `emulate` as a runtime dependency for deployed definitions. See https://emulate.dev/docs/custom-emulators for seeds, snapshots, persistence, and lifecycle rules.

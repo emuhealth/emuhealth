@@ -1,7 +1,7 @@
 ---
 name: google
 description: Emulated Google OAuth 2.0, OpenID Connect, Gmail, Calendar, and Drive for local development and testing. Use when the user needs to test Google sign-in locally, emulate OIDC discovery, handle Google token exchange, configure Google OAuth clients, work with Gmail messages/drafts/threads/labels, manage Calendar events, upload or list Drive files, or work with Google userinfo without hitting real Google APIs. Triggers include "Google OAuth", "emulate Google", "mock Google login", "test Google sign-in", "OIDC emulator", "Google OIDC", "Gmail API", "Google Calendar", "Google Drive", "local Google auth", or any task requiring a local Google API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Google OAuth 2.0 / OIDC + Gmail, Calendar & Drive Emulator
@@ -14,7 +14,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Google only
-npx emulate --service google
+npx emuhealth --service google
 
 # Default port
 # http://localhost:4002
@@ -23,7 +23,7 @@ npx emulate --service google
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const google = await createEmulator({ service: 'google', port: 4002 })
 // google.url === 'http://localhost:4002'
@@ -613,4 +613,4 @@ curl "$BASE/gmail/v1/users/me/threads?labelIds=INBOX" \
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "google" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "google" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

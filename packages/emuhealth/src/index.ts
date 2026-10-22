@@ -13,7 +13,7 @@ const defaultPort = process.env.EMULATE_PORT ?? process.env.PORT ?? "4000";
 const program = new Command();
 
 program
-  .name("emulate")
+  .name("emuhealth")
   .description("Local drop-in replacement services for CI and no-network sandboxes")
   .version(pkg.version)
   .addHelpText(
@@ -31,14 +31,14 @@ Networking:
 
 Custom emulators:
   Build and share emulators for third-party HTTP APIs alongside the built-in services.
-  Run 'npx emulate init --custom inventory' to scaffold an emulator, config, and runnable test.
+  Run 'npx emuhealth init --custom inventory' to scaffold an emulator, config, and runnable test.
   Adapt the generated inventory routes, state, and test to the provider your app uses.
   Existing YAML, JSON, TypeScript, and JavaScript configs get a service entry when supported.
   For unusual executable configs, init prints the import and service entry to add manually.
   Init prints the test command; use the service URL and Inspector link printed by start for requests.
-  Run 'npx emulate start --watch' to reload local modules and inspect requests at /_emulate.
+  Run 'npx emuhealth start --watch' to reload local modules and inspect requests at /_emulate.
   Creating a missing local import retries a failed reload, including outside the config directory.
-  Import defineEmulator, defineConfig, and createEmulator from 'emulate'.
+  Import defineEmulator, defineConfig, and createEmulator from 'emuhealth'.
   Test in process with createEmulator({ service: yourDefinition, listen: false }).
   Custom emulators support seeds, reset, snapshots, restore, and opt-in persistence.
   Streamed responses persist state changes during delivery; reset and close cancel active streams before cleanup.
@@ -110,10 +110,10 @@ Webhook signatures:
 
 Available services:
   ${SERVICE_NAMES.join(", ")}
-  Run 'npx emulate list' for endpoint summaries.
+  Run 'npx emuhealth list' for endpoint summaries.
 
 Configuration:
-  Run 'npx emulate init' to create a starter emulate.config.yaml, or pass --seed <file>.
+  Run 'npx emuhealth init' to create a starter emulate.config.yaml, or pass --seed <file>.
   GitHub App private keys may be omitted for createEmulator; CLI startup generates omitted keys only with
   --generated-secrets-file <path>.
 

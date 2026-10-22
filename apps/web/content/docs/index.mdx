@@ -7,7 +7,7 @@ Local drop-in replacement for Vercel, GitHub, Google, Slack, Apple, Microsoft, O
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file needed:
@@ -31,28 +31,28 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file ne
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom port
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate omitted service secrets into a private file
-npx emulate start --seed config.yaml --generated-secrets-file .emulate-secrets.json
+npx emuhealth start --seed config.yaml --generated-secrets-file .emulate-secrets.json
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service github
+npx emuhealth init --service github
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ## Options
@@ -108,7 +108,7 @@ The generated-secrets destination must not exist. emulate removes inherited ACLs
 
 The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 
-For access from a container or another machine, use `npx emulate start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
+For access from a container or another machine, use `npx emuhealth start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
 
 ## Programmatic API
 

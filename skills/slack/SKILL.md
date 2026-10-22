@@ -1,7 +1,7 @@
 ---
 name: slack
 description: Emulated Slack API for local development and testing. Use when the user needs to interact with Slack API endpoints locally, test Slack integrations, emulate channels/messages/users/views, set up Slack OAuth flows, test incoming webhooks, or work with the Slack Web API without hitting the real Slack API. Triggers include "Slack API", "emulate Slack", "mock Slack", "test Slack OAuth", "Slack bot", "Slack views", "incoming webhook", "local Slack", or any task requiring a local Slack API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Slack API Emulator
@@ -16,7 +16,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Slack only
-npx emulate --service slack
+npx emuhealth --service slack
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -25,7 +25,7 @@ npx emulate --service slack
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const slack = await createEmulator({ service: 'slack', port: 4003 })
 // slack.url === 'http://localhost:4003'
@@ -824,4 +824,4 @@ curl -X POST http://localhost:4003/services/T000000001/B000000001/X000000001 \
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "slack" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "slack" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

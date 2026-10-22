@@ -60,13 +60,13 @@ describe.each([
       await mkdir(join(directory, "node_modules"));
       await symlink(
         resolve(dirname(fileURLToPath(import.meta.url)), "../.."),
-        join(directory, "node_modules/emulate"),
+        join(directory, "node_modules/emuhealth"),
         "junction",
       );
       const config = join(directory, "config.json");
       await writeFile(
         join(directory, "counter.mjs"),
-        'import { defineEmulator } from "emulate"; export default defineEmulator({ name: "counter", state: () => ({ count: 0 }), setup({ app, state }) { app.get("/", c => c.json(state)) } })',
+        'import { defineEmulator } from "emuhealth"; export default defineEmulator({ name: "counter", state: () => ({ count: 0 }), setup({ app, state }) { app.get("/", c => c.json(state)) } })',
       );
       await writeFile(
         config,
