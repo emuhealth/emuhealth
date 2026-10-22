@@ -14,9 +14,14 @@ packages/emuhealth/README.md
 
 # Package license notices are copied from root by prepack
 packages/*/LICENSE
+packages/*/NOTICE
 packages/*/THIRD_PARTY_NOTICES.md
 packages/@emulators/*/LICENSE
+packages/@emulators/*/NOTICE
 packages/@emulators/*/THIRD_PARTY_NOTICES.md
+packages/@emuhealth/*/LICENSE
+packages/@emuhealth/*/NOTICE
+packages/@emuhealth/*/THIRD_PARTY_NOTICES.md
 
 # opensrc - source code for packages
 opensrc/

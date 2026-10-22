@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { parse as parseYaml } from "yaml";
 import pc from "picocolors";
+import { SYNTHETIC_DATA_NOTICE } from "../data-policy.js";
 import {
   ensurePortless,
   registerAlias,
@@ -390,6 +391,7 @@ function printBanner(
   const lines: string[] = [];
   lines.push("");
   lines.push(`  ${pc.bold("emuhealth")} ${pc.dim(`v${pkg.version}`)}`);
+  lines.push(`  ${pc.yellow(SYNTHETIC_DATA_NOTICE)}`);
   lines.push("");
 
   const maxNameLen = Math.max(...services.map((s) => s.name.length));

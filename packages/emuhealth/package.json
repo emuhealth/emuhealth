@@ -39,6 +39,7 @@
   "files": [
     "dist",
     "LICENSE",
+    "NOTICE",
     "THIRD_PARTY_NOTICES.md"
   ],
   "bin": {

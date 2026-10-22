@@ -8,6 +8,8 @@ allowed-tools: Bash(npx emuhealth:*)
 
 Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation, not mocks.
 
+**Synthetic data only.** emuhealth is a development and testing tool. Never load real patient data or other protected health information (PHI) into it. Emulators keep data in memory or local files with no access controls, audit logging, or encryption. When seeding emulators, generate synthetic records and never copy real patient data into seed files.
+
 ## Quick Start
 
 ```bash

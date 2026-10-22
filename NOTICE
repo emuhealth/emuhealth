@@ -1,0 +1,17 @@
+emuhealth
+Copyright 2026 emuhealth contributors
+
+This product is a modified version of emulate
+(https://github.com/vercel-labs/emulate), Copyright 2025 Chris Tate,
+licensed under the Apache License, Version 2.0.
+
+emuhealth changes emulate's package names, CLI, documentation, and release
+process, and adds emulators for healthcare and life science APIs. The full
+history of changes is available in the emuhealth repository:
+https://github.com/emuhealth/emuhealth
+
+Third-party notices for code included in this product are listed in
+THIRD_PARTY_NOTICES.md.
+
+emuhealth is intended for synthetic data only. It must not be used to store or
+process real patient data or other protected health information.
