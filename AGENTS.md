@@ -71,7 +71,7 @@ To prepare a release:
 5. Remove the `<!-- release:start -->` and `<!-- release:end -->` markers from the previous release entry (only the latest release should have markers)
 6. Open a PR and merge to `main`
 
-The release workflow compares the version in `packages/emuhealth/package.json` to what's on npm. If it differs, it builds, publishes `emuhealth` and every `@emuhealth/*` package with provenance, and creates the GitHub release. Until npm trusted publishing is configured, the workflow runs only when triggered manually. The release body is extracted from the content between the markers.
+The release workflow compares the version in `packages/emuhealth/package.json` to what's on npm. If it differs, it builds, publishes `emuhealth` and every `@emuhealth/*` package with provenance, and creates the GitHub release. Publishing runs in the `Release` environment and waits for maintainer approval. The release body is extracted from the content between the markers.
 
 <!-- opensrc:start -->
 

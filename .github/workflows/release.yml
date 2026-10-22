@@ -1,8 +1,9 @@
 name: Release
 
-# Manual only until npm trusted publishing is configured for emuhealth.
-# Restore the push trigger on main once the first release is ready (see ROADMAP.md).
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
