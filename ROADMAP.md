@@ -27,7 +27,7 @@ Goal: the fork builds, publishes, and identifies itself as emuhealth without div
 
 The unscoped `emuhealth` name is only reserved once it is published, so this comes before the remaining hygiene items.
 
-- [ ] Create a `Release` environment in the GitHub repository settings (maintainer)
+- [x] Make the repository public and apply upstream's protections: rulesets, signed commits, `Release` environment ([ADR 0006](docs/decisions/0006-repository-protections.md)) (PR_LINK)
 - [ ] Publish `emuhealth@0.1.0` manually from a maintainer account (maintainer)
 - [ ] Configure npm trusted publishing for `emuhealth` (repository `emuhealth/emuhealth`, workflow `release.yml`, environment `Release`) and add the package to the `emuhealth` npm org (maintainer)
 - [ ] Restore the release workflow's push trigger on `main`
