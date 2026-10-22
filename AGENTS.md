@@ -1,5 +1,15 @@
 # Agents
 
+## emuhealth Fork
+
+This repository is emuhealth, a soft fork of [vercel-labs/emulate](https://github.com/vercel-labs/emulate) focused on healthcare and life science APIs. Upstream rules below still apply. These fork rules take precedence where they conflict.
+
+- Read [ROADMAP.md](ROADMAP.md) before starting work. Work one roadmap item at a time, on its own branch, and tick the item (with a PR link) when it ships.
+- Read the decision records in [`docs/decisions/`](docs/decisions/) before changing structure, naming, or scope. Never rewrite an accepted record; add a new one that supersedes it.
+- New health and life science emulators go in `packages/@emuhealth/<name>` and are registered in `packages/emulate/src/registry-health.ts`. Do not add them to `packages/@emulators/`.
+- Keep edits to upstream-owned files minimal and isolated so `git merge upstream/main` stays easy.
+- Synthetic data only. Never add real patient data, real-looking identifiers of real people, or terminology content whose license forbids redistribution.
+
 ## Package Manager
 
 Use `pnpm` for all package management commands (not npm or yarn).
