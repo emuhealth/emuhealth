@@ -1,26 +1,23 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { convertToModelMessages, stepCountIs, streamText } from "ai";
 import type { ModelMessage, UIMessage } from "ai";
 import { createBashTool } from "bash-tool";
 import { headers } from "next/headers";
-import { allDocsPages } from "@/lib/docs-navigation";
-import { mdxToCleanMarkdown } from "@/lib/mdx-to-markdown";
+import { loadAllDocsSources } from "@/lib/docs-source";
 import { minuteRateLimit, dailyRateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60;
 
 const DEFAULT_MODEL = "anthropic/claude-haiku-4.5";
 
-const SYSTEM_PROMPT = `You are a helpful documentation assistant for emulate, a local drop-in replacement for Vercel, GitHub, Google, Slack, Apple, Microsoft, Okta, AWS, Resend, Stripe, MongoDB Atlas, Clerk, and Linear APIs used in CI and no-network sandboxes.
+const SYSTEM_PROMPT = `You are a helpful documentation assistant for emulate, a local drop-in replacement for Vercel, GitHub, Google, Slack, Apple, Microsoft, Okta, AWS, Resend, Stripe, MongoDB Atlas, Clerk, Linear, and Twilio APIs used in CI and no-network sandboxes.
 
-emulate provides fully stateful, production-fidelity API emulation, not mocks. The CLI is installed as the "emulate" npm package and run via "npx emulate". It also supports a programmatic API via createEmulator and a Next.js adapter (@emulators/adapter-next) for embedding emulators in your app.
+emulate provides fully stateful, production-fidelity API emulation, not mocks. The CLI is installed as the "emulate" npm package and run via "npx emulate". It also supports a programmatic API via createEmulator, a Next.js adapter (@emulators/adapter-next), and a Nuxt adapter (@emulators/adapter-nuxt) for embedding emulators in your app.
 
 You have access to the full emulate documentation via the bash and readFile tools. The docs are available as markdown files in the /workspace/ directory.
 
 When answering questions:
 - Use the bash tool to list files (ls /workspace/) or search for content (grep -r "keyword" /workspace/)
-- Use the readFile tool to read specific documentation pages (e.g. readFile with path "/workspace/index.md")
+- Use the readFile tool to read specific documentation pages (e.g. readFile with path "/workspace/docs.md")
 - Do NOT use bash to write, create, modify, or delete files (no tee, cat >, sed -i, echo >, cp, mv, rm, mkdir, touch, etc.). You are read-only
 - Always base your answers on the actual documentation content
 - Be concise and accurate
@@ -29,28 +26,8 @@ When answering questions:
 - Do NOT use emojis in your responses`;
 
 async function loadDocsFiles(): Promise<Record<string, string>> {
-  const files: Record<string, string> = {};
-
-  const results = await Promise.allSettled(
-    allDocsPages.map(async (page) => {
-      const slug = page.href.replace(/^\//, "");
-      const cwd = /* turbopackIgnore: true */ process.cwd();
-      const filePath = slug ? join(cwd, "app", slug, "page.mdx") : join(cwd, "app", "page.mdx");
-
-      const raw = await readFile(filePath, "utf-8");
-      const md = mdxToCleanMarkdown(raw);
-      const fileName = slug ? `/${slug}.md` : "/index.md";
-      return { fileName, md };
-    }),
-  );
-
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      files[result.value.fileName] = result.value.md;
-    }
-  }
-
-  return files;
+  const sources = await loadAllDocsSources();
+  return Object.fromEntries(sources.map((source) => [source.markdownHref, source.markdown]));
 }
 
 function addCacheControl(messages: ModelMessage[]): ModelMessage[] {

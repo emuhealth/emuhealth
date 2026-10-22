@@ -1,6 +1,136 @@
 # Changelog
 
 <!-- release:start -->
+## 0.12.2
+
+### Improvements
+
+- **Vercel Blob route organization** splits uploads, listings, deletes, content delivery, and shared helpers into focused modules while preserving existing behavior (#299)
+
+### Testing
+
+- Expanded **Vercel Blob coverage** for multipart uploads, browser tokens, private stores, content delivery, authentication, and legacy compatibility, with expected failures documenting unsupported behavior (#278)
+
+### Contributors
+
+- @scotttrinh
+
+<!-- release:end -->
+
+## 0.12.1
+
+### Bug Fixes
+
+- Fixed **emulator network exposure** by binding built-in and custom HTTP listeners to IPv4 loopback (`127.0.0.1`) by default. Container and remote workflows can opt into network access with `--host 0.0.0.0` or `hostname: '0.0.0.0'` (#276)
+
+## 0.12.0
+
+### New Features
+
+- **Custom stateful HTTP APIs** let projects define typed emulators with seeds, reset, snapshots, and optional persistence, then reuse the same definitions in tests and Next.js or Nuxt adapters (#268)
+- **Custom API development workflow** adds `npx emulate init --custom inventory`, TypeScript and JavaScript configuration, watch mode, and request, route, and state inspection alongside built-in services (#268)
+
+### Improvements
+
+- **Slack event signatures** use the configured `slack.signing_secret` to send Slack-compatible timestamp and signature headers (#266)
+- **Slack event envelopes** include the installation team, unique event ID, and event timestamp for routing and deduplication (#267)
+
+### Contributors
+
+- @ctate
+- @K-Mistele
+- @Railly
+
+## 0.11.2
+
+### New Features
+
+- **GitHub raw media negotiation** adds Accept-based binary responses for Contents and README endpoints (#237)
+- **Google Calendar discovery** adds an unauthenticated Calendar v3 discovery document for local clients (#238)
+- **GitHub organization membership seeding** adds `orgs[].members` configuration with member and admin roles (#240)
+- **Resend idempotency keys** make email and batch sends replayable without duplicate records or webhooks (#239)
+
+### Improvements
+
+- **Slack message limits** enforce Slack's 40,000-character limit with safe truncation and warning metadata (#244)
+- **Google OIDC verification** issues RS256-signed ID tokens and exposes the matching JWKS endpoint (#247)
+- **Configuration examples and service docs** now reflect the current emulator registry and CLI options (#248)
+
+### Bug Fixes
+
+- Fixed **GitHub Checks** list endpoints for slash-containing branch and tag refs (#246)
+- Fixed **GitHub App installation writes** to authenticate as the App bot for organization installations (#242)
+- Fixed **AWS S3** uploads, copies, and downloads to preserve arbitrary binary payloads (#241, #245)
+- Fixed **Microsoft refresh tokens** to remain bound to the OAuth client that issued them (#243)
+
+## 0.11.1
+
+### Improvements
+
+- **Vercel v7 deployment listing** adds authenticated `GET /v7/deployments` with commit-SHA filtering across projects, team scoping, and pagination (#234)
+
+## 0.11.0
+
+### New Features
+
+- **Persistent adapter runtime** shares state handling across the Next.js and Nuxt adapters, including atomic initialization and generated GitHub App key persistence across cold starts
+- **Linear issue priority labels** expose the derived `priorityLabel` alongside numeric issue priority in queries and mutations
+- **GitHub installation-token inspection** exposes secret-free metadata for minted App installation tokens, including permissions, repository access, expiry, and lifecycle status
+
+### Contributors
+
+- @ctate
+- @Railly
+
+## 0.10.0
+
+### New Features
+
+- **Expanded GitHub repository APIs** add stateful contents, README, commits, comparisons, raw file downloads, Git Data shapes, branch isolation, and commit-producing file writes (#191)
+- **Generated GitHub App keys** let `createEmulator` generate RSA private keys for GitHub Apps that omit `private_key`, expose generated material through `generatedSecrets`, and preserve it across resets (#200)
+
+### Bug Fixes
+
+- Fixed **Stripe webhook signatures** to send Stripe-compatible `Stripe-Signature` headers over the raw request body (#198)
+- Fixed **GitHub App JWT verification** for documented PKCS#1 keys and PKCS#8 keys by deriving public key material before verification (#199)
+
+### Contributors
+
+- @ctate
+- @EfeDurmaz16
+- @Railly
+- @sidpalas
+
+## 0.9.0
+
+### New Features
+
+- **Nuxt emulator adapter** — new `@emulators/adapter-nuxt` package for embedding emulators in Nuxt apps, with Nuxt server route handling, persistence, response rewriting, and Nitro tracing support (#188)
+- **Nuxt embedded example** — added `examples/nuxt-embedded` demonstrating same-origin OAuth flows (GitHub + Google), a catch-all emulate server route, and cookie-based sessions (#188)
+
+### Improvements
+
+- **Nuxt docs and agent guidance** — documented Nuxt setup across the README, docs site, and agent skills (#188)
+
+### Contributors
+
+- @ctate
+
+## 0.8.0
+
+### New Features
+
+- **Twilio emulator** — local Twilio API emulation with accounts, phone numbers, messages, calls, conversations, messaging services, Verify flows, simulator endpoints, SDK conformance tests, and inspector support (#185)
+- **Twilio SMS verification example** — working Next.js example for SMS verification with the Twilio emulator and local session handling (#186)
+
+### Improvements
+
+- **Twilio docs and agent guidance** — added README, docs site, and skill coverage for local Twilio development (#185, #186)
+
+### Contributors
+
+- @ctate
+
 ## 0.7.0
 
 ### New Features
@@ -14,8 +144,6 @@
 ### Contributors
 
 - @ctate
-
-<!-- release:end -->
 
 ## 0.6.1
 
