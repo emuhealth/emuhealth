@@ -15,7 +15,7 @@ export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
           <span className="text-neutral-500">$</span> <span className="text-neutral-200">npx emuhealth</span>
           {"\n\n"}
           <span className={`${pixelFont} text-neutral-200`}>emuhealth</span>
-          {" v0.1.1\n"}
+          {" v0.2.0\n"}
           <span className="text-amber-400">
             Synthetic data only. Never load real patient data (PHI) into emuhealth.
           </span>
