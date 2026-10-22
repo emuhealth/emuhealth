@@ -19,9 +19,9 @@ Goal: the fork builds, publishes, and identifies itself as emuhealth without div
 - [x] Point the release workflow (`.github/workflows/release.yml`) at `emuhealth` and `@emuhealth/*` only ([#9](https://github.com/emuhealth/emuhealth/pull/9))
 - [x] Update `repository`, `homepage`, and `bugs` fields in every `package.json` we publish ([#9](https://github.com/emuhealth/emuhealth/pull/9))
 - [x] Document the upstream sync procedure in [`docs/upstream-sync.md`](docs/upstream-sync.md) ([#9](https://github.com/emuhealth/emuhealth/pull/9))
-- [x] Confirm ownership of the `@emuhealth` npm scope (PR_LINK)
-- [x] Add a `NOTICE` file stating this is a modified fork of vercel-labs/emulate (Apache-2.0 section 4) (PR_LINK)
-- [x] Synthetic data warning in README, docs, agent skill, CLI help, and CLI start banners ([ADR 0004](docs/decisions/0004-synthetic-data-only.md)) (PR_LINK)
+- [x] Confirm ownership of the `@emuhealth` npm scope ([#10](https://github.com/emuhealth/emuhealth/pull/10))
+- [x] Add a `NOTICE` file stating this is a modified fork of vercel-labs/emulate (Apache-2.0 section 4) ([#10](https://github.com/emuhealth/emuhealth/pull/10))
+- [x] Synthetic data warning in README, docs, agent skill, CLI help, and CLI start banners ([ADR 0004](docs/decisions/0004-synthetic-data-only.md)) ([#10](https://github.com/emuhealth/emuhealth/pull/10))
 
 ### First release
 
