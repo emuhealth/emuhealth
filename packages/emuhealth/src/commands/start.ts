@@ -15,6 +15,7 @@ import {
   type PortlessAlias,
 } from "../portless.js";
 import { resolveBaseUrl } from "../base-url.js";
+import { defaultServicePort } from "../registry-health.js";
 import {
   preflightGeneratedSecretsFile,
   publishGeneratedSecretsFile,
@@ -133,7 +134,7 @@ export async function prepareStartServices(
     if (preparedSeed) {
       generatedSecrets.push(...preparedSeed.generatedSecrets.map((secret) => ({ service: svc, ...secret })));
     }
-    const port = (svcSeedConfig?.port as number | undefined) ?? options.port + i;
+    const port = (svcSeedConfig?.port as number | undefined) ?? defaultServicePort(svc, options.port, i);
 
     if (options.portless) {
       portlessAliases.push({ name: `${svc}.emulate`, port });

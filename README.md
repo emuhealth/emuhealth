@@ -35,6 +35,8 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file ne
 - **Linear** on `http://localhost:4012`
 - **Twilio** on `http://localhost:4013`
 
+Health and life science services use a fixed range starting at `http://localhost:4100`. Each health service keeps its port no matter which other services run or how many upstream services exist.
+
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 
 Slack event callbacks use `X-Slack-Request-Timestamp` and `X-Slack-Signature` when `slack.signing_secret` is configured. The signature is an HMAC-SHA256 over `v0:<timestamp>:<raw-body>`; configure the receiver with the same secret and verify against the unparsed request body. Existing event subscriptions remain unsigned when the secret is absent or empty.
@@ -122,7 +124,7 @@ npx emuhealth list
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-p, --port` | `4000` | Base port (auto-increments per service) |
+| `-p, --port` | `4000` | Base port (auto-increments per service; health services start at base + 100) |
 | `--host` | `127.0.0.1` | Listening address; use `0.0.0.0` to allow network access |
 | `-s, --service` | all | Comma-separated services to enable |
 | `--seed` | auto-detect | Path to seed config (YAML or JSON) |
