@@ -21,6 +21,10 @@ export const docsSections: NavSection[] = [
     ],
   },
   {
+    title: "Health",
+    items: [{ name: "FHIR R4", href: "/docs/fhir" }],
+  },
+  {
     title: "Services",
     items: [
       { name: "Vercel API", label: "Vercel", href: "/docs/vercel" },

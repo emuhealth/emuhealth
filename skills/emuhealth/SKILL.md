@@ -37,6 +37,12 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default:
 
 Health and life science services use a fixed range starting at port 4100 (base port + 100). Each keeps its port regardless of which other services run.
 
+| Health service | Default Port |
+|----------------|-------------|
+| FHIR R4 (`fhir`) | 4100 |
+
+See the `fhir` skill for the FHIR R4 API.
+
 ## CLI
 
 ```bash

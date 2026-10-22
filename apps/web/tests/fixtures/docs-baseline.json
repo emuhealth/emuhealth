@@ -126,6 +126,13 @@
         "Custom emulators"
       ]
     },
+    "/docs/fhir": {
+      "title": "FHIR R4 | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/fhir",
+      "ogTitle": "FHIR R4 | emuhealth",
+      "headings": ["Resources", "Versioning", "History", "Errors", "Seed config", "Programmatic use"]
+    },
     "/docs/vercel": {
       "title": "Vercel API | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
