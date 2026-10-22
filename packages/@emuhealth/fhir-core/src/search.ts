@@ -18,6 +18,22 @@ interface Criterion {
   /** The original "name[:modifier]" key, kept for the self link. */
   key: string;
   raw: string;
+  /** Chained search (for example patient.family): the rest of the key, evaluated on the referenced resource. */
+  chain?: { targetType?: string; key: string };
+}
+
+/** An _include or _revinclude directive: SourceType:param[:TargetType][:iterate]. */
+export interface IncludeDirective {
+  source: string;
+  definition: SearchParamDefinition;
+  target?: string;
+  iterate: boolean;
+}
+
+/** Read access to the store that chained search and includes need. */
+export interface SearchContext {
+  resolve(type: string, id: string): FhirResource | undefined;
+  listCurrent(type: string): FhirResource[];
 }
 
 export interface ParsedSearch {
@@ -26,6 +42,8 @@ export interface ParsedSearch {
   count: number;
   offset: number;
   summaryCount: boolean;
+  includes: IncludeDirective[];
+  revincludes: IncludeDirective[];
   /** Query parameters the server applied, in a stable order, for Bundle links. */
   applied: Array<[string, string]>;
 }
@@ -56,6 +74,8 @@ export function parseSearch(type: string, params: Array<[string, string]>, optio
     count: DEFAULT_PAGE_SIZE,
     offset: 0,
     summaryCount: false,
+    includes: [],
+    revincludes: [],
     applied: [],
   };
   for (const [key, raw] of params) {
@@ -77,6 +97,36 @@ export function parseSearch(type: string, params: Array<[string, string]>, optio
       if (key === "_count" || key === "_sort" || key === "_summary") parsed.applied.push([key, raw]);
       continue;
     }
+    if (key === "_include" || key === "_revinclude" || key === "_include:iterate" || key === "_revinclude:iterate") {
+      const directive = parseInclude(raw, key.endsWith(":iterate"));
+      if (!directive || (key.startsWith("_include") && !directive.iterate && directive.source !== type)) {
+        if (options.strict) throw new FhirError(400, "not-supported", `Unsupported ${key} value "${raw}"`);
+        continue;
+      }
+      (key.startsWith("_include") ? parsed.includes : parsed.revincludes).push(directive);
+      parsed.applied.push([key, raw]);
+      continue;
+    }
+    const dot = key.indexOf(".");
+    if (dot > 0) {
+      const [name, targetType] = key.slice(0, dot).split(":", 2);
+      const definition = definitions.get(name);
+      if (definition?.type !== "reference" || (targetType !== undefined && !/^[A-Z][A-Za-z]+$/.test(targetType))) {
+        if (options.strict)
+          throw new FhirError(400, "not-supported", `Unsupported chained parameter "${key}" for ${type}`);
+        continue;
+      }
+      const chainTarget = targetType ?? (definition.targets?.length === 1 ? definition.targets[0] : undefined);
+      parsed.criteria.push({
+        definition,
+        values: [raw],
+        key,
+        raw,
+        chain: { targetType: chainTarget, key: key.slice(dot + 1) },
+      });
+      parsed.applied.push([key, raw]);
+      continue;
+    }
     const [name, modifier] = key.split(":", 2);
     const definition = definitions.get(name);
     const supportedModifier =
@@ -96,6 +146,17 @@ export function parseSearch(type: string, params: Array<[string, string]>, optio
     parsed.applied.push([key, raw]);
   }
   return parsed;
+}
+
+function parseInclude(raw: string, iterateFlag: boolean): IncludeDirective | undefined {
+  const parts = raw.split(":");
+  const iterate = iterateFlag || parts[parts.length - 1] === "iterate";
+  if (parts[parts.length - 1] === "iterate") parts.pop();
+  const [source, param, target] = parts;
+  if (!source || !param || parts.length > 3) return undefined;
+  const definition = searchParamsFor(source).get(param);
+  if (definition?.type !== "reference") return undefined;
+  return { source, definition, target, iterate };
 }
 
 // Value extraction
@@ -277,7 +338,44 @@ function matchReference(
   return refs.some((r) => r.split("/").slice(-2).join("/") === wanted);
 }
 
-function matchesCriterion(resource: FhirResource, criterion: Criterion): boolean {
+/** "Patient/123", "http://host/Patient/123" -> ["Patient", "123"]. Contained (#id) references are skipped. */
+function referenceTarget(reference: unknown): [string, string] | undefined {
+  const ref = reference && typeof reference === "object" ? (reference as { reference?: unknown }).reference : undefined;
+  if (typeof ref !== "string" || ref.startsWith("#")) return undefined;
+  const parts = ref.split("/").filter(Boolean);
+  const historyAt = parts.indexOf("_history");
+  const trimmed = historyAt > 0 ? parts.slice(0, historyAt) : parts;
+  if (trimmed.length < 2) return undefined;
+  return [trimmed[trimmed.length - 2], trimmed[trimmed.length - 1]];
+}
+
+function referencedResources(
+  resource: FhirResource,
+  definition: SearchParamDefinition,
+  ctx: SearchContext,
+  targetType?: string,
+): FhirResource[] {
+  const out: FhirResource[] = [];
+  for (const value of valuesAt(resource, definition)) {
+    const target = referenceTarget(value);
+    if (!target || (targetType && target[0] !== targetType)) continue;
+    const found = ctx.resolve(target[0], target[1]);
+    if (found) out.push(found);
+  }
+  return out;
+}
+
+function matchesChain(resource: FhirResource, criterion: Criterion, ctx: SearchContext, depth: number): boolean {
+  const chain = criterion.chain!;
+  if (depth > 3) throw new FhirError(400, "not-supported", `Chained parameter "${criterion.key}" is nested too deeply`);
+  return referencedResources(resource, criterion.definition, ctx, chain.targetType).some((target) => {
+    const sub = parseSearch(target.resourceType, [[chain.key, criterion.raw]]);
+    return sub.criteria.length > 0 && sub.criteria.every((c) => matchesCriterion(target, c, ctx, depth + 1));
+  });
+}
+
+function matchesCriterion(resource: FhirResource, criterion: Criterion, ctx: SearchContext, depth = 0): boolean {
+  if (criterion.chain) return matchesChain(resource, criterion, ctx, depth);
   const { definition, modifier, values } = criterion;
   const found = valuesAt(resource, definition);
   if (modifier === "missing") {
@@ -335,8 +433,8 @@ export interface SearchResult {
   matches: FhirResource[];
 }
 
-export function runSearch(resources: FhirResource[], search: ParsedSearch): SearchResult {
-  let matches = resources.filter((r) => search.criteria.every((c) => matchesCriterion(r, c)));
+export function runSearch(resources: FhirResource[], search: ParsedSearch, ctx: SearchContext): SearchResult {
+  let matches = resources.filter((r) => search.criteria.every((c) => matchesCriterion(r, c, ctx)));
   if (search.sort.length > 0) {
     matches = matches
       .map((resource) => ({ resource, keys: search.sort.map((s) => sortKey(resource, s.definition)) }))
@@ -357,4 +455,43 @@ export function runSearch(resources: FhirResource[], search: ParsedSearch): Sear
       .map((x) => x.resource);
   }
   return { total: matches.length, matches };
+}
+
+const MAX_INCLUDE_ROUNDS = 5;
+const key = (r: FhirResource) => `${r.resourceType}/${r.id}`;
+
+/**
+ * Resources to add to a page for _include and _revinclude, excluding the page itself.
+ * Directives marked iterate also apply to resources added by earlier rounds.
+ */
+export function resolveIncludes(page: FhirResource[], search: ParsedSearch, ctx: SearchContext): FhirResource[] {
+  if (search.includes.length === 0 && search.revincludes.length === 0) return [];
+  const seen = new Set(page.map(key));
+  const added: FhirResource[] = [];
+  const add = (r: FhirResource, next: FhirResource[]) => {
+    if (seen.has(key(r))) return;
+    seen.add(key(r));
+    added.push(r);
+    next.push(r);
+  };
+  let frontier = page;
+  for (let round = 0; round < MAX_INCLUDE_ROUNDS && frontier.length > 0; round++) {
+    const next: FhirResource[] = [];
+    const active = (d: IncludeDirective) => round === 0 || d.iterate;
+    for (const directive of search.includes.filter(active)) {
+      for (const resource of frontier.filter((r) => r.resourceType === directive.source))
+        for (const target of referencedResources(resource, directive.definition, ctx, directive.target))
+          add(target, next);
+    }
+    for (const directive of search.revincludes.filter(active)) {
+      const wanted = new Set(frontier.filter((r) => !directive.target || r.resourceType === directive.target).map(key));
+      if (wanted.size === 0) continue;
+      for (const candidate of ctx.listCurrent(directive.source)) {
+        const refs = valuesAt(candidate, directive.definition).map(referenceTarget);
+        if (refs.some((t) => t && wanted.has(`${t[0]}/${t[1]}`))) add(candidate, next);
+      }
+    }
+    frontier = next;
+  }
+  return added;
 }

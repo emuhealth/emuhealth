@@ -43,7 +43,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | history | `GET /:type/:id/_history`, `GET /:type/_history`, `GET /_history` with `_count` and `_since` |
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 
-Not available yet: `_include`, `_revinclude`, chained search, `batch` and `transaction` Bundles, `/metadata`, SMART on FHIR. Requests are not authenticated until SMART support lands.
+Not available yet: `batch` and `transaction` Bundles, `/metadata`, SMART on FHIR. Requests are not authenticated until SMART support lands.
 
 ## Search
 
@@ -57,6 +57,8 @@ Returns a `searchset` Bundle with `total` and `self`/`next`/`previous` links.
 - `:missing=true|false` on any parameter; commas are OR, repeated parameters are AND
 - `_sort=a,-b`, `_count` (default 50, max 500), `_summary=count`
 - Unknown parameters are ignored; `Prefer: handling=strict` makes them a `400`
+- `_include=Observation:patient` (optionally `:Patient` target) and `_revinclude=Observation:subject` add `search.mode: include` entries for the current page; `_include:iterate` follows includes of included resources
+- Chained parameters: `Observation?patient.family=example`, `subject:Patient.name=...`, nested up to four levels
 
 ```bash
 curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://loinc.org|8867-4&_sort=-date'

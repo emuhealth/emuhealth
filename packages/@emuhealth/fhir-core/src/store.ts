@@ -122,6 +122,12 @@ export class FhirStore {
     return this.write(type, randomUUID(), body, "POST");
   }
 
+  /** The current resource, or undefined when it is unknown or deleted. Never throws. */
+  find(type: string, id: string): FhirResource | undefined {
+    const record = this.current(type, id);
+    return record?.resource ? structuredClone(record.resource) : undefined;
+  }
+
   /** Current, non-deleted resources of a type, oldest first. */
   listCurrent(type: string): FhirResource[] {
     assertResourceType(type);

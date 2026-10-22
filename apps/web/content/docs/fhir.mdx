@@ -37,7 +37,17 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://loinc.org|8867-4&date=ge2026-01-01&_sort=-date'
 ```
 
-`_include`, `_revinclude`, and chained parameters are on the roadmap.
+### Includes and chaining
+
+- `_include=Observation:patient` adds the referenced resources to the page as `search.mode: include` entries. Add a target type to narrow it, for example `_include=Observation:subject:Patient`.
+- `_revinclude=Observation:subject` adds resources that reference the matches.
+- `_include:iterate` and `_revinclude:iterate` (or a trailing `:iterate`) also apply to resources added by other includes, up to five rounds.
+- Includes apply to the current page only and do not count toward `total`.
+- Chained parameters filter through a reference using the target type's parameters: `Observation?patient.family=example`, `Observation?subject:Patient.name=example`, or nested chains such as `Observation?patient.organization.name=clinic` (up to four levels).
+
+```bash
+curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observation:subject'
+```
 
 ## Versioning
 

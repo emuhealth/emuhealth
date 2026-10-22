@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
-import { parseSearch, runSearch } from "./search.js";
+import { parseSearch, resolveIncludes, runSearch, type SearchContext } from "./search.js";
 import { getFhirStore, type FhirHistoryRecord, type WriteResult } from "./store.js";
 
 export const FHIR_JSON = "application/fhir+json; charset=utf-8";
@@ -132,7 +132,12 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     }
     const strict = /handling=strict/.test(c.req.header("Prefer") ?? "");
     const parsed = parseSearch(type, params, { strict });
-    const { total, matches } = runSearch(fhir().listCurrent(type), parsed);
+    const store = fhir();
+    const ctx: SearchContext = {
+      resolve: (t, id) => store.find(t, id),
+      listCurrent: (t) => store.listCurrent(t),
+    };
+    const { total, matches } = runSearch(store.listCurrent(type), parsed, ctx);
     const link = (offset: number) => {
       const query = new URLSearchParams(parsed.applied);
       if (offset > 0) query.set("_getpagesoffset", String(offset));
@@ -146,6 +151,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       if (parsed.offset > 0) links.push({ relation: "previous", url: link(Math.max(0, parsed.offset - parsed.count)) });
     }
     const page = parsed.summaryCount ? [] : matches.slice(parsed.offset, parsed.offset + parsed.count);
+    const included = resolveIncludes(page, parsed, ctx);
     return fhirJson(c, {
       resourceType: "Bundle",
       id: randomUUID(),
@@ -153,11 +159,18 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       type: "searchset",
       total,
       link: links,
-      entry: page.map((resource) => ({
-        fullUrl: `${base}/${type}/${resource.id}`,
-        resource,
-        search: { mode: "match" },
-      })),
+      entry: [
+        ...page.map((resource) => ({
+          fullUrl: `${base}/${type}/${resource.id}`,
+          resource,
+          search: { mode: "match" },
+        })),
+        ...included.map((resource) => ({
+          fullUrl: `${base}/${resource.resourceType}/${resource.id}`,
+          resource,
+          search: { mode: "include" },
+        })),
+      ],
     });
   }
 
