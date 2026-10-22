@@ -3,6 +3,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "programmatic-api": "Programmatic API",
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
+  fhir: "FHIR R4",
   nextjs: "Next.js Integration",
   nuxt: "Nuxt Integration",
   vercel: "Vercel API",

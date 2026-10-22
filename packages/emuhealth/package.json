@@ -61,6 +61,7 @@
   },
   "devDependencies": {
     "@emulators/core": "workspace:*",
+    "@emuhealth/fhir-core": "workspace:*",
     "@emulators/github": "workspace:*",
     "@emulators/apple": "workspace:*",
     "@emulators/microsoft": "workspace:*",

@@ -379,3 +379,23 @@ twilio:
   conversations:
     services:
       - friendly_name: Local Conversations
+
+# FHIR R4 server (health service, default port 4100). Synthetic data only.
+fhir:
+  resources:
+    - resourceType: Patient
+      id: synthetic-patient-1
+      name:
+        - family: Example
+          given: [Jamie]
+      gender: female
+      birthDate: "1980-01-01"
+    - resourceType: Observation
+      status: final
+      code:
+        text: Heart rate
+      subject:
+        reference: Patient/synthetic-patient-1
+      valueQuantity:
+        value: 72
+        unit: beats/minute

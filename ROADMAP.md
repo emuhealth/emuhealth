@@ -46,7 +46,7 @@ Goal: a reusable FHIR and SMART foundation that every EHR and cloud emulator bui
 
 Package: `@emuhealth/fhir-core`
 
-- [ ] FHIR R4 resource store: create, read, update, patch, delete, `_history`, versioning, `ETag` and `If-Match`
+- [x] FHIR R4 resource store: create, read, update, patch, delete, `_history`, versioning, `ETag` and `If-Match` ([ADR 0008](docs/decisions/0008-fhir-core-design.md)) ([#19](https://github.com/emuhealth/emuhealth/pull/19))
 - [ ] Search: `_id`, `_lastUpdated`, `_count`, `_sort`, `_include`, `_revinclude`, common token, reference, date, and string parameters, chained search
 - [ ] `batch` and `transaction` Bundles
 - [ ] `OperationOutcome` errors and `CapabilityStatement` at `/metadata`

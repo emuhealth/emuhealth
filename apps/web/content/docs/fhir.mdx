@@ -1,0 +1,81 @@
+---
+title: "FHIR R4"
+---
+
+A stateful FHIR R4 (4.0.1) server for developing and testing health apps. It runs on `http://localhost:4100` by default and accepts any R4 resource type. Load synthetic data only, never real patient data.
+
+```bash
+npx emuhealth --service fhir
+```
+
+## Resources
+
+The FHIR base URL is the server root. All responses use `application/fhir+json`.
+
+- `POST /:type` creates a resource with a server-assigned id (any id in the body is ignored)
+- `GET /:type/:id` reads the current version
+- `PUT /:type/:id` updates a resource, or creates it with that id when it does not exist (the body `id` must match the URL)
+- `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
+- `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
+
+Search, `batch` and `transaction` Bundles, `/metadata`, and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+
+## Versioning
+
+Every write increments `meta.versionId` and sets `meta.lastUpdated`.
+
+- Responses include `ETag: W/"<versionId>"` and `Last-Modified`. Creates also return `Location: <base>/<type>/<id>/_history/<versionId>`.
+- `If-Match: W/"<versionId>"` on `PUT`, `PATCH`, or `DELETE` returns `412 Precondition Failed` when the resource has moved on.
+- `If-None-Match: W/"<versionId>"` on a read returns `304 Not Modified` when nothing changed.
+- `Prefer: return=minimal` returns an empty body; `Prefer: return=OperationOutcome` returns an outcome instead of the resource.
+
+```bash
+curl -X PUT http://localhost:4100/Patient/synthetic-patient-1 \
+  -H 'Content-Type: application/fhir+json' \
+  -H 'If-Match: W/"1"' \
+  -d '{"resourceType":"Patient","id":"synthetic-patient-1","gender":"female"}'
+```
+
+## History
+
+- `GET /:type/:id/_history/:vid` reads a specific version
+- `GET /:type/:id/_history`, `GET /:type/_history`, and `GET /_history` return a `history` Bundle, newest first
+
+History supports `_count` and `_since`. Deleted versions appear as entries with `request.method` `DELETE` and no resource.
+
+## Errors
+
+Errors are `OperationOutcome` resources with a matching status: `400` for invalid input, `404` for unknown ids or resource types, `410` for deleted resources, `412` for version conflicts, `415` for unsupported content types, and `422` when a JSON Patch `test` fails.
+
+## Seed config
+
+Load synthetic resources at startup. Resources with an `id` keep it; others get a server-assigned id.
+
+```yaml
+fhir:
+  resources:
+    - resourceType: Patient
+      id: synthetic-patient-1
+      name:
+        - family: Example
+          given: [Jamie]
+      gender: female
+      birthDate: "1980-01-01"
+    - resourceType: Observation
+      status: final
+      code:
+        text: Heart rate
+      subject:
+        reference: Patient/synthetic-patient-1
+```
+
+## Programmatic use
+
+```typescript
+import { createEmulator } from "emuhealth";
+
+const fhir = await createEmulator({ service: "fhir" });
+// fhir.url === "http://localhost:4100"
+afterEach(() => fhir.reset());
+afterAll(() => fhir.close());
+```

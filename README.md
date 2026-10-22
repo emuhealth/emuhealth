@@ -37,6 +37,8 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file ne
 
 Health and life science services use a fixed range starting at `http://localhost:4100`. Each health service keeps its port no matter which other services run or how many upstream services exist.
 
+- **FHIR R4** on `http://localhost:4100` (create, read, update, JSON Patch, delete, versioning, and `_history`; search and SMART on FHIR are on the roadmap)
+
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 
 Slack event callbacks use `X-Slack-Request-Timestamp` and `X-Slack-Signature` when `slack.signing_secret` is configured. The signature is an HMAC-SHA256 over `v0:<timestamp>:<raw-body>`; configure the receiver with the same secret and verify against the unparsed request body. Existing event subscriptions remain unsigned when the secret is absent or empty.

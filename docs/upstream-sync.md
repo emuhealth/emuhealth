@@ -45,7 +45,10 @@ These diverge from upstream on purpose and are where conflicts are most likely:
 | `packages/emuhealth/src/{config-loader,base-url}.ts` | `emuhealth.config.*` and `EMUHEALTH_*` names ([decision 0007](decisions/0007-branded-config-and-env-names.md)) |
 | `packages/@emulators/core/src/ui.ts`      | emuhealth links in `emuBar()`, footer, and page titles |
 | `packages/@emulators/core/src/debug.ts`   | Also reads `EMUHEALTH_DEBUG`                      |
-| `.github/workflows/release.yml`           | Publishes `emuhealth` and `@emuhealth/*` only     |
+| `.github/workflows/release.yml`           | Publishes `emuhealth` and non-private `@emuhealth/*` only |
+| `pnpm-workspace.yaml`                     | Adds `packages/@emuhealth/*`                      |
+| `packages/emuhealth/tsup.config.ts`, `package.json` | Bundles `@emuhealth/*` into the CLI ([decision 0008](decisions/0008-fhir-core-design.md)) |
+| `emulate.config.example.yaml`             | `fhir` section                                    |
 | `scripts/*.mjs`                           | Package name and version sync targets             |
 | `AGENTS.md`                               | Fork rules, CLI name, release process             |
 | `CHANGELOG.md`                            | emuhealth entries above emulate's history; upstream's new entries go below the "emulate's own history" line |
