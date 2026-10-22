@@ -37,7 +37,7 @@ The unscoped `emuhealth` name is only reserved once it is published, so this com
 
 - [x] Stable port range for health services starting at 4100, independent of upstream service order ([ADR 0001](docs/decisions/0001-soft-fork-strategy.md)) ([#15](https://github.com/emuhealth/emuhealth/pull/15))
 - [x] Health service registry in its own file (`packages/emuhealth/src/registry-health.ts`), merged into `SERVICE_REGISTRY` with a minimal change ([#15](https://github.com/emuhealth/emuhealth/pull/15))
-- [~] Branded config and environment names (`emuhealth.config.*`, `EMUHEALTH_PORT`) with fallback to the `emulate` names ([ADR 0007](docs/decisions/0007-branded-config-and-env-names.md))
+- [x] Branded config and environment names (`emuhealth.config.*`, `EMUHEALTH_PORT`) with fallback to the `emulate` names ([ADR 0007](docs/decisions/0007-branded-config-and-env-names.md)) ([#16](https://github.com/emuhealth/emuhealth/pull/16))
 - [ ] Rebrand `apps/web` (titles, npm links, prose), the `emuBar()` and footer in `core/src/ui.ts`, CLI `--help` docs links, and the `skills/emulate` skill name
 
 ## Phase 1: Shared health core
