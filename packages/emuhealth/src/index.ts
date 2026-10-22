@@ -4,6 +4,7 @@ import { listCommand } from "./commands/list.js";
 import { SERVICE_NAMES } from "./registry.js";
 import { projectStartCommand } from "./commands/project-start.js";
 import { scaffoldCommand } from "./commands/scaffold.js";
+import { SYNTHETIC_DATA_NOTICE } from "./data-policy.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -19,6 +20,9 @@ program
   .addHelpText(
     "after",
     `
+Data policy:
+  ${SYNTHETIC_DATA_NOTICE}
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://emulate.dev/docs/nextjs and https://emulate.dev/docs/nuxt

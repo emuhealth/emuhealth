@@ -2,6 +2,7 @@ import { fork, type ChildProcess } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
 import { ProjectWatcher } from "../project-watcher.js";
+import { SYNTHETIC_DATA_NOTICE } from "../data-policy.js";
 import { CONFIG_FILES, findConfig } from "../config-loader.js";
 import { prepareProject, type ProjectOptions, type RunMetadata, type RetainedSeed } from "../project-runner.js";
 import { ensurePortless, registerAliases, removeAliases, type PortlessAlias } from "../portless.js";
@@ -12,7 +13,7 @@ import {
 } from "../generated-secrets-file.js";
 
 function printReady(metadata: RunMetadata, watching: boolean) {
-  console.log("\nemuhealth\n");
+  console.log(`\nemuhealth\n  ${SYNTHETIC_DATA_NOTICE}\n`);
   for (const service of metadata.services) {
     console.log(`  ${service.name}  ${service.url}\n    Source: ${service.source}`);
     if (service.inspectorUrl)
