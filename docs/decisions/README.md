@@ -15,3 +15,4 @@ Rules:
 | [0003](0003-fhir-r4-baseline.md)      | FHIR R4 and SMART as the baseline | Accepted |
 | [0004](0004-synthetic-data-only.md)   | Synthetic data only, no PHI      | Accepted |
 | [0005](0005-cli-package-layout.md)    | CLI package layout and publishing | Accepted |
+| [0006](0006-repository-protections.md) | Repository protections           | Accepted |
