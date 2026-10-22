@@ -9,11 +9,11 @@ Use emulators as libraries in your tests and scripts. There are two approaches: 
 The `emulate` package provides a `createEmulator` helper that starts any service by name.
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const github = await createEmulator({ service: 'github', port: 4001 })
 const vercel = await createEmulator({ service: 'vercel', port: 4002 })
@@ -56,7 +56,7 @@ Generated keys remain stable across `reset()` calls and appear only in `generate
 
 ```typescript
 // vitest.setup.ts
-import { createEmulator, type Emulator } from 'emulate'
+import { createEmulator, type Emulator } from 'emuhealth'
 
 let github: Emulator
 let vercel: Emulator
@@ -195,4 +195,4 @@ These are the same modules used internally by the CLI and the [Next.js adapter](
 
 ## Custom emulators
 
-Custom definitions created with `defineEmulator` from `emulate` work in the CLI, in-process tests, and both framework adapters. The same definition provides typed state, HTTP handlers, reset, versioned snapshots, and optional inspection/persistence. See [Custom emulators](/docs/custom-emulators) for the quickstart, API reference, and complete lifecycle semantics.
+Custom definitions created with `defineEmulator` from `emuhealth` work in the CLI, in-process tests, and both framework adapters. The same definition provides typed state, HTTP handlers, reset, versioned snapshots, and optional inspection/persistence. See [Custom emulators](/docs/custom-emulators) for the quickstart, API reference, and complete lifecycle semantics.

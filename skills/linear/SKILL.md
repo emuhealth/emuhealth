@@ -1,7 +1,7 @@
 ---
 name: linear
 description: Emulated Linear GraphQL API for local development and testing. Use when the user needs to test Linear integrations locally, emulate Linear issues, comments, teams, workflow states, OAuth apps, webhooks, agent sessions, or work with the Linear API without hitting the real Linear service. Triggers include "Linear API", "emulate Linear", "mock Linear", "test Linear OAuth", "Linear webhook", "Linear agent", "local Linear", or any task requiring a local Linear API.
-allowed-tools: Bash(npx emulate:*)
+allowed-tools: Bash(npx emuhealth:*)
 ---
 
 # Linear API Emulator
@@ -14,7 +14,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Linear only
-npx emulate --service linear
+npx emuhealth --service linear
 ```
 
 Default URL: `http://localhost:4012` when all services are started, or `http://localhost:4000` when Linear is the only service.
@@ -130,4 +130,4 @@ Full Linear schema coverage, exact production rate limiting, notification inbox 
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "linear" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "linear" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

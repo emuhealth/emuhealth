@@ -12,7 +12,7 @@ import {
 } from "../generated-secrets-file.js";
 
 function printReady(metadata: RunMetadata, watching: boolean) {
-  console.log("\nemulate\n");
+  console.log("\nemuhealth\n");
   for (const service of metadata.services) {
     console.log(`  ${service.name}  ${service.url}\n    Source: ${service.source}`);
     if (service.inspectorUrl)

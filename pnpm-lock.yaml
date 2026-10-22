@@ -120,9 +120,9 @@ importers:
 
   examples/custom-api:
     devDependencies:
-      emulate:
+      emuhealth:
         specifier: workspace:*
-        version: link:../../packages/emulate
+        version: link:../../packages/emuhealth
       typescript:
         specifier: ^5.7
         version: 5.9.3
@@ -847,7 +847,7 @@ importers:
         specifier: ^4.1.0
         version: 4.1.3(@opentelemetry/api@1.9.0)(@types/node@22.19.17)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.11.3)(@types/node@22.19.17)(esbuild@0.27.4)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
 
-  packages/emulate:
+  packages/emuhealth:
     dependencies:
       commander:
         specifier: ^14
@@ -857,7 +857,7 @@ importers:
         version: 1.1.1
       yaml:
         specifier: ^2
-        version: 2.8.3
+        version: 2.9.0
     devDependencies:
       '@emulators/apple':
         specifier: workspace:*
@@ -906,7 +906,7 @@ importers:
         version: link:../@emulators/vercel
       tsup:
         specifier: ^8
-        version: 8.5.1(jiti@2.7.0)(postcss@8.5.23)(typescript@5.9.3)(yaml@2.8.3)
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.23)(typescript@5.9.3)(yaml@2.9.0)
       typescript:
         specifier: ^5.7
         version: 5.9.3
@@ -9500,7 +9500,7 @@ packages:
   phase@0.5.4:
     resolution: {integrity: sha512-3nCOrMZ/dW1q0nLCbVZBcGW/60TEApcoBPCT7s8SsQ2I0/rHLeSMkxlPhaGfW/yEKgkLkCfmd+YGss65ZwR77Q==}
     engines: {node: 24.x}
-    deprecated: phase is now the scan tool; the runtime library moved to @usephase/core and @usephase/react
+    deprecated: 'phase is now the scan tool; the runtime library moved to @usephase/core and @usephase/react. Run: npx @usephase/codemod@latest migrate-phase-to-usephase .'
     peerDependencies:
       react: '>=18'
     peerDependenciesMeta:
@@ -21641,14 +21641,6 @@ snapshots:
     dependencies:
       postcss: 8.5.16
 
-  postcss-load-config@6.0.1(jiti@2.7.0)(postcss@8.5.23)(yaml@2.8.3):
-    dependencies:
-      lilconfig: 3.1.3
-    optionalDependencies:
-      jiti: 2.7.0
-      postcss: 8.5.23
-      yaml: 2.8.3
-
   postcss-load-config@6.0.1(jiti@2.7.0)(postcss@8.5.23)(yaml@2.9.0):
     dependencies:
       lilconfig: 3.1.3
@@ -23180,34 +23172,6 @@ snapshots:
       strip-bom: 3.0.0
 
   tslib@2.8.1: {}
-
-  tsup@8.5.1(jiti@2.7.0)(postcss@8.5.23)(typescript@5.9.3)(yaml@2.8.3):
-    dependencies:
-      bundle-require: 5.1.0(esbuild@0.27.4)
-      cac: 6.7.14
-      chokidar: 4.0.3
-      consola: 3.4.2
-      debug: 4.4.3
-      esbuild: 0.27.4
-      fix-dts-default-cjs-exports: 1.0.1
-      joycon: 3.1.1
-      picocolors: 1.1.1
-      postcss-load-config: 6.0.1(jiti@2.7.0)(postcss@8.5.23)(yaml@2.8.3)
-      resolve-from: 5.0.0
-      rollup: 4.59.0
-      source-map: 0.7.6
-      sucrase: 3.35.1
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.15
-      tree-kill: 1.2.2
-    optionalDependencies:
-      postcss: 8.5.23
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
 
   tsup@8.5.1(jiti@2.7.0)(postcss@8.5.23)(typescript@5.9.3)(yaml@2.9.0):
     dependencies:

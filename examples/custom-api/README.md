@@ -2,16 +2,16 @@
 
 A complete stateful HTTP API defined in one TypeScript module. Reservations decrement stock, cancellation restores it, and exhaustion returns HTTP 409. The same module runs in the CLI and in a test without opening a port.
 
-Requires Node 24 or later. From the repository root, run `pnpm install` and `pnpm --filter emulate... build`. Then run `pnpm --filter custom-api-example dev` and open the printed inspector URL.
+Requires Node 24 or later. From the repository root, run `pnpm install` and `pnpm --filter emuhealth... build`. Then run `pnpm --filter custom-api-example dev` and open the printed inspector URL.
 
 The example uses erasable TypeScript and runs on Node 26. Node 26 requires erasable syntax for local TypeScript configs and definitions; compile enums and parameter properties to JavaScript first.
 
 For an existing project outside this repository:
 
 ```bash
-npm install -D emulate
-npx emulate init --custom inventory
-npx emulate start --watch
+npm install -D emuhealth
+npx emuhealth init --custom inventory
+npx emuhealth start --watch
 ```
 
 Try the generated API:

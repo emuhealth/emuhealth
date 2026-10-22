@@ -389,7 +389,7 @@ function printBanner(
 ): void {
   const lines: string[] = [];
   lines.push("");
-  lines.push(`  ${pc.bold("emulate")} ${pc.dim(`v${pkg.version}`)}`);
+  lines.push(`  ${pc.bold("emuhealth")} ${pc.dim(`v${pkg.version}`)}`);
   lines.push("");
 
   const maxNameLen = Math.max(...services.map((s) => s.name.length));
@@ -410,7 +410,7 @@ function printBanner(
   if (configSource) {
     lines.push(`  ${pc.dim("Config:")} ${configSource}`);
   } else {
-    lines.push(`  ${pc.dim("Config:")} defaults ${pc.dim("(run")} npx emulate init ${pc.dim("to customize)")}`);
+    lines.push(`  ${pc.dim("Config:")} defaults ${pc.dim("(run")} npx emuhealth init ${pc.dim("to customize)")}`);
   }
   lines.push("");
 

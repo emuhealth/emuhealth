@@ -12,7 +12,7 @@ Local drop-in replacement services for CI and no-network sandboxes. Fully statef
 ## Quick Start
 
 ```bash
-npx emulate
+npx emuhealth
 ```
 
 All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file needed:
@@ -45,15 +45,15 @@ Build and share emulators for the third-party HTTP APIs your app uses. Define a 
 Start from a working scaffold and adapt its routes and state to your provider:
 
 ```bash
-npm install -D emulate
-npx emulate init --custom inventory
-npx emulate start --watch
+npm install -D emuhealth
+npx emuhealth init --custom inventory
+npx emuhealth start --watch
 ```
 
 The scaffold implements reservations, stock changes, cancellation, and out-of-stock errors. It creates a runnable Node test and adds the service to a discovered YAML, JSON, TypeScript, or JavaScript config. For an unusual executable config, it prints the import and service entry to add manually. `init` prints the test command and directs you to the service URL and Inspector link printed by `start`; the port depends on the config. Watch mode retries when a missing local import is created, including outside the config directory. Use the inspector to view requests and state or reset to the initial seed. Structured inspection redacts token and secret fields such as `access_token`, `refresh_token`, and `client_secret`.
 
 ```typescript
-import { defineEmulator, createEmulator } from 'emulate'
+import { defineEmulator, createEmulator } from 'emuhealth'
 
 const acme = defineEmulator({
   name: 'acme',
@@ -91,28 +91,28 @@ See the [custom emulator guide](https://emulate.dev/docs/custom-emulators) and [
 
 ```bash
 # Start all services (zero-config)
-npx emulate
+npx emuhealth
 
 # Start specific services
-npx emulate --service vercel,github
+npx emuhealth --service vercel,github
 
 # Custom port
-npx emulate --port 3000
+npx emuhealth --port 3000
 
 # Use a seed config file
-npx emulate --seed config.yaml
+npx emuhealth --seed config.yaml
 
 # Generate omitted service secrets into a private file
-npx emulate start --seed config.yaml --generated-secrets-file .emulate-secrets.json
+npx emuhealth start --seed config.yaml --generated-secrets-file .emulate-secrets.json
 
 # Generate a starter config
-npx emulate init
+npx emuhealth init
 
 # Generate config for a specific service
-npx emulate init --service vercel
+npx emuhealth init --service vercel
 
 # List available services
-npx emulate list
+npx emuhealth list
 ```
 
 ### Options
@@ -129,7 +129,7 @@ npx emulate list
 
 The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
 
-For access from a container or another machine, use `npx emulate start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
+For access from a container or another machine, use `npx emuhealth start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
 
 ## HTTPS with portless
 
@@ -140,7 +140,7 @@ For access from a container or another machine, use `npx emulate start --host 0.
 portless proxy start
 
 # Start emulate with portless integration
-npx emulate start --portless
+npx emuhealth start --portless
 ```
 
 Each service registers as a portless alias and gets a named HTTPS URL:
@@ -158,10 +158,10 @@ The `--portless` flag overwrites any existing portless aliases matching `*.emula
 For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMULATE_BASE_URL` env var:
 
 ```bash
-npx emulate start --base-url "https://{service}.myproxy.test"
+npx emuhealth start --base-url "https://{service}.myproxy.test"
 ```
 
-The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emulate start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
+The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emuhealth start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
 
 Per-service overrides are also supported in the seed config (these take highest priority over all other base URL sources):
 
@@ -173,13 +173,13 @@ github:
 ## Programmatic API
 
 ```bash
-npm install emulate
+npm install emuhealth
 ```
 
 Each call to `createEmulator` starts a single service:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const github = await createEmulator({ service: 'github', port: 4001 })
 const vercel = await createEmulator({ service: 'vercel', port: 4002 })
@@ -219,7 +219,7 @@ Generated keys remain stable across `reset()` calls and appear only in `generate
 The CLI can also generate omitted GitHub App keys when a delivery file is requested:
 
 ```bash
-npx emulate start --service github --seed config.yaml \
+npx emuhealth start --service github --seed config.yaml \
   --generated-secrets-file .emulate-secrets.json
 ```
 
@@ -229,7 +229,7 @@ The destination must not exist. emulate removes inherited ACLs, verifies effecti
 
 ```typescript
 // vitest.setup.ts
-import { createEmulator, type Emulator } from 'emulate'
+import { createEmulator, type Emulator } from 'emuhealth'
 
 let github: Emulator
 let vercel: Emulator
@@ -270,7 +270,7 @@ Use `hostname: '0.0.0.0'` to allow connections from containers or other machines
 
 ## Configuration
 
-Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emulate init` to generate a starter file.
+Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
 
 ```yaml
 tokens:
@@ -1640,7 +1640,7 @@ The persistence adapter loads on cold start and saves after mutations. Generated
 
 ```
 packages/
-  emulate/          # CLI entry point (commander)
+  emuhealth/        # CLI entry point (commander)
   @emulators/
     core/           # HTTP server, in-memory store, plugin interface, middleware
     adapter-next/   # Next.js App Router integration

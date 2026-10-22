@@ -1,7 +1,7 @@
 ---
 name: github
 description: Emulated GitHub REST API for local development and testing. Use when the user needs to interact with GitHub API endpoints locally, test GitHub integrations, emulate repos/issues/PRs, set up GitHub OAuth flows, configure GitHub Apps, test webhooks, or work with actions/checks without hitting the real GitHub API. Triggers include "GitHub API", "emulate GitHub", "mock GitHub", "test GitHub OAuth", "GitHub App JWT", "local GitHub", or any task requiring a local GitHub API.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # GitHub API Emulator
@@ -14,7 +14,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # GitHub only
-npx emulate --service github
+npx emuhealth --service github
 
 # Default port
 # http://localhost:4001
@@ -23,7 +23,7 @@ npx emulate --service github
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const github = await createEmulator({ service: 'github', port: 4001 })
 // github.url === 'http://localhost:4001'
@@ -60,7 +60,7 @@ The Next.js and Nuxt adapters also generate omitted keys. Retain the returned ha
 For the CLI, omit `private_key` only when requesting a private delivery file:
 
 ```bash
-npx emulate start --service github --seed emulate.config.yaml \
+npx emuhealth start --service github --seed emulate.config.yaml \
   --generated-secrets-file .emulate-secrets.json
 ```
 
@@ -642,4 +642,4 @@ The inspection route is emulator-specific. It lists App, installation, account, 
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "github" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "github" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

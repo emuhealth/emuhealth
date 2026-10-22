@@ -1,6 +1,6 @@
 # File Sharing with Vercel Blob
 
-A Next.js app demonstrating file uploads with [Vercel Blob](https://vercel.com/docs/vercel-blob), powered by the emulated Vercel Blob API from `emulate`.
+A Next.js app demonstrating file uploads with [Vercel Blob](https://vercel.com/docs/vercel-blob), powered by the emulated Vercel Blob API from `emuhealth`.
 
 No real blob store is touched. The emulator keeps every file in-memory, so you can upload, share, download, and delete files entirely locally using the official `@vercel/blob` SDK.
 

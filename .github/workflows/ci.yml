@@ -92,5 +92,5 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y acl
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter emulate... build
+      - run: pnpm --filter emuhealth... build
       - run: pnpm test:custom-consumer

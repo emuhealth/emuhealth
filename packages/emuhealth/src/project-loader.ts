@@ -67,6 +67,8 @@ export class ProjectLoader {
         // Installed dependencies are shared. Workspace source and local imports belong to this graph.
         if (
           /[/\\]node_modules[/\\]/.test(file) ||
+          specifier === "emuhealth" ||
+          specifier.startsWith("emuhealth/") ||
           specifier === "emulate" ||
           specifier.startsWith("emulate/") ||
           specifier.startsWith("@emulators/")

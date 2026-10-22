@@ -26,7 +26,7 @@ async function project() {
   await mkdir(join(dir, "node_modules"));
   await symlink(
     resolve(dirname(fileURLToPath(import.meta.url)), "../.."),
-    join(dir, "node_modules/emulate"),
+    join(dir, "node_modules/emuhealth"),
     "junction",
   );
   await writeFile(join(dir, "package.json"), '{"type":"module"}');
@@ -158,7 +158,7 @@ describe("custom configuration and scaffold", () => {
     const path = join(dir, "emulate.config.ts");
     await writeFile(
       path,
-      'import { defineConfig } from "emulate";\n// @emulate:imports\nexport default defineConfig({ services: {\n  github: { emulator: "github" },\n  // @emulate:services\n} });\n',
+      'import { defineConfig } from "emuhealth";\n// @emulate:imports\nexport default defineConfig({ services: {\n  github: { emulator: "github" },\n  // @emulate:services\n} });\n',
     );
     scaffoldCommand("inventory", undefined, dir);
     const config = await loadConfig({ cwd: dir });
@@ -175,7 +175,7 @@ describe("custom configuration and scaffold", () => {
     const path = join(dir, "emulate.config.ts");
     await writeFile(
       path,
-      'import { defineConfig } from "emulate";\n// export default { services: { inventory: true } };\nconst example = `export default { services: { inventory: true } }`;\nconst nested = { services: { github: { inventory: true, "billing": true } } };\nexport default defineConfig({ services: { github: { emulator: "github" } }, watch: ["./fixtures/**"] });\n',
+      'import { defineConfig } from "emuhealth";\n// export default { services: { inventory: true } };\nconst example = `export default { services: { inventory: true } }`;\nconst nested = { services: { github: { inventory: true, "billing": true } } };\nexport default defineConfig({ services: { github: { emulator: "github" } }, watch: ["./fixtures/**"] });\n',
     );
     scaffoldCommand("inventory", undefined, dir);
     scaffoldCommand("billing", undefined, dir);
@@ -251,7 +251,7 @@ describe("custom configuration and scaffold", () => {
     await writeFile(join(dir, "src/seed.json"), '{"count":3}');
     await writeFile(
       join(dir, "src/custom.ts"),
-      'import { defineEmulator } from "emulate"; import seed from "./seed.json"; export default defineEmulator({name:"counter",state:()=>seed,setup(){}});',
+      'import { defineEmulator } from "emuhealth"; import seed from "./seed.json"; export default defineEmulator({name:"counter",state:()=>seed,setup(){}});',
     );
     await writeFile(
       join(dir, "emulate.config.ts"),
@@ -270,7 +270,7 @@ describe("custom configuration and scaffold", () => {
     );
     await writeFile(
       join(dir, "node_modules/custom-package/index.js"),
-      'import {defineEmulator} from "emulate"; export default defineEmulator({name:"package",state:()=>({}),setup(){}});',
+      'import {defineEmulator} from "emuhealth"; export default defineEmulator({name:"package",state:()=>({}),setup(){}});',
     );
     await writeFile(
       join(dir, "emulate.config.ts"),

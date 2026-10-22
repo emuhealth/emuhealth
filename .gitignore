@@ -10,7 +10,7 @@ emulate.config.yml
 .DS_Store
 
 # emulate CLI README is copied from root by prepack
-packages/emulate/README.md
+packages/emuhealth/README.md
 
 # Package license notices are copied from root by prepack
 packages/*/LICENSE

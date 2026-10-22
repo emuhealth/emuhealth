@@ -1,7 +1,7 @@
 ---
 name: apple
 description: Emulated Sign in with Apple / Apple OIDC for local development and testing. Use when the user needs to test Apple sign-in locally, emulate Apple OIDC discovery, handle Apple token exchange, configure Apple OAuth clients, or work with Apple userinfo without hitting real Apple APIs. Triggers include "Apple OAuth", "emulate Apple", "mock Apple login", "test Apple sign-in", "Sign in with Apple", "Apple OIDC", "local Apple auth", or any task requiring a local Apple OAuth/OIDC provider.
-allowed-tools: Bash(npx emulate:*), Bash(curl:*)
+allowed-tools: Bash(npx emuhealth:*), Bash(curl:*)
 ---
 
 # Apple Sign In Emulator
@@ -14,7 +14,7 @@ Local listeners bind to `127.0.0.1` by default. For access from containers or ot
 
 ```bash
 # Apple only
-npx emulate --service apple
+npx emuhealth --service apple
 
 # Default port (when run alone)
 # http://localhost:4000
@@ -23,7 +23,7 @@ npx emulate --service apple
 Or programmatically:
 
 ```typescript
-import { createEmulator } from 'emulate'
+import { createEmulator } from 'emuhealth'
 
 const apple = await createEmulator({ service: 'apple', port: 4004 })
 // apple.url === 'http://localhost:4004'
@@ -244,4 +244,4 @@ When a user has `is_private_email: true` in the seed config, the `id_token` will
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "apple" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "apple" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

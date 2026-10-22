@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npx emulate start --watch",
+    "dev": "npx emuhealth start --watch",
     "build": "tsc --noEmit",
     "type-check": "tsc --noEmit",
     "test": "node --test emulators/inventory.test.ts"
   },
   "devDependencies": {
-    "emulate": "workspace:*",
+    "emuhealth": "workspace:*",
     "typescript": "^5.7"
   }
 }

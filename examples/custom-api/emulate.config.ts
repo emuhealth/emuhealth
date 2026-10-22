@@ -1,4 +1,4 @@
-import { defineConfig } from "emulate";
+import { defineConfig } from "emuhealth";
 import inventory from "./emulators/inventory.ts";
 // @emulate:imports
 

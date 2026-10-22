@@ -1,7 +1,7 @@
 ---
 name: twilio
 description: Emulated Twilio REST APIs for local development and testing. Use when the user needs to test Twilio Messaging, Verify, Voice, phone numbers, webhooks, status callbacks, inbound SMS simulation, or Twilio SDK integrations without hitting the real Twilio service.
-allowed-tools: Bash(npx emulate:*)
+allowed-tools: Bash(npx emuhealth:*)
 ---
 
 # Twilio API Emulator
@@ -13,7 +13,7 @@ Stateful Twilio REST emulation with seeded accounts, Auth Tokens, API keys, inco
 Local listeners bind to `127.0.0.1` by default. For access from containers or other machines, pass `--host 0.0.0.0` to the CLI or `hostname: '0.0.0.0'` to `createEmulator`. Configure `--base-url` or `baseUrl` for advertised URLs reachable by those clients.
 
 ```bash
-npx emulate --service twilio
+npx emuhealth --service twilio
 ```
 
 Default URL: `http://localhost:4013` when all services are started, or `http://localhost:4000` when Twilio is the only service.
@@ -76,4 +76,4 @@ No real SMS, MMS, WhatsApp, email, voice, carrier, compliance, billing, SendGrid
 
 ## Custom emulators alongside built-ins
 
-Use `npx emulate init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emulate`, alongside built-in entries such as `{ emulator: "twilio" }`. Run `npx emulate start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.
+Use `npx emuhealth init --custom inventory` to scaffold a third-party API emulator and test. Register it in `emulate.config.ts` with `defineConfig` from `emuhealth`, alongside built-in entries such as `{ emulator: "twilio" }`. Run `npx emuhealth start --watch` to reload imports and inspect custom state at the printed `/_emulate` URL. Successful reloads reset the run to seed. Existing flat seed configs still work; `--config` selects an explicit file. For authoring and testing third-party API emulators, see https://emulate.dev/docs/custom-emulators.

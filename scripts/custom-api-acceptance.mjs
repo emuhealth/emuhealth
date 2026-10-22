@@ -8,8 +8,8 @@ import { sign } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const consumer = await mkdtemp(join(tmpdir(), "emulate packed consumer "));
-const external = await mkdtemp(join(tmpdir(), "emulate external import "));
+const consumer = await mkdtemp(join(tmpdir(), "emuhealth packed consumer "));
+const external = await mkdtemp(join(tmpdir(), "emuhealth external import "));
 const artifacts = join(consumer, "artifacts");
 await mkdir(artifacts);
 const pnpm = process.env.npm_execpath;
@@ -71,7 +71,7 @@ async function stop() {
   child = undefined;
 }
 try {
-  run(pnpm, ["--filter", "emulate", "pack", "--pack-destination", artifacts], root);
+  run(pnpm, ["--filter", "emuhealth", "pack", "--pack-destination", artifacts], root);
   const archive = (await readdir(artifacts)).find((file) => file.endsWith(".tgz"));
   assert.ok(archive, `Packing did not create a tarball in ${artifacts}`);
   const tarball = join(artifacts, archive);
@@ -82,14 +82,14 @@ try {
       private: true,
       type: "module",
       devDependencies: {
-        emulate: `file:${tarball}`,
+        emuhealth: `file:${tarball}`,
         typescript: repo.devDependencies.typescript,
         "@types/node": repo.devDependencies["@types/node"],
       },
     }),
   );
   run(pnpm, ["install", "--ignore-scripts"]);
-  const cli = join(consumer, "node_modules/emulate/dist/index.js");
+  const cli = join(consumer, "node_modules/emuhealth/dist/index.js");
   const discoveryPort = await port();
   child = spawn(process.execPath, [cli, "start", "--watch", "--service", "github", "--port", String(discoveryPort)], {
     cwd: consumer,
@@ -115,7 +115,7 @@ try {
   run(process.execPath, ["--test", "emulators/inventory.test.ts"]);
   await writeFile(
     join(consumer, "contract.ts"),
-    `import { defineEmulator, defineConfig, createEmulator } from "emulate";
+    `import { defineEmulator, defineConfig, createEmulator } from "emuhealth";
 const service = defineEmulator({ name: "typed", state: () => ({ count: 0 }), setup({ app, state }) {
   state.count++;
   // @ts-expect-error unknown state field
@@ -159,14 +159,14 @@ await api.close();
   );
   await writeFile(
     join(linkedPackage, "index.js"),
-    'import {defineEmulator} from "emulate"; export default defineEmulator({name:"linked",state:()=>({count:1}),setup(){}});',
+    'import {defineEmulator} from "emuhealth"; export default defineEmulator({name:"linked",state:()=>({count:1}),setup(){}});',
   );
   await symlink(linkedPackage, join(consumer, "node_modules", "linked-api"), "junction");
   await mkdir(join(consumer, "fixtures"));
   await writeFile(join(consumer, "fixtures", "seed.json"), '{"count":2}');
   await writeFile(
     join(consumer, "fixtures", "counter.ts"),
-    'import {defineEmulator} from "emulate"; import seed from "./seed.json"; export default defineEmulator({name:"fixture",state:()=>seed,setup(){}});',
+    'import {defineEmulator} from "emuhealth"; import seed from "./seed.json"; export default defineEmulator({name:"fixture",state:()=>seed,setup(){}});',
   );
   const tsconfigPath = join(consumer, "tsconfig.json");
   const tsconfig = JSON.parse(await readFile(tsconfigPath, "utf8"));

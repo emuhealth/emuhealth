@@ -1,7 +1,7 @@
 {
-  "name": "emulate",
-  "version": "0.12.2",
-  "description": "Local drop-in replacement services for CI and no-network sandboxes",
+  "name": "emuhealth",
+  "version": "0.1.0",
+  "description": "Local drop-in replacement services for healthcare and life science APIs, plus the emulate service suite, for CI and no-network sandboxes",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
@@ -15,23 +15,23 @@
   },
   "main": "./dist/api.js",
   "types": "./dist/api.d.ts",
-  "homepage": "https://emulate.dev",
+  "homepage": "https://github.com/emuhealth/emuhealth#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vercel-labs/emulate.git",
-    "directory": "packages/emulate"
+    "url": "https://github.com/emuhealth/emuhealth.git",
+    "directory": "packages/emuhealth"
   },
   "bugs": {
-    "url": "https://github.com/vercel-labs/emulate/issues"
+    "url": "https://github.com/emuhealth/emuhealth/issues"
   },
   "keywords": [
     "emulator",
     "mock",
     "api",
-    "vercel",
-    "github",
-    "google",
-    "oauth",
+    "healthcare",
+    "fhir",
+    "smart-on-fhir",
+    "life-science",
     "testing",
     "ci",
     "local-development"
@@ -42,7 +42,7 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "bin": {
-    "emulate": "./dist/index.js"
+    "emuhealth": "./dist/index.js"
   },
   "scripts": {
     "prepack": "node ../../scripts/prepare-package.mjs",

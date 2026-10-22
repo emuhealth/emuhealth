@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createEmulator } from "emulate";
+import { createEmulator } from "emuhealth";
 import inventory from "./inventory.ts";
 
 test("reservations update inventory, cancellation restores it, and reset re-seeds", async () => {
