@@ -1,6 +1,14 @@
 # Changelog
 
 <!-- release:start -->
+## 0.1.1
+
+### Improvements
+
+- **npm provenance**: emuhealth is now published from GitHub Actions through npm trusted publishing, so each release links to the exact commit and workflow that built it. Publishing requires maintainer approval and no longer uses tokens (#13)
+
+<!-- release:end -->
+
 ## 0.1.0
 
 First release of **emuhealth**, a fork of [emulate](https://github.com/vercel-labs/emulate) focused on healthcare and life science APIs. This release establishes the package, CLI, and release process. Health emulators follow in later releases (see [ROADMAP.md](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md)).
@@ -15,8 +23,6 @@ First release of **emuhealth**, a fork of [emulate](https://github.com/vercel-la
 
 - All emulate 0.12.2 services: Vercel, GitHub, Google, Slack, Apple, Microsoft, Okta, AWS, Resend, Stripe, MongoDB Atlas, Clerk, Linear, and Twilio
 - Upstream changes made after emulate 0.12.2, not yet released by emulate: AWS Cognito and SQS JSON requests, Slack interactivity, event retries, app mentions, app uninstall, Slack Connect fixtures, and channel privacy changes, Resend recipient rejection and cookie protection, GitHub check run pagination and App identity, Google OAuth credential validation, and Vercel Blob direct HTTP parity
-
-<!-- release:end -->
 
 Entries below are emulate's own history, which emuhealth includes.
 
