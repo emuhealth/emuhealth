@@ -1,13 +1,27 @@
 # Changelog
 
 <!-- release:start -->
+## 0.2.0
+
+### New Features
+
+- **Health service registry**: groundwork for the upcoming health and life science emulators, which get their own registry and fixed default ports starting at 4100 (base port + 100). A health service will keep its port no matter which other services run, and `--port` moves the whole range with the base port (#15)
+- **emuhealth config and environment names**: config discovery looks for `emuhealth.config.*` (TypeScript, JavaScript, YAML, or JSON) first, and `EMUHEALTH_PORT`, `EMUHEALTH_BASE_URL`, and `EMUHEALTH_DEBUG` take precedence. The `emulate.config.*`, `service-emulator.config.*`, and `EMULATE_*` names keep working as fallbacks. When both an `emuhealth.config.*` and an `emulate.config.*` file exist, the emuhealth one is used (#16)
+
+### Improvements
+
+- **`init` writes `emuhealth.config.yaml`** and refuses to run when any recognized config file already exists. `init --custom` creates `emuhealth.config.ts` when the project has no config (#16)
+- **Emulator pages link to emuhealth**: the header links, "Powered by emuhealth" footer, and page titles in every emulator UI point to emuhealth (#17)
+- **Docs at [www.emuhealth.dev](https://www.emuhealth.dev)**: CLI help and the README link to the new docs site (#17)
+- **Agent skill renamed** from `emulate` to `emuhealth` (#17)
+
+<!-- release:end -->
+
 ## 0.1.1
 
 ### Improvements
 
 - **npm provenance**: emuhealth is now published from GitHub Actions through npm trusted publishing, so each release links to the exact commit and workflow that built it. Publishing requires maintainer approval and no longer uses tokens (#13)
-
-<!-- release:end -->
 
 ## 0.1.0
 

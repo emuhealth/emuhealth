@@ -1,6 +1,6 @@
 {
   "name": "emuhealth",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Local drop-in replacement services for healthcare and life science APIs, plus the emulate service suite, for CI and no-network sandboxes",
   "license": "Apache-2.0",
   "type": "module",
