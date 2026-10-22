@@ -1,11 +1,12 @@
-# emulate
+# emuhealth
 
 <p>
-  <a href="https://vercel.com/labs#active-experiments"><img alt="Vercel Labs Experiment" src="https://img.shields.io/badge/LABS-EXPERIMENT-0a0a0a.svg?style=for-the-badge&amp;logo=Vercel&amp;labelColor=000000" height="28"></a>
-  <a href="https://www.npmjs.com/package/emulate"><img alt="npm version: emulate" src="https://img.shields.io/npm/v/emulate.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
-  <a href="https://github.com/vercel-labs/emulate/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/vercel-labs/emulate.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
-  <a href="https://www.npmjs.com/package/emulate"><img alt="npm downloads per month: emulate" src="https://img.shields.io/npm/dm/emulate.svg?style=for-the-badge&amp;labelColor=000000&amp;label=npm%20downloads" height="28"></a>
+  <a href="https://www.npmjs.com/package/emuhealth"><img alt="npm version: emuhealth" src="https://img.shields.io/npm/v/emuhealth.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
+  <a href="https://github.com/emuhealth/emuhealth/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/emuhealth/emuhealth.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
+  <a href="https://www.npmjs.com/package/emuhealth"><img alt="npm downloads per month: emuhealth" src="https://img.shields.io/npm/dm/emuhealth.svg?style=for-the-badge&amp;labelColor=000000&amp;label=npm%20downloads" height="28"></a>
 </p>
+
+emuhealth is a fork of [emulate](https://github.com/vercel-labs/emulate) focused on healthcare and life science APIs. It includes every emulate service today, and health emulators are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md).
 
 Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.
 
