@@ -29,7 +29,8 @@ The unscoped `emuhealth` name is only reserved once it is published, so this com
 
 - [x] Make the repository public and apply upstream's protections: rulesets, signed commits, `Release` environment ([ADR 0006](docs/decisions/0006-repository-protections.md)) ([#11](https://github.com/emuhealth/emuhealth/pull/11))
 - [x] Publish `emuhealth@0.1.0` manually from a maintainer account, and create the [`v0.1.0` GitHub release](https://github.com/emuhealth/emuhealth/releases/tag/v0.1.0)
-- [ ] Configure npm trusted publishing for `emuhealth` (repository `emuhealth/emuhealth`, workflow `release.yml`, environment `Release`) and add the package to the `emuhealth` npm org (maintainer)
+- [x] Configure npm trusted publishing for `emuhealth` (repository `emuhealth/emuhealth`, workflow `release.yml`, environment `Release`, token publishing disallowed) and add the package to the `emuhealth` npm org
+- [ ] Publish `0.1.1` from CI to validate trusted publishing (npm deadline: 2026-10-24 20:24 UTC) ([#14](https://github.com/emuhealth/emuhealth/pull/14))
 - [x] Restore the release workflow's push trigger on `main` ([#13](https://github.com/emuhealth/emuhealth/pull/13))
 
 ### Remaining hygiene
