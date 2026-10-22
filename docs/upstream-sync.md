@@ -25,8 +25,8 @@ git merge upstream/main
 Then:
 
 1. Resolve conflicts. Expected hot spots are listed below.
-2. Check that no file was recreated under `packages/emulate/`. If one was, move it into `packages/emuhealth/`.
-3. Search the incoming diff for new user-facing references to the old name (`npx emulate`, `from "emulate"`, `npm install emulate`) and change them to `emuhealth`.
+2. Check that no file was recreated under `packages/emulate/` or `skills/emulate/`. If one was, move it into `packages/emuhealth/` or `skills/emuhealth/`.
+3. Search the incoming diff for new user-facing references to the old name (`npx emulate`, `from "emulate"`, `npm install emulate`, `emulate.dev`, `github.com/vercel-labs/emulate`) and change them to the emuhealth equivalents.
 4. Run `pnpm install`, `pnpm build`, `pnpm type-check`, `pnpm lint`, `pnpm test`, and `node scripts/sync-versions.mjs --check`.
 5. Open a PR titled `Sync upstream YYYY-MM-DD`. Merge it with a merge commit, not a squash, so later merges know which upstream commits are already in.
 
@@ -40,10 +40,17 @@ These diverge from upstream on purpose and are where conflicts are most likely:
 | `packages/emuhealth/src/index.ts`         | CLI name and help text                            |
 | `packages/emuhealth/src/project-loader.ts` | Accepts `emuhealth` imports                       |
 | `packages/emuhealth/src/commands/*.ts`    | Banner and printed commands                       |
+| `packages/emuhealth/src/registry.ts`      | Merges `registry-health.ts` into `SERVICE_REGISTRY` |
+| `packages/emuhealth/src/{commands/start,project-runner,api}.ts` | Default ports via `defaultServicePort` |
+| `packages/emuhealth/src/{config-loader,base-url}.ts` | `emuhealth.config.*` and `EMUHEALTH_*` names ([decision 0007](decisions/0007-branded-config-and-env-names.md)) |
+| `packages/@emulators/core/src/ui.ts`      | emuhealth links in `emuBar()`, footer, and page titles |
+| `packages/@emulators/core/src/debug.ts`   | Also reads `EMUHEALTH_DEBUG`                      |
 | `.github/workflows/release.yml`           | Publishes `emuhealth` and `@emuhealth/*` only     |
 | `scripts/*.mjs`                           | Package name and version sync targets             |
 | `AGENTS.md`                               | Fork rules, CLI name, release process             |
 | `CHANGELOG.md`                            | emuhealth entries above emulate's history; upstream's new entries go below the "emulate's own history" line |
 | `README.md`, `skills/`, `apps/web/`       | Command and import names                          |
+| `skills/emulate/` renamed to `skills/emuhealth/` | Skill name `emuhealth`                 |
+| `apps/web/`                               | Branding, `www.emuhealth.dev` site URL, Vercel mark hidden in the navbar |
 
 Keep this table current when a PR adds a new deliberate divergence.

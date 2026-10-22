@@ -1,19 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Footer } from "@vercel/geistdocs/footer";
 import { Navbar } from "@vercel/geistdocs/navbar";
 import { GeistMono } from "geist/font/mono";
 import { GeistPixelSquare } from "geist/font/pixel";
 import { GeistSans } from "geist/font/sans";
-import { cookies } from "next/headers";
-import { DocsChat } from "@/components/docs-chat";
 import { DocsProvider } from "@/components/geistdocs-provider";
 import { config } from "@/lib/geistdocs/config";
 import { isPreview, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const title = "emulate | Local API Emulation for CI & Sandboxes";
+const title = "emuhealth | Local API Emulation for Health Apps";
 const description =
-  "Local drop-in replacement services for CI and no-network sandboxes. Fully stateful, production-fidelity API emulation. Not mocks.";
+  "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.";
 
 export const viewport: Viewport = { viewportFit: "cover" };
 
@@ -21,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: title,
-    template: "%s | emulate",
+    template: "%s | emuhealth",
   },
   description,
   alternates: { canonical: "/" },
@@ -30,10 +27,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "emulate",
+    siteName: "emuhealth",
     title,
     description,
-    images: [{ url: "/og", width: 1200, height: 630, alt: "emulate" }],
+    images: [{ url: "/og", width: 1200, height: 630, alt: "emuhealth" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -43,14 +40,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const chatOpen = cookieStore.get("docs-chat-open")?.value === "true";
-  const chatWidth = Math.min(700, Math.max(300, Number(cookieStore.get("docs-chat-width")?.value) || 400));
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "emulate",
+    name: "emuhealth",
     url: siteUrl,
     description,
   };
@@ -63,20 +57,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-        {chatOpen && (
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `@media(min-width:640px){body{padding-right:${chatWidth}px}}`,
-            }}
-          />
-        )}
       </head>
       <body>
         <DocsProvider>
           <Navbar config={config} />
           {children}
-          <Footer />
-          <DocsChat defaultOpen={chatOpen} defaultWidth={chatWidth} />
         </DocsProvider>
       </body>
     </html>

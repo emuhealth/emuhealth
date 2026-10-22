@@ -285,16 +285,19 @@ body{
 }
 `;
 
-const POWERED_BY = `<div class="powered-by">Powered by <a href="https://emulate.dev" target="_blank" rel="noopener">emulate</a></div>`;
+const PROJECT_URL = "https://www.emuhealth.dev";
+const REPO_URL = "https://github.com/emuhealth/emuhealth";
+
+const POWERED_BY = `<div class="powered-by">Powered by <a href="${PROJECT_URL}" target="_blank" rel="noopener">emuhealth</a></div>`;
 
 function emuBar(service?: string): string {
   const title = service ? `${escapeHtml(service)} Emulator` : "Emulator";
   return `<div class="emu-bar">
   <span class="emu-bar-title">${title}</span>
   <nav class="emu-bar-links">
-    <a href="https://github.com/vercel-labs/emulate/issues" target="_blank" rel="noopener"><span class="full">Report Issue</span><span class="short">Report</span></a>
-    <a href="https://github.com/vercel-labs/emulate" target="_blank" rel="noopener"><span class="full">Source Code</span><span class="short">Source</span></a>
-    <a href="https://emulate.dev" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
+    <a href="${REPO_URL}/issues" target="_blank" rel="noopener"><span class="full">Report Issue</span><span class="short">Report</span></a>
+    <a href="${REPO_URL}" target="_blank" rel="noopener"><span class="full">Source Code</span><span class="short">Source</span></a>
+    <a href="${PROJECT_URL}" target="_blank" rel="noopener"><span class="full">Learn More</span><span class="short">Learn</span></a>
   </nav>
 </div>`;
 }
@@ -306,7 +309,7 @@ function head(title: string): string {
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <link rel="icon" href="/_emulate/favicon.ico"/>
-<title>${escapeHtml(title)} | emulate</title>
+<title>${escapeHtml(title)} | emuhealth</title>
 <style>${CSS}</style>
 </head>`;
 }

@@ -13,7 +13,7 @@ export function pageMetadata(slug: string): Metadata {
   if (!title) return indexing;
 
   const displayTitle = title.replace(/\n/g, " ");
-  const fullTitle = `${displayTitle} | emulate`;
+  const fullTitle = `${displayTitle} | emuhealth`;
   const ogImageUrl = slug ? `/og/${slug}` : "/og";
 
   return {
@@ -24,7 +24,7 @@ export function pageMetadata(slug: string): Metadata {
       url: canonicalUrlFor(pathname),
       type: "website",
       locale: "en_US",
-      siteName: "emulate",
+      siteName: "emuhealth",
       title: fullTitle,
       description: siteDescription,
       images: [
@@ -32,7 +32,7 @@ export function pageMetadata(slug: string): Metadata {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${displayTitle} - emulate`,
+          alt: `${displayTitle} - emuhealth`,
         },
       ],
     },
