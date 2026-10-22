@@ -41,8 +41,26 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | patch | `PATCH /:type/:id` with `Content-Type: application/json-patch+json` |
 | delete | `DELETE /:type/:id` (logical; later reads return `410 Gone`) |
 | history | `GET /:type/:id/_history`, `GET /:type/_history`, `GET /_history` with `_count` and `_since` |
+| search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 
-Not available yet: search, `batch` and `transaction` Bundles, `/metadata`, SMART on FHIR. Requests are not authenticated until SMART support lands.
+Not available yet: `_include`, `_revinclude`, chained search, `batch` and `transaction` Bundles, `/metadata`, SMART on FHIR. Requests are not authenticated until SMART support lands.
+
+## Search
+
+Returns a `searchset` Bundle with `total` and `self`/`next`/`previous` links.
+
+- All types: `_id`, `_lastUpdated`. Common US Core resources (Patient, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, and more) support parameters such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, `birthdate`.
+- string: case- and accent-insensitive prefix; `:exact`, `:contains`
+- token: `code`, `system|code`, `|code`, `system|`; `:not`, `:text`
+- date: partial dates are ranges; prefixes `eq ne lt gt le ge sa eb ap`
+- reference: `id`, `Type/id`, absolute URL, `:Type`; `patient=123` means `Patient/123`
+- `:missing=true|false` on any parameter; commas are OR, repeated parameters are AND
+- `_sort=a,-b`, `_count` (default 50, max 500), `_summary=count`
+- Unknown parameters are ignored; `Prefer: handling=strict` makes them a `400`
+
+```bash
+curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://loinc.org|8867-4&_sort=-date'
+```
 
 ## Versioning
 

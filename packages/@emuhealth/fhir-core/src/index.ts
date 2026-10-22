@@ -16,6 +16,23 @@ export {
 export { FhirError, operationOutcome, type OperationOutcome, type IssueCode } from "./outcome.js";
 export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
+export {
+  parseSearch,
+  runSearch,
+  dateRange,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  type ParsedSearch,
+  type SearchOptions,
+  type SearchResult,
+} from "./search.js";
+export {
+  SEARCH_PARAMS,
+  COMMON_SEARCH_PARAMS,
+  searchParamsFor,
+  type SearchParamDefinition,
+  type SearchParamType,
+} from "./search-params.js";
 
 export interface FhirSeedConfig {
   port?: number;

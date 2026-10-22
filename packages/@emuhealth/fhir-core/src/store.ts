@@ -122,6 +122,16 @@ export class FhirStore {
     return this.write(type, randomUUID(), body, "POST");
   }
 
+  /** Current, non-deleted resources of a type, oldest first. */
+  listCurrent(type: string): FhirResource[] {
+    assertResourceType(type);
+    return this.resources
+      .findBy("resource_type", type)
+      .filter((r): r is FhirResourceRecord & { resource: FhirResource } => r.resource !== null)
+      .sort((a, b) => a.id - b.id)
+      .map((r) => structuredClone(r.resource));
+  }
+
   read(type: string, id: string): FhirResourceRecord & { resource: FhirResource } {
     assertResourceType(type);
     const record = this.current(type, id);
