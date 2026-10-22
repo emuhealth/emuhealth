@@ -2,6 +2,17 @@ import Link from "next/link";
 import { GeistPixelSquare } from "geist/font/pixel";
 import { HeroTerminal } from "@/components/hero-terminal";
 
+const repoUrl = "https://github.com/emuhealth/emuhealth";
+const roadmapUrl = `${repoUrl}/blob/main/ROADMAP.md`;
+
+function ComingSoon() {
+  return (
+    <span className="ml-2 rounded-full border border-amber-300 px-1.5 py-px text-[10px] font-medium text-amber-700 dark:border-amber-800 dark:text-amber-400">
+      Coming soon
+    </span>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="relative">
@@ -10,20 +21,28 @@ export default function LandingPage() {
         <h1 className="mb-4 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl dark:text-neutral-50">
           Local API emulation for health apps
         </h1>
-        <p className="mb-8 max-w-xl text-base text-neutral-600 dark:text-neutral-400">
-          Stateful, production-fidelity API emulators for healthcare and life science development, plus Stripe, GitHub,
-          Google, AWS, and 10 more services from emulate. No API keys. No network. Not mocks. Synthetic data only.
+        <p className="mb-4 max-w-xl text-base text-neutral-600 dark:text-neutral-400">
+          Stateful, production-fidelity emulators for FHIR servers, EHRs, payers, and life science APIs. No PHI, no
+          sandbox accounts, no network. Synthetic data only.
+        </p>
+        <p className="mb-8 max-w-xl text-sm text-neutral-500">
+          <span className="mr-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+            In development
+          </span>
+          FHIR R4 and SMART on FHIR come first, followed by Epic, Oracle Health, openFDA, and more.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Link
-            href="/docs"
+          <a
+            href={roadmapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex h-9 items-center rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            Get started
-          </Link>
+            View the roadmap
+          </a>
           <a
-            href="https://github.com/emuhealth/emuhealth"
+            href={repoUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-200 px-4 text-sm text-neutral-700 hover:border-neutral-300 dark:border-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-700"
@@ -42,35 +61,34 @@ export default function LandingPage() {
       {/* What you get */}
       <section className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
-          <h2 className="mb-6 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
+          <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
+          <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">Planned for the first health release.</p>
           <div className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
             <div>
-              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Stateful</h3>
+              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Stateful FHIR store</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Create a GitHub repo, push commits, open a PR. Send an email through Resend. Charge a card on Stripe.
-                State persists across requests.
+                Create a Patient, record Observations, search with includes and chained parameters. Versions, history,
+                and ETags behave like a real FHIR R4 server.
               </p>
             </div>
             <div>
-              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Real protocols</h3>
+              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Real SMART on FHIR</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                OAuth flows with RS256 ID tokens. AWS XML responses. Slack cursor pagination. Your SDK works without
-                changes.
+                EHR and standalone launch with PKCE, v1 and v2 scopes, and backend services with JWT client assertions.
+                Your SMART client works without changes.
               </p>
             </div>
             <div>
-              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Zero config</h3>
+              <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Synthetic patients</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Run{" "}
-                <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">npx emuhealth</code>{" "}
-                and all 11 services start with sensible defaults. Seed data via YAML when you need it.
+                Seed patients, encounters, labs, conditions, and medications from a config file. Realistic enough to
+                test against, never real PHI.
               </p>
             </div>
             <div>
               <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Offline and CI-ready</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                No network, no Docker, no flaky sandbox accounts. Same deterministic behavior in GitHub Actions as on
-                your laptop.
+                No network, no Docker, no vendor sandbox accounts. Same deterministic behavior in CI as on your laptop.
               </p>
             </div>
           </div>
@@ -81,39 +99,37 @@ export default function LandingPage() {
       <section className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-            Point your SDK at localhost
+            Point your FHIR client at localhost
           </h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            Your existing code stays the same. Just change the host.
+            Your existing code stays the same. Just change the server URL.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col">
               <div className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">Before</div>
               <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-950 dark:border-neutral-800">
                 <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-neutral-400 font-mono">
-                  <code>{`const stripe = new Stripe(
-  process.env.STRIPE_SECRET_KEY
-)
+                  <code>{`const client = FHIR.client({
+  serverUrl: process.env.EHR_FHIR_URL
+})
 
+// needs a vendor sandbox account
 // needs network
-// needs a test-mode account
-// rate-limited`}</code>
+// shared, read-only test data`}</code>
                 </pre>
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emuhealth</div>
+              <div className="mb-2 flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                With emuhealth
+                <ComingSoon />
+              </div>
               <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-950 dark:border-neutral-800">
                 <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-neutral-400 font-mono">
                   <code>
-                    <span>{`const stripe = new Stripe("anything")
-stripe.config.host = `}</span>
-                    <span className="text-emerald-400">{`"localhost"`}</span>
-                    {`\nstripe.config.port = `}
-                    <span className="text-emerald-400">{`4010`}</span>
-                    {`\nstripe.config.protocol = `}
-                    <span className="text-emerald-400">{`"http"`}</span>
-                    {`\n\n// offline, instant, stateful`}
+                    {`const client = FHIR.client({\n  serverUrl: `}
+                    <span className="text-emerald-400">{`"http://localhost:4100"`}</span>
+                    {`\n})\n\n// offline, instant, stateful\n// synthetic patients you control`}
                   </code>
                 </pre>
               </div>
@@ -125,44 +141,33 @@ stripe.config.host = `}</span>
       {/* Usage modes */}
       <section className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
-          <h2 className="mb-6 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Use it your way</h2>
+          <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Use it your way</h2>
+          <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
+            Examples use the FHIR emulator, which is in development.
+          </p>
           <div className="space-y-4">
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
               <div className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">CLI</div>
               <p className="mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                Run alongside your dev server. Pick which services you need.
+                Run alongside your dev server. Health services listen on a stable port range starting at 4100.
               </p>
               <div className="overflow-x-auto rounded-md bg-neutral-100 px-3 py-2 font-mono text-xs text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-                npx emuhealth --service github,stripe
+                npx emuhealth --service fhir
               </div>
             </div>
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
               <div className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Programmatic API</div>
               <p className="mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                Import into Vitest or Jest. Start per-suite, reset between tests.
+                Import into Vitest or Jest. Start per suite, reset to your synthetic seed between tests.
               </p>
               <div className="overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-900">
                 <pre className="overflow-x-auto px-3 py-2 font-mono text-xs text-neutral-700 dark:text-neutral-300">
                   <code>{`import { createEmulator } from "emuhealth"
 
-const github = await createEmulator({ service: "github", port: 4001 })
-afterEach(() => github.reset())
-afterAll(() => github.close())`}</code>
+const fhir = await createEmulator({ service: "fhir" })
+afterEach(() => fhir.reset())
+afterAll(() => fhir.close())`}</code>
                 </pre>
-              </div>
-            </div>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-              <div className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Framework adapters</div>
-              <p className="mb-3 text-sm text-neutral-600 dark:text-neutral-400">
-                Embed in Next.js or Nuxt. Same origin, no CORS issues, works on preview deployments.
-              </p>
-              <div className="space-y-2">
-                <div className="overflow-x-auto rounded-md bg-neutral-100 px-3 py-2 font-mono text-xs text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-                  npm install @emulators/adapter-next @emulators/github
-                </div>
-                <div className="overflow-x-auto rounded-md bg-neutral-100 px-3 py-2 font-mono text-xs text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-                  npm install @emulators/adapter-nuxt @emulators/github
-                </div>
               </div>
             </div>
           </div>
@@ -172,23 +177,13 @@ afterAll(() => github.close())`}</code>
       {/* Footer */}
       <footer className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6">
-          <div className="text-sm text-neutral-500">
-            A fork of{" "}
-            <a
-              href="https://github.com/vercel-labs/emulate"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"
-            >
-              vercel-labs/emulate
-            </a>
-          </div>
+          <div className="text-sm text-neutral-500">Synthetic data only. Never load real patient data.</div>
           <div className="flex items-center gap-4 text-xs text-neutral-500">
             <Link href="/docs" className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors">
               Docs
             </Link>
             <a
-              href="https://github.com/emuhealth/emuhealth"
+              href={repoUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-300 transition-colors"

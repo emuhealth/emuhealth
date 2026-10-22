@@ -13,7 +13,7 @@ import "./globals.css";
 
 const title = "emuhealth | Local API Emulation for Health Apps";
 const description =
-  "Local, stateful API emulators for healthcare and life science development, plus every emulate service. Synthetic data only. Not mocks.";
+  "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.";
 
 export const viewport: Viewport = { viewportFit: "cover" };
 
