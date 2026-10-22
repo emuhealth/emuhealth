@@ -49,8 +49,8 @@ export default function LandingPage() {
       </section>
 
       {/* What you get */}
-      <section className="border-t border-neutral-200 dark:border-neutral-800">
-        <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+      <section>
+        <div className="mx-auto max-w-3xl px-6 pb-16 pt-4 sm:pb-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">Planned for the first health release.</p>
           <div className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
