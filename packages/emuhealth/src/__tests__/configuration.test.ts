@@ -32,7 +32,7 @@ describe("configuration examples", () => {
       process.chdir(directory);
       initCommand({ service: "all" });
 
-      const config = parse(readFileSync(join(directory, "emulate.config.yaml"), "utf8")) as Record<string, unknown>;
+      const config = parse(readFileSync(join(directory, "emuhealth.config.yaml"), "utf8")) as Record<string, unknown>;
 
       expect(config.tokens).toEqual(DEFAULT_TOKENS.tokens);
       for (const name of SERVICE_NAMES) {

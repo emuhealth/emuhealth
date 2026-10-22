@@ -76,6 +76,9 @@ function loadSeedConfig(seedPath?: string): LoadResult | null {
   }
 
   const autoFiles = [
+    "emuhealth.config.yaml",
+    "emuhealth.config.yml",
+    "emuhealth.config.json",
     "emulate.config.yaml",
     "emulate.config.yml",
     "emulate.config.json",

@@ -42,7 +42,7 @@ The setup context contains `app`, `state`, `baseUrl`, `signal`, `webhooks`, and 
 
 ## Run alongside built-ins
 
-Add ACME and the built-in GitHub emulator to `emulate.config.ts`:
+Add ACME and the built-in GitHub emulator to `emuhealth.config.ts`:
 
 ```typescript
 import { defineConfig } from 'emuhealth'
@@ -85,7 +85,7 @@ services:
 
 Files and packages resolve from the config project, including when using `npx`. Local `.ts`, `.mts`, `.js`, and `.mjs` modules use Node's native TypeScript support and module hooks, with no additional runtime dependencies. TypeScript `paths` and `baseUrl` aliases work, including JSONC configs and inherited `extends`. Node 24 supports native TypeScript transforms. Node 26 supports erasable TypeScript only; compile enums and parameter properties to JavaScript before loading them. Use erasable TypeScript for definitions that also run directly in Node tests. JSX and compiler plugins are not supported. Installed packages must export a built JavaScript definition as their default export.
 
-Use `--config path/to/emulate.config.ts` to select a file, `--service acme,github` to select instances, and `npx emuhealth list` to see available services and configured custom instances. Existing flat YAML/JSON configurations and `--seed` remain supported. `--config` and `--seed` cannot be combined. If discovery finds multiple files, select one explicitly.
+Use `--config path/to/emuhealth.config.ts` to select a file, `--service acme,github` to select instances, and `npx emuhealth list` to see available services and configured custom instances. Existing flat YAML/JSON configurations and `--seed` remain supported. `--config` and `--seed` cannot be combined. If discovery finds multiple files, select one explicitly.
 
 The config key is the instance name. Register one definition under different names for independent instances. A custom instance cannot replace a built-in name. Instance names use lowercase letters, digits, and hyphens.
 

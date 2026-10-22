@@ -5,11 +5,12 @@ import { SERVICE_NAMES } from "./registry.js";
 import { projectStartCommand } from "./commands/project-start.js";
 import { scaffoldCommand } from "./commands/scaffold.js";
 import { SYNTHETIC_DATA_NOTICE } from "./data-policy.js";
+import { brandedEnv } from "./env.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
 
-const defaultPort = process.env.EMULATE_PORT ?? process.env.PORT ?? "4000";
+const defaultPort = brandedEnv("PORT") ?? process.env.PORT ?? "4000";
 
 const program = new Command();
 
@@ -117,7 +118,7 @@ Available services:
   Run 'npx emuhealth list' for endpoint summaries.
 
 Configuration:
-  Run 'npx emuhealth init' to create a starter emulate.config.yaml, or pass --seed <file>.
+  Run 'npx emuhealth init' to create a starter emuhealth.config.yaml, or pass --seed <file>.
   GitHub App private keys may be omitted for createEmulator; CLI startup generates omitted keys only with
   --generated-secrets-file <path>.
 

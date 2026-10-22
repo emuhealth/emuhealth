@@ -203,7 +203,7 @@ export function scaffoldCommand(name: string, configOption?: string, cwd = proce
   const identifier = `${name.replaceAll("-", "_")}Emulator`;
   const importLine = `import ${identifier} from "./emulators/${name}.ts";`;
   const entryLine = `    ${JSON.stringify(name)}: { emulator: ${identifier} },`;
-  const config = existing ?? resolve(directory, "emulate.config.ts");
+  const config = existing ?? resolve(directory, "emuhealth.config.ts");
   let output: string | undefined;
   if (!existing)
     output = `import { defineConfig } from "emuhealth";\n${importLine}\n// @emulate:imports\n\nexport default defineConfig({\n  services: {\n${entryLine}\n    // @emulate:services\n  },\n});\n`;
