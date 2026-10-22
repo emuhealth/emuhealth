@@ -2,7 +2,7 @@
 title: "Configuration"
 ---
 
-Configuration is optional. All services start with sensible defaults. To customize seed data, create `emulate.config.yaml` in your project root (or pass `--seed`):
+Configuration is optional. All services start with sensible defaults. To customize seed data, create `emuhealth.config.yaml` in your project root (or pass `--seed`). The upstream name `emulate.config.yaml` also works, but `emuhealth.config.*` wins when both exist:
 
 ```yaml
 tokens:
@@ -144,7 +144,7 @@ JWT authentication: sign a JWT with `{ iss: "<app_id>" }` using the app's privat
 When using the programmatic `createEmulator` API, omit `private_key`. The instance generates an RSA-2048 PKCS#1 key, exposes it through `generatedSecrets`, and keeps it stable across `reset()` calls. The CLI only generates an omitted key when you request a private delivery file:
 
 ```bash
-npx emuhealth start --service github --seed emulate.config.yaml \
+npx emuhealth start --service github --seed emuhealth.config.yaml \
   --generated-secrets-file .emulate-secrets.json
 ```
 

@@ -103,10 +103,10 @@ try {
   });
   const discoveryReady = () => (output.match(/Watching imports and fixtures/g) ?? []).length;
   await waitFor(() => discoveryReady() >= 1, "startup without a config");
-  await writeFile(join(consumer, "emulate.config.yaml"), "github: {}\n");
+  await writeFile(join(consumer, "emuhealth.config.yaml"), "github: {}\n");
   await waitFor(() => discoveryReady() >= 2, "config creation reload");
   await stop();
-  await rm(join(consumer, "emulate.config.yaml"));
+  await rm(join(consumer, "emuhealth.config.yaml"));
   output = "";
   console.log("Watch mode detected a config created after startup.");
   const before = await readFile(join(consumer, "package.json"), "utf8");
@@ -145,7 +145,7 @@ await api.close();
         target: "ES2022",
         types: ["node"],
       },
-      include: ["contract.ts", "emulate.config.ts", "emulators/*.ts"],
+      include: ["contract.ts", "emuhealth.config.ts", "emulators/*.ts"],
     }),
   );
   run(pnpm, ["exec", "tsc", "--noEmit"]);
@@ -182,7 +182,7 @@ await api.close();
 
   const assignedPort = await port();
   const base = `http://localhost:${assignedPort}`;
-  const configFile = join(consumer, "emulate.config.ts");
+  const configFile = join(consumer, "emuhealth.config.ts");
   const githubPort = await port();
   const secretsFile = join(consumer, "generated-secrets.json");
   const generated = process.platform !== "win32";

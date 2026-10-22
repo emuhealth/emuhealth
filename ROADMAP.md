@@ -30,14 +30,14 @@ The unscoped `emuhealth` name is only reserved once it is published, so this com
 - [x] Make the repository public and apply upstream's protections: rulesets, signed commits, `Release` environment ([ADR 0006](docs/decisions/0006-repository-protections.md)) ([#11](https://github.com/emuhealth/emuhealth/pull/11))
 - [x] Publish `emuhealth@0.1.0` manually from a maintainer account, and create the [`v0.1.0` GitHub release](https://github.com/emuhealth/emuhealth/releases/tag/v0.1.0)
 - [x] Configure npm trusted publishing for `emuhealth` (repository `emuhealth/emuhealth`, workflow `release.yml`, environment `Release`, token publishing disallowed) and add the package to the `emuhealth` npm org
-- [ ] Publish `0.1.1` from CI to validate trusted publishing (npm deadline: 2026-10-24 20:24 UTC) ([#14](https://github.com/emuhealth/emuhealth/pull/14))
+- [x] Publish `0.1.1` from CI to validate trusted publishing (npm deadline: 2026-10-24 20:24 UTC) ([#14](https://github.com/emuhealth/emuhealth/pull/14))
 - [x] Restore the release workflow's push trigger on `main` ([#13](https://github.com/emuhealth/emuhealth/pull/13))
 
 ### Remaining hygiene
 
 - [x] Stable port range for health services starting at 4100, independent of upstream service order ([ADR 0001](docs/decisions/0001-soft-fork-strategy.md)) ([#15](https://github.com/emuhealth/emuhealth/pull/15))
 - [x] Health service registry in its own file (`packages/emuhealth/src/registry-health.ts`), merged into `SERVICE_REGISTRY` with a minimal change ([#15](https://github.com/emuhealth/emuhealth/pull/15))
-- [ ] Branded config and environment names (`emuhealth.config.*`, `EMUHEALTH_PORT`) with fallback to the `emulate` names
+- [~] Branded config and environment names (`emuhealth.config.*`, `EMUHEALTH_PORT`) with fallback to the `emulate` names ([ADR 0007](docs/decisions/0007-branded-config-and-env-names.md))
 - [ ] Rebrand `apps/web` (titles, npm links, prose), the `emuBar()` and footer in `core/src/ui.ts`, CLI `--help` docs links, and the `skills/emulate` skill name
 
 ## Phase 1: Shared health core

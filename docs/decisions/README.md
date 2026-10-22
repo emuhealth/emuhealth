@@ -16,3 +16,4 @@ Rules:
 | [0004](0004-synthetic-data-only.md)   | Synthetic data only, no PHI      | Accepted |
 | [0005](0005-cli-package-layout.md)    | CLI package layout and publishing | Accepted |
 | [0006](0006-repository-protections.md) | Repository protections           | Accepted |
+| [0007](0007-branded-config-and-env-names.md) | Branded config and environment names | Accepted |

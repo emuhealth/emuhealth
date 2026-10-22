@@ -1,3 +1,5 @@
+import { brandedEnv } from "./env.js";
+
 export interface ResolveBaseUrlOptions {
   service: string;
   port: number;
@@ -9,7 +11,7 @@ export interface ResolveBaseUrlOptions {
  * Fallback chain:
  * 1. Per-service baseUrl from seed config
  * 2. Explicit baseUrl (CLI flag or programmatic option)
- * 3. EMULATE_BASE_URL env var (with {service} interpolation)
+ * 3. EMUHEALTH_BASE_URL, then EMULATE_BASE_URL env var (with {service} interpolation)
  * 4. PORTLESS_URL env var (with {service} interpolation)
  * 5. http://localhost:<port>
  */
@@ -20,7 +22,7 @@ export function resolveBaseUrl(opts: ResolveBaseUrlOptions): string {
   if (opts.baseUrl) {
     return opts.baseUrl.replace(/\{service\}/g, opts.service);
   }
-  const envBaseUrl = process.env.EMULATE_BASE_URL;
+  const envBaseUrl = brandedEnv("BASE_URL");
   if (envBaseUrl) {
     return envBaseUrl.replace(/\{service\}/g, opts.service);
   }

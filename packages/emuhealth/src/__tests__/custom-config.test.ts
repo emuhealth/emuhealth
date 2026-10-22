@@ -287,7 +287,7 @@ describe("custom configuration and scaffold", () => {
   it("reports ambiguous config, unknown fields, collisions, and duplicate ports", async () => {
     const dir = await project();
     scaffoldCommand("inventory", undefined, dir);
-    await writeFile(join(dir, "emulate.config.json"), "{}");
+    await writeFile(join(dir, "emuhealth.config.json"), "{}");
     await expect(loadConfig({ cwd: dir })).rejects.toThrow("Multiple config");
     await writeFile(join(dir, "emulate.config.json"), '{"servcies":{}}');
     await expect(loadConfig({ cwd: dir, config: "emulate.config.json" })).rejects.toThrow("Unknown config key");

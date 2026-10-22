@@ -84,7 +84,7 @@ try {
 }
 ```
 
-Use `defineConfig({ services: { acme: { emulator: acme }, github: { emulator: 'github' } } })` in `emulate.config.ts`. YAML/JSON entries accept local module paths and installed packages. `--config` selects a config explicitly; legacy flat configs and `--seed` remain supported. Node loads local TypeScript with path aliases and source locations without additional runtime dependencies. Node 26 supports erasable TypeScript only; compile enums and parameter properties to JavaScript before loading them. Node 24 also supports native TypeScript transforms.
+Use `defineConfig({ services: { acme: { emulator: acme }, github: { emulator: 'github' } } })` in `emuhealth.config.ts` (`emulate.config.ts` also works). YAML/JSON entries accept local module paths and installed packages. `--config` selects a config explicitly; legacy flat configs and `--seed` remain supported. Node loads local TypeScript with path aliases and source locations without additional runtime dependencies. Node 26 supports erasable TypeScript only; compile enums and parameter properties to JavaScript before loading them. Node 24 also supports native TypeScript transforms.
 
 Custom state uses your own record shapes and IDs. Seeds replace the complete initial state. Reset restores the captured seed; successful watch reloads create a new baseline and reset the run. With config auto-discovery, watch mode also detects recognized config files created after startup. Instances are independent. Persistence is opt-in, with versioned snapshots and no cross-process locking. Use `port: 0` for HTTP tests, or `listen: false` to test without opening a port. Custom reset and close are awaitable. Framework adapters keep root-relative custom redirects under the service mount while preserving custom HTML bodies.
 
@@ -132,7 +132,7 @@ npx emuhealth list
 | `--portless` | off | Serve over HTTPS via portless (auto-registers aliases) |
 | `--generated-secrets-file` | none | Generate omitted service secrets and write them to a new owner-only JSON file |
 
-The port can also be set via `EMULATE_PORT` or `PORT` environment variables.
+The port can also be set via the `EMUHEALTH_PORT` or `PORT` environment variables. The upstream name `EMULATE_PORT` still works when `EMUHEALTH_PORT` is not set.
 
 For access from a container or another machine, use `npx emuhealth start --host 0.0.0.0`. Set `--base-url` to a URL reachable by those clients when using OAuth redirects or other advertised URLs.
 
@@ -160,13 +160,13 @@ If portless is not installed, emulate will prompt to install it (`npm i -g portl
 
 The `--portless` flag overwrites any existing portless aliases matching `*.emulate`. Aliases are removed automatically when emulate shuts down.
 
-For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMULATE_BASE_URL` env var:
+For a custom base URL without portless (any reverse proxy), use `--base-url` or the `EMUHEALTH_BASE_URL` env var (`EMULATE_BASE_URL` also works):
 
 ```bash
 npx emuhealth start --base-url "https://{service}.myproxy.test"
 ```
 
-The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emuhealth start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMULATE_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
+The `PORTLESS_URL` env var is automatically set by the `portless` CLI wrapper when running a command through it (e.g. `portless github.emulate emuhealth start`), typically to a value like `https://{service}.emulate.localhost`. It supports `{service}` interpolation, just like `--base-url` and `EMUHEALTH_BASE_URL`. When no explicit `baseUrl` is provided, it is used as a fallback.
 
 Per-service overrides are also supported in the seed config (these take highest priority over all other base URL sources):
 
@@ -260,7 +260,7 @@ afterAll(() => Promise.all([github.close(), vercel.close()]))
 | `port` | `4000` | Port for the HTTP server |
 | `hostname` | `127.0.0.1` | Listening address for built-in and custom emulators |
 | `seed` | none | Inline seed data (same shape as YAML config) |
-| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMULATE_BASE_URL` env var (supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
+| `baseUrl` | none | Override advertised base URL. Per-service `baseUrl` in seed config takes highest priority, then this option, then `EMUHEALTH_BASE_URL` env var (or `EMULATE_BASE_URL`, supports `{service}`), then `PORTLESS_URL` (supports `{service}`, automatically set by the `portless` CLI wrapper), then `http://localhost:<port>`. |
 
 Use `hostname: '0.0.0.0'` to allow connections from containers or other machines, and `baseUrl` to advertise a URL reachable by those clients.
 
@@ -275,7 +275,7 @@ Use `hostname: '0.0.0.0'` to allow connections from containers or other machines
 
 ## Configuration
 
-Configuration is optional. The CLI auto-detects config files in this order: `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
+Configuration is optional. The CLI auto-detects config files in this order: `emuhealth.config.yaml` / `.yml`, `emuhealth.config.json`, then the upstream names `emulate.config.yaml` / `.yml`, `emulate.config.json`, `service-emulator.config.yaml` / `.yml`, `service-emulator.config.json`. An `emuhealth.config.*` file always wins over the upstream names. Or pass `--seed <file>` explicitly. Run `npx emuhealth init` to generate a starter file.
 
 ```yaml
 tokens:

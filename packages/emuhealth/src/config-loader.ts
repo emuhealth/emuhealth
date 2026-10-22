@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, resolve, extname } from "node:path";
+import { basename, dirname, resolve, extname } from "node:path";
 import { parseDocument } from "yaml";
 import { ProjectLoader } from "./project-loader.js";
 import { assertEmulatorDefinition, type EmulatorDefinition, type PersistenceAdapter } from "@emulators/core";
@@ -7,6 +7,13 @@ import { SERVICE_NAMES, SERVICE_REGISTRY, type ServiceName } from "./registry.js
 import type { EmulateConfig, ServiceConfig } from "./config.js";
 
 export const CONFIG_FILES = [
+  "emuhealth.config.ts",
+  "emuhealth.config.mts",
+  "emuhealth.config.js",
+  "emuhealth.config.mjs",
+  "emuhealth.config.yaml",
+  "emuhealth.config.yml",
+  "emuhealth.config.json",
   "emulate.config.ts",
   "emulate.config.mts",
   "emulate.config.js",
@@ -24,7 +31,10 @@ export function findConfig(path?: string, cwd = process.cwd()): string | undefin
     if (!existsSync(target)) throw new Error(`Config file not found: ${target}`);
     return target;
   }
-  const candidates = CONFIG_FILES.map((name) => resolve(cwd, name)).filter(existsSync);
+  const found = CONFIG_FILES.map((name) => resolve(cwd, name)).filter(existsSync);
+  // emuhealth.config.* wins; emulate.config.* and service-emulator.config.* are fallbacks.
+  const branded = found.filter((file) => basename(file).startsWith("emuhealth.config."));
+  const candidates = branded.length > 0 ? branded : found;
   if (candidates.length > 1)
     throw new Error(`Multiple config files found. Select one with --config:\n${candidates.join("\n")}`);
   return candidates[0];

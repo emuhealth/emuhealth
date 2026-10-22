@@ -2,17 +2,19 @@ import { writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { stringify as yamlStringify } from "yaml";
 import { SERVICE_REGISTRY, SERVICE_NAMES, DEFAULT_TOKENS, type ServiceName } from "../registry.js";
+import { CONFIG_FILES } from "../config-loader.js";
 
 interface InitOptions {
   service: string;
 }
 
 export function initCommand(options: InitOptions): void {
-  const filename = "emulate.config.yaml";
+  const filename = "emuhealth.config.yaml";
   const fullPath = resolve(filename);
 
-  if (existsSync(fullPath)) {
-    console.error(`Config file already exists: ${filename}`);
+  const existing = CONFIG_FILES.find((name) => existsSync(resolve(name)));
+  if (existing) {
+    console.error(`Config file already exists: ${existing}`);
     process.exit(1);
   }
 
