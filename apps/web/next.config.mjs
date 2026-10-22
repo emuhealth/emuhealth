@@ -26,7 +26,6 @@ const oldDocsSlugs = [
 const nextConfig = {
   pageExtensions: ["ts", "tsx", "md", "mdx"],
   skipProxyUrlNormalize: true,
-  serverExternalPackages: ["just-bash", "bash-tool"],
   outputFileTracingIncludes: {
     "/*": ["./content/docs/**/*.mdx"],
   },

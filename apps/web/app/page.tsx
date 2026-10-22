@@ -5,14 +5,6 @@ import { HeroTerminal } from "@/components/hero-terminal";
 const repoUrl = "https://github.com/emuhealth/emuhealth";
 const roadmapUrl = `${repoUrl}/blob/main/ROADMAP.md`;
 
-function ComingSoon() {
-  return (
-    <span className="ml-2 rounded-full border border-amber-300 px-1.5 py-px text-[10px] font-medium text-amber-700 dark:border-amber-800 dark:text-amber-400">
-      Coming soon
-    </span>
-  );
-}
-
 export default function LandingPage() {
   return (
     <div className="relative">
@@ -26,10 +18,8 @@ export default function LandingPage() {
           sandbox accounts, no network. Synthetic data only.
         </p>
         <p className="mb-8 max-w-xl text-sm text-neutral-500">
-          <span className="mr-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-            In development
-          </span>
-          FHIR R4 and SMART on FHIR come first, followed by Epic, Oracle Health, openFDA, and more.
+          The first emulators, FHIR R4 and SMART on FHIR, are in development. Epic, Oracle Health, openFDA, and more
+          follow.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -120,10 +110,7 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex flex-col">
-              <div className="mb-2 flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                With emuhealth
-                <ComingSoon />
-              </div>
+              <div className="mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">With emuhealth</div>
               <div className="flex-1 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-950 dark:border-neutral-800">
                 <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed text-neutral-400 font-mono">
                   <code>
