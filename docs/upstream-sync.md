@@ -43,6 +43,7 @@ These diverge from upstream on purpose and are where conflicts are most likely:
 | `.github/workflows/release.yml`           | Publishes `emuhealth` and `@emuhealth/*` only     |
 | `scripts/*.mjs`                           | Package name and version sync targets             |
 | `AGENTS.md`                               | Fork rules, CLI name, release process             |
+| `CHANGELOG.md`                            | emuhealth entries above emulate's history; upstream's new entries go below the "emulate's own history" line |
 | `README.md`, `skills/`, `apps/web/`       | Command and import names                          |
 
 Keep this table current when a PR adds a new deliberate divergence.
