@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
+import { parseSearch, runSearch } from "./search.js";
 import { getFhirStore, type FhirHistoryRecord, type WriteResult } from "./store.js";
 
 export const FHIR_JSON = "application/fhir+json; charset=utf-8";
@@ -120,6 +121,54 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       throw new FhirError(404, "not-found", `${type}/${id} is not known`);
     return historyBundle(c, total, entries);
   }
+
+  async function search(c: AnyContext, type: string): Promise<Response> {
+    const params: Array<[string, string]> = [...new URL(c.req.url).searchParams];
+    if (c.req.method === "POST") {
+      const contentType = (c.req.header("Content-Type") ?? "").split(";")[0].trim().toLowerCase();
+      if (contentType && contentType !== "application/x-www-form-urlencoded")
+        throw new FhirError(415, "not-supported", "POST _search needs application/x-www-form-urlencoded parameters");
+      params.push(...new URLSearchParams(await c.req.text()));
+    }
+    const strict = /handling=strict/.test(c.req.header("Prefer") ?? "");
+    const parsed = parseSearch(type, params, { strict });
+    const { total, matches } = runSearch(fhir().listCurrent(type), parsed);
+    const link = (offset: number) => {
+      const query = new URLSearchParams(parsed.applied);
+      if (offset > 0) query.set("_getpagesoffset", String(offset));
+      const qs = query.toString();
+      return `${base}/${type}${qs ? `?${qs}` : ""}`;
+    };
+    const links = [{ relation: "self", url: link(parsed.offset) }];
+    if (!parsed.summaryCount && parsed.count > 0) {
+      if (parsed.offset + parsed.count < total)
+        links.push({ relation: "next", url: link(parsed.offset + parsed.count) });
+      if (parsed.offset > 0) links.push({ relation: "previous", url: link(Math.max(0, parsed.offset - parsed.count)) });
+    }
+    const page = parsed.summaryCount ? [] : matches.slice(parsed.offset, parsed.offset + parsed.count);
+    return fhirJson(c, {
+      resourceType: "Bundle",
+      id: randomUUID(),
+      meta: { lastUpdated: new Date().toISOString() },
+      type: "searchset",
+      total,
+      link: links,
+      entry: page.map((resource) => ({
+        fullUrl: `${base}/${type}/${resource.id}`,
+        resource,
+        search: { mode: "match" },
+      })),
+    });
+  }
+
+  app.get(
+    `${basePath}/${TYPE}`,
+    handle((c) => search(c, c.req.param("type"))),
+  );
+  app.post(
+    `${basePath}/${TYPE}/_search`,
+    handle((c) => search(c, c.req.param("type"))),
+  );
 
   // History routes come first so "_history" is never taken for a resource type or id.
   app.get(

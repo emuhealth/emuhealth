@@ -28,7 +28,8 @@ FHIR R4:
   'npx emuhealth --service fhir' serves a FHIR R4 server at http://localhost:4100 (base port + 100).
   Supports create, read, vread, update (create on update), JSON Patch, logical delete, and _history.
   Writes return ETag W/"<versionId>"; If-Match conflicts return 412. Errors are OperationOutcome resources.
-  Seed synthetic resources under fhir.resources. Search and SMART on FHIR are not available yet.
+  Search with GET /:type or POST /:type/_search: string, token, date, and reference parameters, _sort, _count.
+  Seed synthetic resources under fhir.resources. SMART on FHIR is not available yet.
   Docs: https://www.emuhealth.dev/docs/fhir
 
 Framework adapters:

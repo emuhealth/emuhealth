@@ -18,7 +18,26 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 - `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
 - `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
 
-Search, `batch` and `transaction` Bundles, `/metadata`, and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+`batch` and `transaction` Bundles, `/metadata`, and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+
+## Search
+
+`GET /:type?<params>` and `POST /:type/_search` (form-encoded parameters) return a `searchset` Bundle with `total` and `self`, `next`, and `previous` links.
+
+- Every type supports `_id` and `_lastUpdated`. Patient, Practitioner, PractitionerRole, Organization, Location, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, DocumentReference, CarePlan, CareTeam, Goal, ServiceRequest, Coverage, Device, and Medication support their common parameters, such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, and `birthdate`.
+- **string**: accent- and case-insensitive prefix match; `:exact` and `:contains` are supported.
+- **token**: `code`, `system|code`, `|code`, or `system|`; `:not` and `:text` are supported.
+- **date**: partial dates cover their whole range (`2026`, `2026-02`); prefixes `eq`, `ne`, `lt`, `gt`, `le`, `ge`, `sa`, `eb`, and `ap`. Periods are matched as ranges.
+- **reference**: `id`, `Type/id`, an absolute URL, or `:Type` (for example `subject:Patient=123`). `patient=123` means `Patient/123`.
+- Any parameter accepts `:missing=true|false`. Comma separated values match any of them; repeating a parameter requires all of them.
+- `_sort` takes a comma separated list with `-` for descending. `_count` sets the page size (default 50, max 500). `_summary=count` returns only `total`.
+- Unknown parameters are ignored and left out of the `self` link. Send `Prefer: handling=strict` to get a `400` instead.
+
+```bash
+curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://loinc.org|8867-4&date=ge2026-01-01&_sort=-date'
+```
+
+`_include`, `_revinclude`, and chained parameters are on the roadmap.
 
 ## Versioning
 
