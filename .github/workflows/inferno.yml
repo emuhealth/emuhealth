@@ -1,0 +1,90 @@
+name: Inferno
+
+# Acceptance gate for @emuhealth/fhir-core: runs the ONC Inferno US Core test kit against a local emuhealth
+# FHIR service. Inferno runs here rather than on developer machines because it needs Docker and several GB of RAM.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "packages/@emuhealth/fhir-core/**"
+      - "packages/emuhealth/src/**"
+      - "tests/inferno/**"
+      - ".github/workflows/inferno.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  US_CORE_TEST_KIT_REF: v1.1.6
+  FHIR_BASE: http://localhost:4100
+
+jobs:
+  us-core:
+    name: US Core 3.1.1 FHIR API
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: inferno-framework/us-core-test-kit
+          ref: ${{ env.US_CORE_TEST_KIT_REF }}
+          path: us-core-test-kit
+
+      - name: Start the FHIR validator
+        working-directory: us-core-test-kit
+        run: docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx redis
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - name: Start emuhealth
+        run: |
+          node packages/emuhealth/dist/index.js start --service fhir > emuhealth.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf "$FHIR_BASE/metadata" > /dev/null && exit 0; sleep 1; done
+          cat emuhealth.log
+          exit 1
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: us-core-test-kit
+          bundler-cache: true
+
+      - name: Wait for the validator
+        run: |
+          for i in $(seq 1 120); do curl -sf http://localhost/hl7validatorapi/version > /dev/null && exit 0; sleep 5; done
+          docker compose -f us-core-test-kit/docker-compose.background.yml logs hl7_validator_service | tail -50
+          exit 1
+
+      - name: Run US Core FHIR API tests
+        working-directory: us-core-test-kit
+        run: |
+          token=$(node ../tests/inferno/get-token.mjs "$FHIR_BASE")
+          bundle exec inferno migrate
+          bundle exec inferno execute --suite us_core_v311 --groups 2 --outputter json \
+            --inputs "url:$FHIR_BASE" "patient_ids:syn-patient-001,syn-patient-002,syn-patient-003" \
+            "smart_auth_info:{\"access_token\":\"$token\"}" > ../inferno-results.json || true
+
+      - name: Check results
+        run: node tests/inferno/check-results.mjs inferno-results.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inferno-us-core
+          path: |
+            inferno-results.json
+            emuhealth.log
