@@ -4,6 +4,7 @@ import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
 import { registerSmartRoutes, type SmartPaths } from "./smart.js";
+import { registerFhirInspector } from "./inspector.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
 import { guardedOperations } from "./operations.js";
 import { NDJSON, deleteExportJob, exportManifest, getExportJob, startExport, type ExportJob } from "./bulk.js";
@@ -31,6 +32,8 @@ export interface FhirRouteOptions {
   description?: string;
   /** SMART App Launch endpoint paths, for vendors that use their own (absolute paths on this server). */
   smart?: { paths?: Partial<SmartPaths> };
+  /** Path of the HTML inspector (default /_inspector), or false to leave it out. */
+  inspectorPath?: string | false;
 }
 
 const TYPE = ":type{[A-Z][A-Za-z]+}";
@@ -246,6 +249,8 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   }
 
   const smartPaths = registerSmartRoutes(app, store, { base, basePath, paths: options.smart?.paths });
+  if (options.inspectorPath !== false)
+    registerFhirInspector(app, store, { path: options.inspectorPath ?? "/_inspector", base });
   const origin = new URL(base).origin;
 
   app.get(

@@ -21,6 +21,7 @@ export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
 export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { patientEverything, type EverythingOptions } from "./everything.js";
+export { registerFhirInspector, resourceSummary } from "./inspector.js";
 export {
   startExport,
   exportManifest,
