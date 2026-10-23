@@ -127,7 +127,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 - [ ] Scheduled CI run of the fidelity gates with the latest validator and client versions, plus terminology checks against tx.fhir.org
 - [ ] HL7 v2 strict mode: unknown message types get `AR` with ERR code 200
 - [ ] Client contract tests for Epic and Oracle Health with the SMART JS client (`fhirclient` on npm) and for Blue Button with CMS's Node SDK
-- [ ] Release checklist in AGENTS.md covers the generated hero version and the approval comment
+- [x] Release checklist in AGENTS.md covers the generated hero version and the approval comment ([#80](https://github.com/emuhealth/emuhealth/pull/80))
 
 ## Phase 9: Linked scenarios
 
