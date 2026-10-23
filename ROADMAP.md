@@ -119,6 +119,54 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 - [x] Settle flagged assumptions: Vault error HTTP status codes and Rave import reason codes, from authoritative sources or clearly labeled in docs ([#74](https://github.com/emuhealth/emuhealth/pull/74))
 - [x] End-to-end examples in `examples/`: SMART on FHIR app against Epic, HL7 v2 feed into FHIR, EDC sync from Rave ([#75](https://github.com/emuhealth/emuhealth/pull/75))
 
+## Phase 8: FHIR and coverage depth
+
+- [ ] Conditional create, read, update, and delete in fhir-core, advertised in the CapabilityStatement
+- [ ] FHIR API behavior tests (CRUD, search, history, Bundles, conditional interactions) run on R4, R4B, and R5; Inferno has no base R4B or R5 kit
+- [ ] Writes to an R5 server convert the R4 shapes the R5 converter knows and reject other R4-only elements with an OperationOutcome
+- [ ] Scheduled CI run of the fidelity gates with the latest validator and client versions, plus terminology checks against tx.fhir.org
+- [ ] HL7 v2 strict mode: unknown message types get `AR` with ERR code 200
+- [ ] Client contract tests for Epic and Oracle Health with the SMART JS client (`fhirclient` on npm) and for Blue Button with CMS's Node SDK
+- [ ] Release checklist in AGENTS.md covers the generated hero version and the approval comment
+
+## Phase 9: Linked scenarios
+
+- [ ] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators
+- [ ] Load Synthea FHIR bundles as seed data (`fhir.import`)
+- [ ] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event`
+
+## Phase 10: Failure testing
+
+- [ ] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections
+- [ ] Record and replay: capture traffic to an emulator as fixtures and replay it as a regression test
+- [ ] Contract drift check: a scheduled job that flags new vendor API versions and FHIR package releases the emulators do not cover
+
+## Phase 11: Regulatory and exchange APIs
+
+Inferno test kits for these guides are the acceptance gates where they exist. NCPDP SCRIPT is licensed and out of scope.
+
+- [ ] Da Vinci Prior Authorization: CRD (CDS Hooks), DTR (questionnaire package), and PAS (`Claim/$submit`, `$inquire`)
+- [ ] Payer APIs: CARIN Blue Button Patient Access, PDex payer-to-payer, and Plan-Net provider directory
+- [ ] IHE document exchange: XDS.b registry and repository and XCA gateway (SOAP)
+- [ ] FHIR Subscriptions (R5 topic-based and the R4B backport) with REST-hook notifications
+
+## Phase 12: Adoption tooling
+
+- [ ] Docker image built for every release and published to GHCR by the release workflow
+- [ ] GitHub Action that starts emulators in a workflow
+- [ ] MCP server (`npx emuhealth mcp`) to start, seed, inspect, and reset emulators from agents
+- [ ] Testing guide: `createEmulator` in Vitest and Jest, the CLI from pytest, and Testcontainers with the Docker image
+- [ ] More end-to-end examples: OHIF viewer on DICOMweb, Stedi eligibility to claim status, Dexcom to FHIR
+
+## Phase 13: 1.0
+
+- [ ] Stability policy decision record: config keys, ports, programmatic API, and seed format
+- [ ] Deprecation policy and upgrade guide
+- [ ] CONTRIBUTING guide for new emulators, SECURITY.md, and issue templates
+- [ ] Release 1.0.0
+
+Maintainer actions outside the roadmap: enable GitHub Discussions, record fixtures from vendor sandboxes that need accounts, and decide whether to host a public demo.
+
 ## Suggested order
 
 1. Phase 0
