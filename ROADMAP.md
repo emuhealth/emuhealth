@@ -114,7 +114,7 @@ Apple HealthKit and Android Health Connect are on-device APIs and out of scope.
 
 Prove the emulators match the real APIs. Third-party validators and clients run in CI only.
 
-- [ ] Validate generated and served FHIR R4, R4B, and R5 resources with the HL7 FHIR Validator in CI
+- [x] Validate generated and served FHIR R4, R4B, and R5 resources with the HL7 FHIR Validator in CI ([#72](https://github.com/emuhealth/emuhealth/pull/72))
 - [ ] Contract tests with official clients in CI: rwslib (Rave), fhirclient (FHIR), dicomweb-client (DICOMweb), python-hl7 (HL7 v2), the Vault API Postman collection (Veeva)
 - [ ] Settle flagged assumptions: Vault error HTTP status codes and Rave import reason codes, from authoritative sources or clearly labeled in docs
 - [ ] End-to-end examples in `examples/`: SMART on FHIR app against Epic, HL7 v2 feed into FHIR, EDC sync from Rave
