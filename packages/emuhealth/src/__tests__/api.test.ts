@@ -165,6 +165,16 @@ describe("createEmulator", () => {
     await redox.close();
   });
 
+  it("starts the HealthLake emulator and keeps its datastore across reset", async () => {
+    const healthlake = await createEmulator({ service: "healthlake", port: 14033 });
+    const unsigned = await fetch(`${healthlake.url}/datastore/5e7e0000000000000000000000000001/r4/Patient`);
+    expect(unsigned.status).toBe(403);
+    healthlake.reset();
+    const inspector = await fetch(`${healthlake.url}/_inspector`);
+    expect(await inspector.text()).toContain("5e7e0000000000000000000000000001");
+    await healthlake.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

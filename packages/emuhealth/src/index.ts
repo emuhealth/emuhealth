@@ -138,6 +138,13 @@ Redox:
   POST /ehr/send {DataModel, EventType, patientId} delivers an EHR event to redox.destinations with verification-token.
   Docs: https://www.emuhealth.dev/docs/redox
 
+AWS HealthLake:
+  'npx emuhealth --service healthlake' serves AWS HealthLake at http://localhost:4114 (use it as the endpoint URL).
+  Requests need SigV4 for service healthlake; the default key pair is AWS's documented example (AKIAIOSFODNN7EXAMPLE).
+  Control plane: CreateFHIRDatastore, DescribeFHIRDatastore, ListFHIRDatastores, DeleteFHIRDatastore, import and export jobs.
+  Data plane: FHIR R4 at /datastore/{id}/r4; datastore 5e7e0000000000000000000000000001 is preloaded with synthetic patients.
+  Docs: https://www.emuhealth.dev/docs/healthlake
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

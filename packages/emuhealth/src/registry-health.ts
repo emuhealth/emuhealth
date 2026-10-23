@@ -17,6 +17,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "bluebutton",
   "cdshooks",
   "redox",
+  "healthlake",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -323,6 +324,30 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           {
             url: "http://localhost:3000/redox",
             verificationToken: "synthetic-verification-token",
+          },
+        ],
+      },
+    },
+  },
+  healthlake: {
+    label: "AWS HealthLake emulator",
+    endpoints:
+      "HealthLake JSON control plane at POST / (X-Amz-Target HealthLake.*: Create, Describe, List, Delete FHIR datastores; Start, Describe, List import and export jobs) and a FHIR R4 data plane per datastore at /datastore/{id}/r4, with SigV4 verification for service healthlake; a default datastore preloaded with synthetic data; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/healthlake");
+      return { plugin: mod.healthlakePlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "healthlake-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      healthlake: {
+        region: "us-east-1",
+        datastores: [
+          {
+            id: "5e7e0000000000000000000000000001",
+            name: "synthetic",
+            preload: true,
           },
         ],
       },
