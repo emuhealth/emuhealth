@@ -1,7 +1,9 @@
+import { FhirError } from "./outcome.js";
 import type { FhirResource } from "./store.js";
 
-// Converts the generated R4 records to FHIR R5 for the elements they use. It is not a general R4 to R5
-// converter: resources loaded from config or created over the API are stored as given.
+// Converts R4 shapes to FHIR R5 for the elements the generator uses. Each converter changes only elements still in
+// their R4 form, so R5 input passes through unchanged. It runs on generated records and, on an R5 server, on every
+// create and update (r5Write), which also rejects R4 elements R5 removed.
 
 type Json = Record<string, any>;
 
@@ -22,7 +24,7 @@ function encounter(r: Json): Json {
   return {
     ...rest,
     status: ENCOUNTER_STATUS[status] ?? status,
-    ...(cls ? { class: [{ coding: [cls] }] } : {}),
+    ...(cls ? { class: Array.isArray(cls) ? cls : [{ coding: [cls] }] } : {}),
     ...(participant
       ? {
           participant: participant.map(({ individual, ...p }: Json) => ({
@@ -77,14 +79,25 @@ function procedure(r: Json): Json {
 
 function documentReference(r: Json): Json {
   const { context, content, ...rest } = r;
+  const r4Context = context && !Array.isArray(context);
   return {
     ...rest,
-    ...(context?.encounter ? { context: context.encounter } : {}),
-    ...(context?.period ? { period: context.period } : {}),
-    content: (content ?? []).map(({ format, ...c }: Json) => ({
-      ...c,
-      ...(format ? { profile: [{ valueCoding: format }] } : {}),
-    })),
+    ...(r4Context
+      ? {
+          ...(context.encounter ? { context: context.encounter } : {}),
+          ...(context.period ? { period: context.period } : {}),
+        }
+      : context
+        ? { context }
+        : {}),
+    ...(content
+      ? {
+          content: content.map(({ format, ...c }: Json) => ({
+            ...c,
+            ...(format ? { profile: [{ valueCoding: format }] } : {}),
+          })),
+        }
+      : {}),
   };
 }
 
@@ -92,7 +105,9 @@ function endpoint(r: Json): Json {
   const { connectionType, payloadType, ...rest } = r;
   return {
     ...rest,
-    ...(connectionType ? { connectionType: [{ coding: [connectionType] }] } : {}),
+    ...(connectionType
+      ? { connectionType: Array.isArray(connectionType) ? connectionType : [{ coding: [connectionType] }] }
+      : {}),
     ...(payloadType
       ? { payload: [{ type: payloadType.map((t: Json) => (t.text ? { ...t, text: t.text.replace("R4", "R5") } : t)) }] }
       : {}),
@@ -104,7 +119,12 @@ function careTeam(r: Json): Json {
   return {
     ...rest,
     ...(participant
-      ? { participant: participant.map(({ role, ...p }: Json) => ({ ...p, ...(role?.[0] ? { role: role[0] } : {}) })) }
+      ? {
+          participant: participant.map(({ role, ...p }: Json) => ({
+            ...p,
+            ...(Array.isArray(role) ? (role[0] ? { role: role[0] } : {}) : role ? { role } : {}),
+          })),
+        }
       : {}),
   };
 }
@@ -117,7 +137,11 @@ function allergyIntolerance(r: Json): Json {
       ? {
           reaction: reaction.map(({ manifestation, ...x }: Json) => ({
             ...x,
-            ...(manifestation ? { manifestation: manifestation.map((concept: Json) => ({ concept })) } : {}),
+            ...(manifestation
+              ? {
+                  manifestation: manifestation.map((m: Json) => (m.concept || m.reference ? m : { concept: m })),
+                }
+              : {}),
           })),
         }
       : {}),
@@ -149,7 +173,7 @@ function device(r: Json): Json[] {
             udiCarrier: udiCarrier.map((u: Json) => ({ issuer: "http://hl7.org/fhir/NamingSystem/gs1-di", ...u })),
           }
         : {}),
-      ...(type ? { type: [type] } : {}),
+      ...(type ? { type: Array.isArray(type) ? type : [type] } : {}),
     },
   ];
   if (patient)
@@ -192,6 +216,37 @@ export function toR5(resources: FhirResource[]): FhirResource[] {
         return [r];
     }
   });
+}
+
+/** R4 elements R5 removed without a one to one replacement; writes that use them are rejected. */
+const REMOVED: Record<string, Record<string, string>> = {
+  Device: {
+    patient: "link the patient with a DeviceAssociation",
+    distinctIdentifier: "use biologicalSourceEvent",
+  },
+  Encounter: {
+    statusHistory: "record status changes with EncounterHistory",
+    classHistory: "record class changes with EncounterHistory",
+  },
+};
+
+/**
+ * Prepare a resource written to an R5 server: convert the R4 shapes toR5 knows and reject R4 elements R5 removed.
+ * Device keeps its single resource here; generated devices get a DeviceAssociation from toR5 instead.
+ */
+export function r5Write(resource: FhirResource): FhirResource {
+  const removed = Object.entries(REMOVED[resource.resourceType] ?? {}).filter(([key]) => key in resource);
+  if (removed.length)
+    throw new FhirError(
+      400,
+      "structure",
+      `${resource.resourceType} ${removed.map(([key, fix]) => `${key} is not in FHIR R5 (${fix})`).join("; ")}`,
+    );
+  if (resource.resourceType === "CareTeam")
+    for (const p of (resource.participant ?? []) as Json[])
+      if (Array.isArray(p.role) && p.role.length > 1)
+        throw new FhirError(400, "structure", "CareTeam.participant.role holds one CodeableConcept in FHIR R5");
+  return toR5([resource])[0];
 }
 
 /** Generated records in the shape of the given FHIR version. R4B uses the R4 shapes for these resources. */
