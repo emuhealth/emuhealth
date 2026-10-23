@@ -14,7 +14,7 @@ Phase 1 ends with an acceptance gate: the relevant ONC Inferno tests for US Core
   - **US Core job:** runs the US Core 3.1.1 FHIR API group from the pinned `us-core-test-kit` against the five default patients, with a token from the authorization code flow.
   - **SMART App Launch job:** runs the SMART App Launch STU2 standalone launch, EHR launch, and backend services groups through `inferno execute_script`. `tests/inferno/browser.mjs` plays the browser and answers the emuhealth pickers.
 - `tests/inferno/check-results.mjs` fails the job when any required test fails or errors. Skips are reported.
-- `tests/inferno/exceptions.json` lists the tests that cannot pass for an emulator, each with a reason. The only entry is the TLS test, because emuhealth serves plain HTTP on localhost.
+- `tests/inferno/exceptions.json` lists the tests that cannot pass for an emulator, each with a reason. The only entry covers the TLS tests, because emuhealth serves plain HTTP on localhost.
 - The generator covers every US Core 3.1.1 profile so the tests have data, and draws the new content from a second random stream, so values in the earlier records of the first three patients stay the same for a seed. Some choices refine [0009](0009-synthetic-patient-generator.md):
   - Every fifth patient, starting with the fourth, is a two-year-old.
   - NPIs have a valid check digit but start with 0, which no real NPI does.
