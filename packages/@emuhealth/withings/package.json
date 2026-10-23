@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/withings",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Withings API emulator for emuhealth: OAuth 2.0, measures (weight, blood pressure, heart rate, SpO2), activity, sleep summaries, devices, and notify subscriptions for synthetic users.",
   "license": "Apache-2.0",

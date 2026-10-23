@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/dicomweb",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "DICOMweb emulator for emuhealth: QIDO-RS search, WADO-RS retrieve, and STOW-RS store over synthetic imaging studies.",
   "license": "Apache-2.0",

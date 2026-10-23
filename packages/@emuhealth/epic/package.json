@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/epic",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Epic FHIR R4 API emulator for emuhealth: Epic URL shape, OAuth 2.0 endpoints, search quirks, and scheduling. Synthetic data only.",
   "license": "Apache-2.0",

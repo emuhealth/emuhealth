@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/gcphealthcare",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Google Cloud Healthcare API emulator for emuhealth: datasets, FHIR stores, and a FHIR R4 API per store over synthetic data.",
   "license": "Apache-2.0",
