@@ -1,0 +1,60 @@
+---
+title: "athenahealth"
+---
+
+An emulator of the athenahealth APIs for apps that integrate with athenaOne. It runs on `http://localhost:4110` by default with the proprietary REST API and FHIR R4, both over the same synthetic records as the [FHIR R4](/docs/fhir) server. emuhealth is not affiliated with athenahealth, and the emulator holds synthetic data only.
+
+```bash
+npx emuhealth --service athena
+TOKEN=$(curl -s -u my-client:my-secret -d grant_type=client_credentials \
+  http://localhost:4110/oauth2/v1/token | jq -r .access_token)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:4110/v1/195900/patients/1
+```
+
+## Authentication
+
+`POST /oauth2/v1/token` with `grant_type=client_credentials` and any client id and secret (Basic auth or form fields) returns a Bearer token. The same token works for the proprietary API and FHIR. Requested `system/` SMART scopes limit what it can do on the FHIR API; without them it has full access. Requests without a valid token get `401`.
+
+The practice id is `195900`, athenahealth's documented preview practice, so code written against the preview works unchanged. Set `athena.practiceIds` for others; unknown practices get `404`.
+
+## Proprietary API
+
+All under `/v1/{practiceid}`. Dates are `MM/DD/YYYY`, lists come back as `{ "<items>": [...], "totalcount": n, "next": "..." }` with `offset` and `limit` paging, and errors are `{ "error": "..." }`.
+
+| Endpoint | Notes |
+|----------|-------|
+| `GET /departments`, `GET /providers` | One department; providers are the synthetic practitioners |
+| `GET /patients` | Needs `firstname`, `lastname`, `dob`, or `homephone` |
+| `GET /patients/{patientid}` | An array with one patient; patient `3` is `syn-patient-003` |
+| `POST /patients` | Form fields `firstname`, `lastname`, `dob`, `departmentid` (and optional `sex`, `homephone`, address); returns `[{ "patientid" }]` and creates the FHIR Patient too |
+| `GET /chart/{patientid}/problems`, `/allergies`, `/medications`, `/vitals` | Need `departmentid`; built from the patient's Conditions (ICD-10), AllergyIntolerances, MedicationRequests (RxNorm), and vital sign Observations |
+
+## Appointments
+
+The emulator seeds 30 minute open slots from 09:00 to 16:00 on weekdays for each provider, starting today, for 10 weekdays.
+
+- `GET /appointments/open?departmentid=1&startdate=&enddate=&providerid=` lists open slots.
+- `PUT /appointments/{appointmentid}` with `patientid` (and optional `appointmenttypeid`) books one; a slot that is taken returns `409`.
+- `GET /appointments/booked?startdate=&enddate=&patientid=` lists booked appointments.
+- `PUT /appointments/{appointmentid}/cancel` with `patientid` and `cancellationreason` cancels.
+
+## FHIR R4
+
+The full [FHIR R4](/docs/fhir) server runs under `http://localhost:4110/fhir/r4`. Searches need the practice, as on athenahealth: `ah-practice=Organization/a-1.Practice-195900`. Reads by id do not.
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" \
+  'http://localhost:4110/fhir/r4/Condition?patient=syn-patient-002&ah-practice=Organization/a-1.Practice-195900'
+```
+
+## Seed config
+
+The `athena` key takes the same options as `fhir` (`generate`, `resources`, `smart`, `terminology`), plus:
+
+```yaml
+athena:
+  practiceIds: ["195900"]
+  scheduling:
+    startDate: "2026-11-02" # default today
+    days: 10 # 0 to 60
+```

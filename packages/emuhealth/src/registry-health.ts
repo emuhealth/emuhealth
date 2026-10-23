@@ -13,6 +13,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "benchling",
   "redcap",
   "cerner",
+  "athena",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -229,6 +230,30 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
               redirect_uris: ["http://localhost:3000/callback"],
             },
           ],
+        },
+      },
+    },
+  },
+  athena: {
+    label: "athenahealth API emulator",
+    endpoints:
+      "OAuth client credentials at /oauth2/v1/token; proprietary REST under /v1/{practiceid}: departments, providers, patients (search, read, create), chart problems, allergies, medications, vitals, appointments open, booked, book, cancel, with offset and limit paging; FHIR R4 under /fhir/r4 with ah-practice; synthetic records; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/athena");
+      return { plugin: mod.athenaPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "athena-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      athena: {
+        practiceIds: ["195900"],
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
+        scheduling: {
+          days: 10,
         },
       },
     },

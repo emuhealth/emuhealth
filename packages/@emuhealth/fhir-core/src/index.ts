@@ -47,6 +47,7 @@ export { guardedOperations, type GuardedOperations } from "./operations.js";
 export {
   registerSmartRoutes,
   findAccessToken,
+  issueSmartToken,
   getSmartConfig,
   setSmartConfig,
   type SmartClient,
