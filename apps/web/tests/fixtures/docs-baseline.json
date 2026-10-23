@@ -266,6 +266,13 @@
       "ogTitle": "Fitbit | emuhealth",
       "headings": ["OAuth", "Endpoints", "Errors and limits", "Seed config"]
     },
+    "/docs/oura": {
+      "title": "Oura | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/oura",
+      "ogTitle": "Oura | emuhealth",
+      "headings": ["OAuth", "Documents", "Heart rate", "Errors", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

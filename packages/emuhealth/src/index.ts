@@ -187,6 +187,13 @@ Fitbit:
   /activities/heart/date/{date}/1d[/1min].json, /1.2/user/-/sleep/date/{date}.json, /body/log/weight/date/{date}.json.
   Docs: https://www.emuhealth.dev/docs/fitbit
 
+Oura:
+  'npx emuhealth --service oura' serves the Oura API v2 at http://localhost:4121.
+  OAuth: /oauth/authorize (pick a synthetic user), POST /oauth/token. Scopes: personal daily heartrate spo2 and more.
+  GET /v2/usercollection/{personal_info|daily_sleep|daily_activity|daily_readiness|daily_spo2|sleep}?start_date=&end_date=,
+  /v2/usercollection/{collection}/{id}, /v2/usercollection/heartrate?start_datetime=&end_datetime= (5 minute samples).
+  Docs: https://www.emuhealth.dev/docs/oura
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

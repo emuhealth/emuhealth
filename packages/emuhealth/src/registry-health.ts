@@ -24,6 +24,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "availity",
   "dexcom",
   "fitbit",
+  "oura",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -496,6 +497,29 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         clients: [
           {
             client_id: "my-fitbit-app",
+            client_secret: "synthetic-secret",
+            redirect_uris: ["http://localhost:3000/callback"],
+          },
+        ],
+      },
+    },
+  },
+  oura: {
+    label: "Oura API v2 emulator",
+    endpoints:
+      "OAuth 2.0 (/oauth/authorize consent page, /oauth/token); /v2/usercollection personal_info, daily_sleep, daily_activity, daily_readiness, daily_spo2, sleep (periods), heartrate, workout, session, ring_configuration, with start_date and end_date, next_token paging, documents by id, scopes, and {detail} errors; synthetic users; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/oura");
+      return { plugin: mod.ouraPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "oura-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      oura: {
+        clients: [
+          {
+            client_id: "my-oura-app",
             client_secret: "synthetic-secret",
             redirect_uris: ["http://localhost:3000/callback"],
           },

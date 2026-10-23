@@ -1,0 +1,52 @@
+---
+title: "Oura"
+---
+
+An emulator of the [Oura API v2](https://cloud.ouraring.com/v2/docs) for apps that read sleep, readiness, activity, and heart rate from the Oura Ring. It runs on `http://localhost:4121` by default with Oura's paths and document shapes, for synthetic users. emuhealth is not affiliated with Oura.
+
+```bash
+npx emuhealth --service oura
+```
+
+Point your client at `http://localhost:4121` for both `https://cloud.ouraring.com` (authorization) and `https://api.ouraring.com`.
+
+## OAuth
+
+1. `GET /oauth/authorize?client_id=&redirect_uri=&response_type=code&scope=` shows a consent page with the synthetic users. Without `scope`, all of Oura's scopes are granted: `email personal daily heartrate workout tag session spo2`.
+2. `POST /oauth/token` with `grant_type=authorization_code`, `code`, `client_id`, `client_secret`, and `redirect_uri` returns `token_type: bearer`, `access_token` (1 day), and `refresh_token`. `grant_type=refresh_token` rotates it.
+
+Any client id and redirect URI work until you register apps under `oura.clients`.
+
+## Documents
+
+| Endpoint | Scope |
+|----------|-------|
+| `GET /v2/usercollection/personal_info` | `personal` |
+| `GET /v2/usercollection/daily_sleep` (score and contributors) | `daily` |
+| `GET /v2/usercollection/daily_activity` (score, steps, calories, activity times, contributors) | `daily` |
+| `GET /v2/usercollection/daily_readiness` (score, contributors, temperature deviation) | `daily` |
+| `GET /v2/usercollection/sleep` (sleep periods with stage durations, heart rate, HRV) | `daily` |
+| `GET /v2/usercollection/daily_spo2` | `spo2` |
+| `GET /v2/usercollection/workout`, `/session` (empty), `/ring_configuration` | `workout`, `session`, `personal` |
+
+Lists take `start_date` and `end_date` (`YYYY-MM-DD`; by default the day before `end_date`, and `end_date` defaults to today) and return `{ data, next_token }` with up to 100 documents per page; pass `next_token` back for the next page. `GET /v2/usercollection/{collection}/{id}` reads one document from the last year. Data is deterministic per user and day.
+
+## Heart rate
+
+`GET /v2/usercollection/heartrate?start_datetime=&end_datetime=` (ISO 8601, at most 30 days; by default the last day) returns 5 minute samples with `bpm`, `source` (`sleep`, `rest`, or `awake`), and `timestamp`, paged by `next_token`. Needs the `heartrate` scope.
+
+## Errors
+
+Errors follow Oura's FastAPI shape, `{ "detail": ... }`: `401` with `Unauthorized`, `403` when the token lacks the scope, `404` for unknown documents, and `400` with a list of validation problems for bad dates.
+
+## Seed config
+
+```yaml
+oura:
+  clients:
+    - client_id: my-oura-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5
+```
