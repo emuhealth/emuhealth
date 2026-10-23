@@ -37,7 +37,7 @@ All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file ne
 
 Health and life science services use a fixed range starting at `http://localhost:4100`. Each health service keeps its port no matter which other services run or how many upstream services exist.
 
-- **FHIR R4** on `http://localhost:4100` (create, read, update, JSON Patch, delete, versioning, `_history`, search, and batch and transaction Bundles; SMART on FHIR is on the roadmap)
+- **FHIR R4** on `http://localhost:4100` (create, read, update, JSON Patch, delete, versioning, `_history`, search, batch and transaction Bundles, and a CapabilityStatement at `/metadata`; SMART on FHIR is on the roadmap)
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 

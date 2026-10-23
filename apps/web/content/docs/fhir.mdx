@@ -18,7 +18,7 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 - `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
 - `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
 
-`/metadata` and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+SMART on FHIR authorization is on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
 
 ## Search
 
@@ -105,9 +105,13 @@ curl -X PUT http://localhost:4100/Patient/synthetic-patient-1 \
 
 History supports `_count` and `_since`. Deleted versions appear as entries with `request.method` `DELETE` and no resource.
 
+## Capability statement
+
+`GET /metadata` returns a `CapabilityStatement` (FHIR 4.0.1, JSON) generated from what the server implements: every R4 resource type with its interactions, versioning, supported search parameters, `searchInclude` and `searchRevInclude` values, plus the `batch`, `transaction`, and system history interactions. FHIR clients that check `/metadata` on connect work without extra setup.
+
 ## Errors
 
-Errors are `OperationOutcome` resources with a matching status: `400` for invalid input, `404` for unknown ids or resource types, `410` for deleted resources, `412` for version conflicts, `415` for unsupported content types, and `422` when a JSON Patch `test` fails.
+Errors are `OperationOutcome` resources with a matching status: `400` for invalid input, `404` for unknown ids, resource types, or paths that are not FHIR interactions, `410` for deleted resources, `412` for version conflicts, `415` for unsupported content types, and `422` when a JSON Patch `test` fails.
 
 ## Seed config
 
