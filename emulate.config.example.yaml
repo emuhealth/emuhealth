@@ -639,3 +639,13 @@ withings:
       redirect_uris: ["http://localhost:3000/callback"]
   generate:
     patients: 5
+
+terra:
+  # dev-id and x-api-key pairs; with none, any pair works
+  credentials:
+    - devId: synthetic-dev
+      apiKey: synthetic-key
+  # Your webhook and signing secret for auth, deauth, and data events
+  webhook:
+    url: http://localhost:3000/terra/webhook
+    secret: synthetic-signing-secret

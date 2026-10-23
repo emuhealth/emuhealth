@@ -1,0 +1,53 @@
+---
+title: "Terra"
+---
+
+An emulator of the [Terra API](https://docs.tryterra.co), the aggregator that connects users' wearables and returns normalized health data. It runs on `http://localhost:4123` by default, connects synthetic users to providers through a widget, and returns Terra's normalized payloads. emuhealth is not affiliated with Terra.
+
+```bash
+npx emuhealth --service terra
+curl -X POST http://localhost:4123/v2/auth/generateWidgetSession \
+  -H 'dev-id: synthetic-dev' -H 'x-api-key: synthetic-key' -H 'Content-Type: application/json' \
+  -d '{"reference_id":"my-user-1","providers":"FITBIT,OURA,DEXCOM","auth_success_redirect_url":"http://localhost:3000/connected"}'
+```
+
+## Authentication
+
+Every API call needs the `dev-id` and `x-api-key` headers. Any pair works until you list `terra.credentials`; otherwise `401` with `{ "status": "error", "message" }`.
+
+## Connecting users
+
+1. `POST /v2/auth/generateWidgetSession` with `reference_id`, `providers` (comma separated, from `FITBIT`, `OURA`, `WITHINGS`, `DEXCOM`, `GARMIN`, `POLAR`, `FREESTYLELIBRE`), and the success and failure redirect URLs returns a widget `url` and `session_id` (valid 15 minutes). `POST /v2/auth/authenticateUser?resource=FITBIT` returns an `auth_url` straight to one provider.
+2. The user opens the URL, picks a provider, and picks a synthetic account. Terra redirects to your success URL with `user_id`, `resource`, and `reference_id`, and sends an `auth` webhook.
+3. `GET /v2/userInfo?user_id=` (or `?reference_id=`), `GET /v2/subscriptions`, and `DELETE /v2/auth/deauthenticateUser?user_id=` (which sends a `deauth` webhook) manage connections.
+
+## Data
+
+`GET /v2/daily`, `/v2/sleep`, `/v2/activity`, and `/v2/body` take `user_id`, `start_date`, and `end_date` (`YYYY-MM-DD`, up to 90 days) and return one normalized item per day:
+
+| Type | Contents |
+|------|----------|
+| `daily` | Steps, distance, floors, calories, heart rate summary and HRV, active durations, scores |
+| `sleep` | Sleep start and end, deep, light, REM, and awake durations, efficiency, heart rate, readiness |
+| `activity` | An evening walk with steps, distance, calories, and heart rate |
+| `body` | Weight, height, BMI, blood pressure, and for `DEXCOM` and `FREESTYLELIBRE` users, 5 minute blood glucose |
+
+As on Terra, `to_webhook` defaults to true: the data is sent to your webhook and the response only confirms it. Pass `to_webhook=false` to get `{ status, type, user, data }` in the response. Data is deterministic per user and day.
+
+## Webhooks
+
+Set `terra.webhook.url`. Events (`auth`, `deauth`, and the data types) are posted as JSON. With `terra.webhook.secret`, each carries `terra-signature: t=<unix seconds>,v1=<hex HMAC-SHA256 of "t.body">`, which you verify the same way as Terra's. The inspector at `/_inspector` lists connected users and delivered events.
+
+## Seed config
+
+```yaml
+terra:
+  credentials:
+    - devId: synthetic-dev
+      apiKey: synthetic-key
+  webhook:
+    url: http://localhost:3000/terra/webhook
+    secret: synthetic-signing-secret
+  generate:
+    patients: 5 # synthetic accounts users can connect
+```

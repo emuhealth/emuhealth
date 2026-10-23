@@ -62,6 +62,7 @@
   "devDependencies": {
     "@emulators/core": "workspace:*",
     "@emuhealth/fhir-core": "workspace:*",
+    "@emuhealth/terra": "workspace:*",
     "@emuhealth/withings": "workspace:*",
     "@emuhealth/oura": "workspace:*",
     "@emuhealth/fitbit": "workspace:*",

@@ -99,7 +99,7 @@ Public reference APIs are read-heavy and quick to build, so they can be pulled f
 - [x] Fitbit ([#59](https://github.com/emuhealth/emuhealth/pull/59))
 - [x] Oura ([#60](https://github.com/emuhealth/emuhealth/pull/60))
 - [x] Withings ([#61](https://github.com/emuhealth/emuhealth/pull/61))
-- [ ] Terra (aggregator)
+- [x] Terra (aggregator) ([#62](https://github.com/emuhealth/emuhealth/pull/62))
 
 Apple HealthKit and Android Health Connect are on-device APIs and out of scope.
 

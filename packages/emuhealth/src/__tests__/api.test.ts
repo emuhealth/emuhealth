@@ -245,6 +245,13 @@ describe("createEmulator", () => {
     await withings.close();
   });
 
+  it("starts the Terra emulator", async () => {
+    const terra = await createEmulator({ service: "terra", port: 14042 });
+    const res = await fetch(`${terra.url}/v2/subscriptions`, { headers: { "dev-id": "d", "x-api-key": "k" } });
+    expect(await res.json()).toEqual({ users: [] });
+    await terra.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

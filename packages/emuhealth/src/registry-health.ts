@@ -26,6 +26,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "fitbit",
   "oura",
   "withings",
+  "terra",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -548,6 +549,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             redirect_uris: ["http://localhost:3000/callback"],
           },
         ],
+      },
+    },
+  },
+  terra: {
+    label: "Terra API emulator",
+    endpoints:
+      "dev-id and x-api-key auth; /v2/auth/generateWidgetSession and /v2/auth/authenticateUser with a connect page (provider, then a synthetic account), /v2/auth/deauthenticateUser, /v2/userInfo, /v2/subscriptions; normalized /v2/daily, sleep, activity, body (with glucose for CGM providers) inline (to_webhook=false) or to your webhook signed with terra-signature; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/terra");
+      return { plugin: mod.terraPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "terra-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      terra: {
+        webhook: {
+          url: "http://localhost:3000/terra/webhook",
+          secret: "synthetic-signing-secret",
+        },
       },
     },
   },
