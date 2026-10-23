@@ -213,8 +213,6 @@ export function toR5(resources: FhirResource[]): FhirResource[] {
         return [endpoint(r) as FhirResource];
       case "Device":
         return device(r) as FhirResource[];
-      case "Observation":
-        return [observation(r) as FhirResource];
       case "CareTeam":
         return [careTeam(r) as FhirResource];
       case "AllergyIntolerance":
@@ -263,5 +261,8 @@ export function r5Write(resource: FhirResource): FhirResource {
 
 /** Generated records in the shape of the given FHIR version. R4B uses the R4 shapes for these resources. */
 export function recordsForVersion(resources: FhirResource[], version: string): FhirResource[] {
-  return version === "5.0.0" ? toR5(resources) : resources;
+  // Dropping the flow rate component applies to generated data only; r5Write never removes what a client sends.
+  return version === "5.0.0"
+    ? toR5(resources).map((r) => (r.resourceType === "Observation" ? (observation(r) as FhirResource) : r))
+    : resources;
 }

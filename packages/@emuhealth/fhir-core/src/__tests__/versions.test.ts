@@ -184,6 +184,22 @@ describe("writes to an R5 server", () => {
     // R5 input passes through unchanged.
     const r5 = await post({ resourceType: "Encounter", status: "completed", class: [{ coding: [{ code: "AMB" }] }] });
     expect(r5.body.class).toEqual([{ coding: [{ code: "AMB" }] }]);
+    const pulseOx = await req("/Observation", {
+      method: "POST",
+      headers: { "Content-Type": "application/fhir+json; fhirVersion=5.0" },
+      body: JSON.stringify({
+        resourceType: "Observation",
+        status: "final",
+        code: { coding: [{ system: "http://loinc.org", code: "59408-5" }] },
+        component: [
+          {
+            code: { coding: [{ system: "http://loinc.org", code: "3151-8" }] },
+            valueQuantity: { value: 2, unit: "L/min" },
+          },
+        ],
+      }),
+    });
+    expect(pulseOx.body.component).toHaveLength(1);
     const removed = await post({ resourceType: "Encounter", status: "completed", statusHistory: [] });
     expect(removed.status).toBe(400);
     expect(removed.body.issue[0].diagnostics).toContain("EncounterHistory");
