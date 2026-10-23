@@ -277,6 +277,22 @@ describe("createEmulator", () => {
     await expect(sendMllp("127.0.0.1", 14052, "MSH|^~\\&|A", 1000)).rejects.toThrow();
   });
 
+  it("signs in to the Vault emulator and runs VQL", async () => {
+    const veeva = await createEmulator({ service: "veeva", port: 14053 });
+    const auth = await fetch(`${veeva.url}/api/v24.3/auth`, {
+      method: "POST",
+      body: new URLSearchParams({ username: "admin@synthetic-vault.example", password: "synthetic-password" }),
+    });
+    const { sessionId } = (await auth.json()) as { sessionId: string };
+    const res = await fetch(`${veeva.url}/api/v24.3/query`, {
+      method: "POST",
+      headers: { Authorization: sessionId },
+      body: new URLSearchParams({ q: "SELECT id, name__v FROM study__v" }),
+    });
+    expect(((await res.json()) as { responseDetails: { total: number } }).responseDetails.total).toBe(3);
+    await veeva.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

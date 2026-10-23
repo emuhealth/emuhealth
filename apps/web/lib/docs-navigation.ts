@@ -49,6 +49,7 @@ export const docsSections: NavSection[] = [
       { name: "Terra", href: "/docs/terra" },
       { name: "DICOMweb", href: "/docs/dicomweb" },
       { name: "HL7 v2 over MLLP", href: "/docs/hl7v2" },
+      { name: "Veeva Vault", href: "/docs/veeva" },
     ],
   },
   {

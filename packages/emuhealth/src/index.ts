@@ -222,6 +222,13 @@ HL7 v2 over MLLP:
   hl7v2.mllp sets port and host (false turns MLLP off); hl7v2.patients adds synthetic patients.
   Docs: https://www.emuhealth.dev/docs/hl7v2
 
+Veeva Vault:
+  'npx emuhealth --service veeva' serves the Vault REST API at http://localhost:4126/api/v24.3.
+  POST /api/v24.3/auth (username, password) returns a sessionId for the Authorization header.
+  /vobjects/{object} records, /objects/documents, /metadata/vobjects, and POST /query with VQL (q=SELECT ... FROM ...).
+  veeva.users sets sign-ins (default admin@synthetic-vault.example / synthetic-password); veeva.records adds records.
+  Docs: https://www.emuhealth.dev/docs/veeva
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -25,6 +25,7 @@ const services = [
   { name: "terra", port: 4123, note: "Terra" },
   { name: "dicomweb", port: 4124, note: "DICOMweb" },
   { name: "hl7v2", port: 4125, note: "HL7 v2 over MLLP" },
+  { name: "veeva", port: 4126, note: "Veeva Vault" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

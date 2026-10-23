@@ -29,6 +29,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "terra",
   "dicomweb",
   "hl7v2",
+  "veeva",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -610,6 +611,28 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         mllp: {
           port: 2575,
         },
+      },
+    },
+  },
+  veeva: {
+    label: "Veeva Vault REST API emulator",
+    endpoints:
+      "Vault REST API under /api/{version}: username and password auth with session IDs, Vault object records (list, retrieve, create, upsert with idParam, update, delete; JSON or CSV), documents (list, retrieve, versions, file download, create, update, delete), object and document metadata, and VQL queries with relationships and paging; synthetic products, studies, sites, countries, and trial documents; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/veeva");
+      return { plugin: mod.veevaPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "veeva-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      veeva: {
+        users: [
+          {
+            username: "admin@synthetic-vault.example",
+            password: "synthetic-password",
+          },
+        ],
       },
     },
   },
