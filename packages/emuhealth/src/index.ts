@@ -31,6 +31,7 @@ FHIR R4:
   Search with GET /:type or POST /:type/_search: string, token, date, and reference parameters, _sort, _count,
   _include, _revinclude, and chained parameters such as patient.family.
   POST / with a batch or transaction Bundle; transactions roll back on failure and resolve urn:uuid references.
+  GET /metadata returns the CapabilityStatement.
   Seed synthetic resources under fhir.resources. SMART on FHIR is not available yet.
   Docs: https://www.emuhealth.dev/docs/fhir
 

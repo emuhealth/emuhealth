@@ -1,5 +1,6 @@
-import type { AppEnv, Hono, ServicePlugin, Store, TokenMap, WebhookDispatcher } from "@emulators/core";
-import { registerFhirRoutes } from "./routes.js";
+import type { AppEnv, Context, Hono, ServicePlugin, Store, TokenMap, WebhookDispatcher } from "@emulators/core";
+import { FHIR_JSON, registerFhirRoutes } from "./routes.js";
+import { operationOutcome } from "./outcome.js";
 import { getFhirStore, type FhirResource } from "./store.js";
 
 export { registerFhirRoutes, FHIR_JSON, type FhirRouteOptions } from "./routes.js";
@@ -16,6 +17,7 @@ export {
 export { FhirError, operationOutcome, type OperationOutcome, type IssueCode } from "./outcome.js";
 export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
 export { processBundle, type BundleDeps } from "./bundle.js";
+export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
 export {
   parseSearch,
@@ -63,6 +65,17 @@ export const fhirPlugin: ServicePlugin = {
   name: "fhir",
   register(app: Hono<AppEnv>, store: Store, _webhooks: WebhookDispatcher, baseUrl: string, _tokenMap?: TokenMap): void {
     registerFhirRoutes(app, store, { baseUrl });
+    // Anything else under this dedicated FHIR server is an OperationOutcome, not the core JSON 404.
+    // /_emulate stays free for core routes (fonts, inspector) registered later.
+    const notFound = (c: Context<AppEnv>) =>
+      c.body(
+        JSON.stringify(
+          operationOutcome("not-supported", `${c.req.method} ${c.req.path} is not a supported FHIR interaction`),
+        ),
+        404,
+        { "Content-Type": FHIR_JSON },
+      );
+    for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) app.on(method, "/:rest{(?!_emulate).*}", notFound);
   },
 };
 

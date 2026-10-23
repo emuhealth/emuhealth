@@ -43,8 +43,9 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | history | `GET /:type/:id/_history`, `GET /:type/_history`, `GET /_history` with `_count` and `_since` |
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 | batch, transaction | `POST /` with a `batch` or `transaction` Bundle |
+| capabilities | `GET /metadata` returns the CapabilityStatement |
 
-Not available yet: `/metadata`, SMART on FHIR, conditional update and delete. Requests are not authenticated until SMART support lands.
+Not available yet: SMART on FHIR, conditional create, update, and delete outside transactions. Requests are not authenticated until SMART support lands.
 
 ## Search
 
@@ -97,7 +98,7 @@ curl -X PATCH http://localhost:4100/Patient/<id> \
 
 ## Errors
 
-Errors are `OperationOutcome` resources: `400` invalid input, `404` unknown id or resource type, `410` deleted, `412` version conflict, `415` unsupported content type, `422` failed JSON Patch `test`.
+Errors are `OperationOutcome` resources: `400` invalid input, `404` unknown id, resource type, or non-FHIR path, `410` deleted, `412` version conflict, `415` unsupported content type, `422` failed JSON Patch `test`.
 
 ## Seed config
 

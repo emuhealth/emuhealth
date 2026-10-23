@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
+import { buildCapabilityStatement } from "./capability.js";
 import { parseSearch, resolveIncludes, runSearch, type SearchContext } from "./search.js";
 import { getFhirStore, type FhirHistoryRecord, type FhirResource, type WriteResult } from "./store.js";
 
@@ -12,6 +13,10 @@ export interface FhirRouteOptions {
   baseUrl: string;
   /** Path the FHIR API is mounted under, for example "/api/FHIR/R4". Defaults to the server root. */
   basePath?: string;
+  /** Software reported in the CapabilityStatement at /metadata. */
+  software?: { name: string; version?: string };
+  /** Implementation description reported in the CapabilityStatement, for example the vendor being emulated. */
+  description?: string;
 }
 
 const TYPE = ":type{[A-Z][A-Za-z]+}";
@@ -201,6 +206,13 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       }),
     );
   }
+
+  app.get(
+    `${basePath}/metadata`,
+    handle((c) =>
+      fhirJson(c, buildCapabilityStatement({ base, software: options.software, description: options.description })),
+    ),
+  );
 
   // POST to the base URL processes batch and transaction Bundles.
   app.post(`${basePath}/`, handle(bundle));

@@ -137,6 +137,7 @@
         "Batch and transaction",
         "Versioning",
         "History",
+        "Capability statement",
         "Errors",
         "Seed config",
         "Programmatic use"
