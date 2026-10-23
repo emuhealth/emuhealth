@@ -1,0 +1,6 @@
+# emuhealth config for the HL7 FHIR Validator gate (R5).
+fhir:
+  fhirVersion: R5
+  generate:
+    patients: 10
+    seed: 1

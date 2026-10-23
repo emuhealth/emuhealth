@@ -102,6 +102,25 @@ describe("FHIR versions", () => {
     for (const d of devices) expect(d.resource.patient).toBeUndefined();
     const associations = (await req("/DeviceAssociation")).body;
     expect(associations.total).toBe(devices.length);
+    for (const d of devices) expect(d.resource.udiCarrier[0].issuer).toBe("http://hl7.org/fhir/NamingSystem/gs1-di");
+
+    const team = (await req("/CareTeam")).body.entry[0].resource;
+    expect(Array.isArray(team.participant[0].role)).toBe(false);
+    expect(team.participant[0].role.text ?? team.participant[0].role.coding).toBeDefined();
+    const allergy = (await req("/AllergyIntolerance")).body.entry[0].resource;
+    expect(allergy.reaction[0].manifestation[0].concept).toBeDefined();
+    const org = (await req("/Organization")).body.entry[0].resource;
+    expect(org.address).toBeUndefined();
+    expect(org.telecom).toBeUndefined();
+    expect(org.contact.some((c: any) => c.address && c.telecom)).toBe(true);
+    const city = org.contact.find((c: any) => c.address).address.city;
+    expect((await req(`/Organization?address=${encodeURIComponent(city)}`)).body.total).toBeGreaterThan(0);
+    const role = (await req("/PractitionerRole")).body.entry[0].resource;
+    expect(role.telecom).toBeUndefined();
+    expect(role.contact[0].telecom[0].system).toBe("phone");
+    const location = (await req("/Location")).body.entry[0].resource;
+    expect(location.telecom).toBeUndefined();
+    expect(location.address).toBeDefined();
 
     const created = await req("/SubscriptionTopic", {
       method: "POST",
