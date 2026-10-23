@@ -88,3 +88,74 @@ jobs:
           path: |
             inferno-results.json
             emuhealth.log
+
+  smart:
+    name: SMART App Launch STU2
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: inferno-framework/us-core-test-kit
+          ref: ${{ env.US_CORE_TEST_KIT_REF }}
+          path: us-core-test-kit
+
+      - name: Start Inferno background services
+        working-directory: us-core-test-kit
+        run: docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx redis
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - name: Start emuhealth
+        run: |
+          node packages/emuhealth/dist/index.js start --service fhir --config tests/inferno/smart.config.yaml > emuhealth.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf "$FHIR_BASE/metadata" > /dev/null && exit 0; sleep 1; done
+          cat emuhealth.log
+          exit 1
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: us-core-test-kit
+          bundler-cache: true
+
+      # The SMART App Launch test kit ships as a dependency of the US Core kit, so it runs from the same bundle.
+      - name: Start Inferno
+        working-directory: us-core-test-kit
+        run: |
+          bundle exec inferno migrate
+          bundle exec puma > ../inferno-web.log 2>&1 &
+          bundle exec sidekiq -r ./worker.rb > ../inferno-worker.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:4567/api/test_suites > /dev/null && exit 0; sleep 2; done
+          cat ../inferno-web.log
+          exit 1
+
+      - name: Run SMART App Launch tests
+        working-directory: us-core-test-kit
+        run: |
+          cp ../tests/inferno/smart_stu2.yaml smart_stu2_with_commands.yaml
+          bundle exec inferno execute_script smart_stu2_with_commands.yaml --allow-commands || true
+          cp smart_stu2_with_commands*expected*.json ../smart-results.json
+
+      - name: Check results
+        run: node tests/inferno/check-results.mjs smart-results.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inferno-smart
+          path: |
+            smart-results.json
+            emuhealth.log
+            inferno-web.log
+            inferno-worker.log

@@ -168,6 +168,20 @@ const ETHNICITIES = [
 // generator records them as text only.
 const SMOKING_STATUS = ["Never smoked tobacco", "Former smoker", "Current every day smoker"];
 
+// LOINC clinical note types and report categories, which US Core expects a server to support.
+const NOTE_TYPES = [
+  { code: "11506-3", display: "Progress note" },
+  { code: "11488-4", display: "Consult note" },
+  { code: "18842-5", display: "Discharge summary" },
+  { code: "34117-2", display: "History and physical note" },
+  { code: "28570-0", display: "Procedure note" },
+];
+const NOTE_CATEGORIES = [
+  { code: "LP29708-2", display: "Cardiology" },
+  { code: "LP7839-6", display: "Pathology" },
+  { code: "LP29684-5", display: "Radiology" },
+];
+
 // LOINC codes for the vital signs and labs above, and the UCUM units their values use.
 const LOINC_CODES = [
   { code: "8867-4", display: "Heart rate" },
@@ -188,8 +202,8 @@ const LOINC_CODES = [
   { code: "77606-2", display: "Weight-for-length Per age and sex" },
   { code: "59576-9", display: "Body mass index (BMI) [Percentile] Per age and sex" },
   { code: "8289-1", display: "Head Occipital-frontal circumference Percentile" },
-  { code: "11506-3", display: "Progress note" },
-  { code: "LP29708-2", display: "Cardiology" },
+  ...NOTE_TYPES,
+  ...NOTE_CATEGORIES,
 ];
 const UCUM_CODES = [
   { code: "/min", display: "per minute" },
@@ -286,6 +300,11 @@ const loinc = (code: string, display: string) => ({ coding: [{ system: LOINC, co
 const quantity = (value: number, unit: string, code = unit) => ({ value, unit, system: UCUM, code });
 
 const absent = (code: string) => ({ extension: [{ url: DATA_ABSENT_EXTENSION, valueCode: code }] });
+/**
+ * A concept whose code would come from SNOMED CT or CPT, which emuhealth does not bundle (decision 0011).
+ * US Core says to use the "unknown" data absent reason code, with the meaning in text.
+ */
+const uncoded = (text: string) => ({ coding: [{ system: DATA_ABSENT, code: "unknown", display: "Unknown" }], text });
 const narrative = (text: string) => ({
   status: "generated",
   div: `<div xmlns="http://www.w3.org/1999/xhtml"><p>${text}</p></div>`,
@@ -574,7 +593,7 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           identifier: [{ system: ENCOUNTER_SYSTEM, value: `SYN-ENC-${short}-${e}` }],
           status: "finished",
           class: { system: "http://terminology.hl7.org/CodeSystem/v3-ActCode", code: "AMB", display: "ambulatory" },
-          type: [{ text: "Office visit" }],
+          type: [uncoded("Office visit")],
           subject,
           participant: [
             {
@@ -727,7 +746,7 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           verificationStatus: { coding: [{ system: ALLERGY_VERIFICATION, code: "confirmed" }] },
           category: [allergy.category],
           criticality: rng.pick(["low", "high"]),
-          code: allergy.coding ? { coding: allergy.coding, text: allergy.text } : { text: allergy.text },
+          code: allergy.coding ? { coding: allergy.coding, text: allergy.text } : uncoded(allergy.text),
           patient: subject,
           recordedDate: isoDate(reference - rng.int(365, 3650) * DAY),
           reaction: [{ manifestation: [{ text: allergy.category === "food" ? "Hives" : "Skin rash" }] }],
@@ -825,7 +844,7 @@ function usCoreRecords(out: FhirResource[], rng: Random, ctx: PatientContext): v
     resourceType: "DiagnosticReport",
     id: `syn-diagnosticreport-${short}-note`,
     status: "final",
-    category: [{ coding: [{ system: LOINC, code: "LP29708-2", display: "Cardiology" }] }],
+    category: [{ coding: [{ system: LOINC, ...NOTE_CATEGORIES[(n - 1) % NOTE_CATEGORIES.length] }] }],
     code: loinc("11506-3", "Progress note"),
     subject,
     encounter: encounter(visit),
@@ -837,16 +856,18 @@ function usCoreRecords(out: FhirResource[], rng: Random, ctx: PatientContext): v
 
   push({ resourceType: "Binary", id: `syn-binary-${short}-note`, contentType: "text/plain", data: base64(noteText) });
   const clinicalNote = { system: "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category" };
-  for (const [suffix, attachment] of [
-    ["inline", { contentType: "text/plain", data: base64(noteText) }],
-    ["binary", { contentType: "text/plain", url: `Binary/syn-binary-${short}-note` }],
+  // The inline note is always a progress note; the other rotates through the remaining note types by patient.
+  const otherType = NOTE_TYPES[1 + ((n - 1) % (NOTE_TYPES.length - 1))];
+  for (const [suffix, attachment, type] of [
+    ["inline", { contentType: "text/plain", data: base64(noteText) }, NOTE_TYPES[0]],
+    ["binary", { contentType: "text/plain", url: `Binary/syn-binary-${short}-note` }, otherType],
   ] as const) {
     push({
       resourceType: "DocumentReference",
       id: `syn-documentreference-${short}-${suffix}`,
       identifier: [{ system: DOCUMENT_SYSTEM, value: `SYN-DOC-${short}-${suffix}` }],
       status: "current",
-      type: loinc("11506-3", "Progress note"),
+      type: loinc(type.code, type.display),
       category: [{ coding: [{ ...clinicalNote, code: "clinical-note", display: "Clinical Note" }] }],
       subject,
       date: isoDateTime(lastVisit + 3_600_000),
@@ -937,7 +958,7 @@ function usCoreRecords(out: FhirResource[], rng: Random, ctx: PatientContext): v
       expirationDate: "2030-01-01",
       lotNumber: `SYN${short}`,
       serialNumber: `SYN-SERIAL-${short}`,
-      type: { text: "Cardiac pacemaker" },
+      type: uncoded("Cardiac pacemaker"),
       patient: subject,
     });
   }
