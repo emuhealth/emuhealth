@@ -22,7 +22,7 @@ function startService(config?: RaveSeedConfig) {
       status: res.status,
       text,
       headers: res.headers,
-      xml: text.startsWith("<?xml") ? parseXml(text) : undefined,
+      xml: text.startsWith("<") ? parseXml(text) : undefined,
     };
   };
 }
@@ -145,6 +145,7 @@ describe("RWS", () => {
     });
     expect(bad.status).toBe(409);
     expect(bad.xml!.attrs).toMatchObject({ IsTransactionSuccessful: "0", ReasonCode: "EMU010" });
+    expect(bad.text.startsWith("<Response")).toBe(true);
     expect(bad.xml!.attrs.ErrorOriginLocation).toBe(
       "/ODM/ClinicalData[1]/SubjectData[2]/StudyEventData[1]/FormData[1]/ItemGroupData[1]/ItemData[1]",
     );
