@@ -90,7 +90,9 @@ The whole document applies or nothing does. Success returns Rave's `Response` wi
 - `SuccessStatistics` (`Rave objects touched: Subjects=1; Folders=1; Forms=1; Fields=2; LogLines=0`);
 - `SubjectNumberInStudy` and `SubjectNumberInStudySite` for a new subject.
 
-Failures return `409` with `IsTransactionSuccessful="0"`, `ErrorClientResponseMessage`, an XPath style `ErrorOriginLocation`, and a `ReasonCode`. The reason codes are the emulator's own (`EMU001` to `EMU011`) and do not match Rave's catalog.
+Failures return `400` with `IsTransactionSuccessful="0"`, `ErrorClientResponseMessage`, an XPath style `ErrorOriginLocation`, and a `ReasonCode`, as in the fixtures of Medidata's rwslib. Inserting a subject that already exists returns Rave's `RWS00024` with `Subject already exists.`. Medidata does not publish its full reason code catalog, so other failures use the emulator's own codes (`EMU001` to `EMU011`), which no real Rave returns. Match on `IsTransactionSuccessful` rather than on those codes.
+
+A CRF version that does not exist returns `404` with a `Response` carrying `RWS00092` and `CRF version not found`.
 
 ## Synthetic data
 

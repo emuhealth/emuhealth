@@ -93,7 +93,7 @@ Syntax errors return `INCORRECT_QUERY_SYNTAX_ERROR`, and unknown targets or fiel
 
 ## Errors
 
-Errors use Vault's envelope, `{ "responseStatus": "FAILURE", "errors": [{ "type", "message" }] }`, with HTTP 200. The exception is unknown routes, which return `MALFORMED_URL` with HTTP 404.
+Errors use Vault's envelope, `{ "responseStatus": "FAILURE", "errors": [{ "type", "message" }] }`, with HTTP 200, unknown routes (`MALFORMED_URL`) included. Vault documents that it answers every request it processes with HTTP 200 and that clients should check `responseStatus` and the error `type`, so build your logic on those.
 
 - `INVALID_SESSION_ID` for a missing or expired session.
 - `USERNAME_OR_PASSWORD_INCORRECT` and `NO_PASSWORD_PROVIDED` from sign-in.

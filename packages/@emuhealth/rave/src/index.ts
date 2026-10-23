@@ -214,7 +214,7 @@ function postError(c: Context<AppEnv>, fileOid: string, location: string, code: 
       SuccessStatistics: "Rave objects touched: Subjects=0; Folders=0; Forms=0; Fields=0; LogLines=0",
       ErrorClientResponseMessage: message,
     })}`,
-    409,
+    400,
     { "Content-Type": "text/xml; charset=utf-8" },
   );
 }
@@ -263,7 +263,7 @@ function applyImport(store: Store, root: XmlElement, user: string) {
       const byUuid = sd.attrs["mdsol:SubjectKeyType"] === "SubjectUUID";
       const tx = sd.attrs.TransactionType ?? "Context";
       let subject = w.subjects.find((x) => (byUuid ? x.uuid === key : x.key === key) && !x.deleted);
-      if (tx === "Insert" && subject) throw new PostError("EMU003", swhere, `Subject ${key} already exists`);
+      if (tx === "Insert" && subject) throw new PostError("RWS00024", swhere, "Subject already exists.");
       if (!subject && (tx === "Insert" || tx === "Upsert")) {
         if (byUuid) throw new PostError("EMU002", swhere, "New subjects need a SubjectKey of type SubjectName");
         const siteOid = childrenNamed(sd, "SiteRef")[0]?.attrs.LocationOID;
@@ -512,7 +512,17 @@ export const ravePlugin: ServicePlugin = {
     app.get(`${R}/metadata/studies/:project/versions/:oid`, (c) => {
       const s = project(c);
       if (!s || c.req.param("oid") !== s.versionOid)
-        return rwsError(c, 404, `CRF version ${c.req.param("oid")} not found in ${c.req.param("project")}`);
+        return c.body(
+          el("Response", {
+            ReferenceNumber: randomUUID(),
+            InboundODMFileOID: "Not Supplied",
+            IsTransactionSuccessful: "0",
+            ReasonCode: "RWS00092",
+            ErrorClientResponseMessage: "CRF version not found",
+          }),
+          404,
+          { "Content-Type": "text/xml; charset=utf-8" },
+        );
       return xml(
         c,
         odm(

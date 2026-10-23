@@ -56,7 +56,7 @@ The subset supports:
 
 ## Errors
 
-The envelope is `{"responseStatus":"FAILURE","errors":[{"type":"INVALID_SESSION_ID","message":...}]}` with HTTP 200 (`MALFORMED_URL` returns 404). Other types: `USERNAME_OR_PASSWORD_INCORRECT`, `PARAMETER_REQUIRED`, `INVALID_DATA`, `ATTRIBUTE_NOT_SUPPORTED`, `OPERATION_NOT_ALLOWED`, `INCORRECT_QUERY_SYNTAX_ERROR`.
+The envelope is `{"responseStatus":"FAILURE","errors":[{"type":"INVALID_SESSION_ID","message":...}]}` with HTTP 200, as Vault documents for every request it processes, unknown routes (`MALFORMED_URL`) included. Other types: `USERNAME_OR_PASSWORD_INCORRECT`, `PARAMETER_REQUIRED`, `INVALID_DATA`, `ATTRIBUTE_NOT_SUPPORTED`, `OPERATION_NOT_ALLOWED`, `INCORRECT_QUERY_SYNTAX_ERROR`.
 
 ## Seed config
 
