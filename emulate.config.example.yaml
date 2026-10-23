@@ -595,3 +595,10 @@ stedi:
   # Event destinations for transaction.processed.v2 (835 ready)
   webhooks:
     - url: http://localhost:3000/stedi/events
+
+availity:
+  # Members and claim history from the synthetic patient generator
+  generate:
+    patients: 5
+  # Polls that answer In Progress (statusCode 0) before Complete (4)
+  pollsUntilComplete: 1

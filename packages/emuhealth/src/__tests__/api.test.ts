@@ -202,6 +202,17 @@ describe("createEmulator", () => {
     await stedi.close();
   });
 
+  it("starts the Availity emulator", async () => {
+    const availity = await createEmulator({ service: "availity", port: 14037 });
+    const res = await fetch(`${availity.url}/availity/v1/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "grant_type=client_credentials&client_id=a&client_secret=b",
+    });
+    expect(((await res.json()) as { expires_in: number }).expires_in).toBe(300);
+    await availity.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

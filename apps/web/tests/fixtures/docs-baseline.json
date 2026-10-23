@@ -245,6 +245,13 @@
       "ogTitle": "Stedi | emuhealth",
       "headings": ["Authentication", "Payers and members", "Eligibility", "Claims", "Claim status", "835 ERAs and transactions", "Seed config"]
     },
+    "/docs/availity": {
+      "title": "Availity | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/availity",
+      "ogTitle": "Availity | emuhealth",
+      "headings": ["Authentication", "Payers and configurations", "Coverages", "Claim statuses", "Service reviews", "Demo plan scenarios", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

@@ -17,6 +17,7 @@ const services = [
   { name: "gcphealthcare", port: 4115, note: "Google Cloud Healthcare API" },
   { name: "azurehealth", port: 4116, note: "Azure Health Data Services" },
   { name: "stedi", port: 4117, note: "Stedi" },
+  { name: "availity", port: 4118, note: "Availity" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

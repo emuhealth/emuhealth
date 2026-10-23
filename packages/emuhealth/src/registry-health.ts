@@ -21,6 +21,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "gcphealthcare",
   "azurehealth",
   "stedi",
+  "availity",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -430,6 +431,27 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           patients: 5,
           seed: 1,
         },
+      },
+    },
+  },
+  availity: {
+    label: "Availity API emulator",
+    endpoints:
+      "Availity HIPAA transaction APIs under /availity: OAuth client credentials (/v1/token), availity-payer-list, v1/configurations, asynchronous v1/coverages (270/271) and v1/claim-statuses (276/277) polled until statusCode 4, v2/service-reviews (278) with Location polling, and Demo plan X-Api-Mock-Scenario-ID scenarios; synthetic payers, members, and claims; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/availity");
+      return { plugin: mod.availityPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "availity-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      availity: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
+        pollsUntilComplete: 1,
       },
     },
   },

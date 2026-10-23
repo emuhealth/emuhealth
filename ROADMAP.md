@@ -79,7 +79,7 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 ## Phase 4: Revenue cycle and payer
 
 - [x] Stedi (eligibility 270/271, claims 837, claim status 276/277, ERA 835) ([#56](https://github.com/emuhealth/emuhealth/pull/56))
-- [ ] Availity (feasibility check first, public docs are limited)
+- [x] Availity (feasibility check first, public docs are limited) ([#57](https://github.com/emuhealth/emuhealth/pull/57))
 
 ## Phase 5: Life sciences
 
