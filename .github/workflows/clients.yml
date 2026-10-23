@@ -16,7 +16,18 @@ on:
       - "packages/emuhealth/src/**"
       - "tests/clients/**"
       - ".github/workflows/clients.yml"
+  # Weekly: the latest release of every client instead of the pinned versions.
+  schedule:
+    - cron: "0 5 * * 1"
   workflow_dispatch:
+    inputs:
+      latest:
+        description: Use the latest client versions instead of the pinned ones
+        type: boolean
+        default: false
+
+env:
+  LATEST: ${{ github.event_name == 'schedule' || inputs.latest == true }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,7 +65,15 @@ jobs:
             curl -sf "$url" > /dev/null || { cat emuhealth.log; exit 1; }
           done
 
-      - run: pip install -r tests/clients/requirements.txt
+      - name: Install the clients
+        run: |
+          if [ "$LATEST" = "true" ]; then
+            sed -E 's/==.*//' tests/clients/requirements.txt > requirements-latest.txt
+            pip install -U -r requirements-latest.txt
+          else
+            pip install -r tests/clients/requirements.txt
+          fi
+          pip list 2>/dev/null | grep -iE "rwslib|fhirclient|dicomweb|hl7|pydicom"
 
       - run: pytest tests/clients -v
 
@@ -108,6 +127,10 @@ jobs:
       - name: Run VAPIL
         working-directory: tests/clients/veeva-vapil
         run: |
+          if [ "$LATEST" = "true" ]; then
+            version=$(curl -fsSL https://veeva.github.io/vault-api-library/maven/com/veeva/vault/vapil/maven-metadata.xml | sed -n 's:.*<release>\(.*\)</release>.*:\1:p')
+            mvn -B -q versions:set-property -Dproperty=vapil.version -DnewVersion="$version"
+          fi
           mvn -B -q compile dependency:build-classpath -Dmdep.outputFile=cp.txt
           java -Djavax.net.ssl.trustStore=../../../certs/trust.p12 -Djavax.net.ssl.trustStorePassword=changeit \
             -cp "target/classes:$(cat cp.txt)" dev.emuhealth.contract.VapilContract localhost:8443

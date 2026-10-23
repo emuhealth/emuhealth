@@ -118,6 +118,8 @@ describe("FHIR versions", () => {
     const role = (await req("/PractitionerRole")).body.entry[0].resource;
     expect(role.telecom).toBeUndefined();
     expect(role.contact[0].telecom[0].system).toBe("phone");
+    const pulseOx = (await req("/Observation?code=59408-5")).body.entry[0].resource;
+    expect(pulseOx.component.map((c: any) => c.code.coding[0].code)).toEqual(["3150-0"]);
     const location = (await req("/Location")).body.entry[0].resource;
     expect(location.telecom).toBeUndefined();
     expect(location.address).toBeDefined();
