@@ -63,9 +63,14 @@ jobs:
           working-directory: us-core-test-kit
           bundler-cache: true
 
+      # A first validation loads the FHIR packages, so warm the validator up until it answers with JSON.
       - name: Wait for the validator
         run: |
-          for i in $(seq 1 120); do code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/hl7validatorapi/ || true); [[ "$code" =~ ^[234] ]] && exit 0; sleep 5; done
+          body='{"cliContext":{"sv":"4.0.1","igs":["hl7.fhir.us.core#3.1.1"]},"filesToValidate":[{"fileName":"Patient.json","fileContent":"{\"resourceType\":\"Patient\"}","fileType":"json"}]}'
+          for i in $(seq 1 60); do
+            curl -s -m 300 -X POST -H 'Content-Type: application/json' -d "$body" http://localhost/hl7validatorapi/validate | grep -q '"outcomes"' && exit 0
+            sleep 10
+          done
           docker compose -f us-core-test-kit/docker-compose.background.yml logs hl7_validator_service | tail -50
           exit 1
 
@@ -74,9 +79,17 @@ jobs:
         run: |
           token=$(node ../tests/inferno/get-token.mjs "$FHIR_BASE")
           bundle exec inferno migrate
-          bundle exec inferno execute --suite us_core_v311 --groups 2 --outputter json \
-            --inputs "url:$FHIR_BASE" "patient_ids:syn-patient-001,syn-patient-002,syn-patient-003,syn-patient-004,syn-patient-005" \
-            "smart_auth_info:{\"access_token\":\"$token\"}" > ../inferno-results.json || true
+          run() {
+            bundle exec inferno execute --suite us_core_v311 --groups 2 --outputter json \
+              --inputs "url:$FHIR_BASE" "patient_ids:syn-patient-001,syn-patient-002,syn-patient-003,syn-patient-004,syn-patient-005" \
+              "smart_auth_info:{\"access_token\":\"$token\"}" > ../inferno-results.json || true
+          }
+          run
+          # A validator hiccup is not an emuhealth failure: try once more.
+          if grep -q "connect to validator\|Connection failed to validator\|Timeout while connecting to validator" ../inferno-results.json; then
+            echo "Validator connection error, running again"
+            run
+          fi
 
       - name: Check results
         run: node tests/inferno/check-results.mjs inferno-results.json --min 250
