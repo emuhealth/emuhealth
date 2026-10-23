@@ -213,6 +213,16 @@ describe("createEmulator", () => {
     await availity.close();
   });
 
+  it("starts the Dexcom emulator", async () => {
+    const dexcom = await createEmulator({ service: "dexcom", port: 14038 });
+    const login = await fetch(
+      `${dexcom.url}/v2/oauth2/login?client_id=a&redirect_uri=http://localhost:3000/cb&response_type=code`,
+    );
+    expect(await login.text()).toContain("Sign in to Dexcom");
+    expect((await fetch(`${dexcom.url}/v3/users/self/devices`)).status).toBe(401);
+    await dexcom.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

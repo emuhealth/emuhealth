@@ -173,6 +173,13 @@ Availity:
   /availity/v2/service-reviews (278), /availity/availity-payer-list, /availity/v1/configurations; X-Api-Mock-Scenario-ID mocks.
   Docs: https://www.emuhealth.dev/docs/availity
 
+Dexcom:
+  'npx emuhealth --service dexcom' serves the Dexcom API at http://localhost:4119.
+  OAuth: /v2/oauth2/login (pick a synthetic user), POST /v2/oauth2/token (authorization_code, refresh_token).
+  GET /v3/users/self/egvs?startDate=&endDate= (UTC, up to 30 days), events, devices, alerts, calibrations, dataRange.
+  Register apps under dexcom.clients; with none, any client id and redirect URI works.
+  Docs: https://www.emuhealth.dev/docs/dexcom
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

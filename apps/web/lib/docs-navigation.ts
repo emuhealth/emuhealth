@@ -42,6 +42,7 @@ export const docsSections: NavSection[] = [
       { name: "Azure Health Data Services", href: "/docs/azurehealth" },
       { name: "Stedi", href: "/docs/stedi" },
       { name: "Availity", href: "/docs/availity" },
+      { name: "Dexcom", href: "/docs/dexcom" },
     ],
   },
   {
