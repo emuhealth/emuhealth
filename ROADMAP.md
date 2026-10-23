@@ -121,7 +121,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 ## Phase 8: FHIR and coverage depth
 
-- [ ] Conditional create, read, update, and delete in fhir-core, advertised in the CapabilityStatement
+- [x] Conditional create, read, update, and delete in fhir-core, advertised in the CapabilityStatement ([#78](https://github.com/emuhealth/emuhealth/pull/78))
 - [ ] FHIR API behavior tests (CRUD, search, history, Bundles, conditional interactions) run on R4, R4B, and R5; Inferno has no base R4B or R5 kit
 - [ ] Writes to an R5 server convert the R4 shapes the R5 converter knows and reject other R4-only elements with an OperationOutcome
 - [ ] Scheduled CI run of the fidelity gates with the latest validator and client versions, plus terminology checks against tx.fhir.org
