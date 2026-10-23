@@ -1,0 +1,58 @@
+---
+title: "NPPES NPI Registry"
+---
+
+An emulator of the CMS [NPPES NPI Registry API](https://npiregistry.cms.hhs.gov/api-page) for apps that look up providers by NPI, name, or location. It runs on `http://localhost:4106` by default with the same `/api/` endpoint, parameters, and response shapes, over synthetic providers.
+
+```bash
+npx emuhealth --service nppes
+curl 'http://localhost:4106/api/?version=2.1&city=springfield&state=IL&limit=5'
+```
+
+Point your client at `http://localhost:4106/api/` instead of `https://npiregistry.cms.hhs.gov/api/`.
+
+## Search parameters
+
+| Parameter | Meaning |
+|-----------|---------|
+| `version` | Required, `2.1` |
+| `number` | A 10 digit NPI |
+| `enumeration_type` | `NPI-1` (individuals) or `NPI-2` (organizations) |
+| `first_name`, `last_name`, `organization_name` | Whole names, case-insensitive; a trailing `*` after at least two characters matches a prefix |
+| `taxonomy_description` | Text in the provider's taxonomy description, such as `family medicine` or `hospital` |
+| `address_purpose` | `LOCATION`, `MAILING`, or `PRIMARY`, for the address parameters below |
+| `city`, `state`, `postal_code`, `country_code` | Address filters; `postal_code` matches a prefix |
+| `limit`, `skip` | Page size (default 10, at most 200) and offset (at most 1000) |
+
+At least one of `number`, a name, `taxonomy_description`, `city`, or `postal_code` is required; `state` alone is not enough.
+
+## Responses and errors
+
+Results use the registry's shape: `result_count` and `results`, each with `number`, `enumeration_type`, `basic` (names, credential, sex, dates, status, or organization name and authorized official), `addresses` (mailing and location), `taxonomies`, and empty `identifiers`, `endpoints`, `other_names`, and `practiceLocations`.
+
+Errors come back as `{ "Errors": [{ "description", "field", "number" }] }`, as the registry does: `Unsupported Version` when `version` is missing or not `2.1`, and `No valid search criteria provided` without a search field.
+
+## Synthetic data
+
+40 individual providers and 15 organizations are generated from a seed, in the cities the [FHIR patient generator](/docs/fhir#synthetic-patients) uses, with fictional `555-01xx` phone numbers. Their NPIs have valid check digits but start with `0`, which no real NPI does, so lookups never collide with a real provider.
+
+Taxonomy codes are placeholders such as `SYNTH0001X` with plain descriptions (`Family Medicine`, `General Acute Care Hospital`). The NUCC provider taxonomy is licensed for use in the United States only, so emuhealth does not bundle it; add providers with the codes you need in your own config.
+
+## Seed config
+
+```yaml
+nppes:
+  generate:
+    individuals: 40 # 0 to 2000
+    organizations: 15 # 0 to 1000
+    seed: 1
+  providers:
+    - number: "0999999990"
+      enumeration_type: NPI-1
+      basic:
+        first_name: JAMIE
+        last_name: EXAMPLE
+        credential: M.D.
+```
+
+`generate: false` starts empty. A provider with an existing `number` replaces it.

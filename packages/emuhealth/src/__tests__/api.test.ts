@@ -87,6 +87,13 @@ describe("createEmulator", () => {
     await ncbi.close();
   });
 
+  it("starts the NPPES NPI Registry emulator", async () => {
+    const nppes = await createEmulator({ service: "nppes", port: 14025 });
+    const res = await fetch(`${nppes.url}/api/?version=2.1&city=springfield&limit=1`);
+    expect(((await res.json()) as { result_count: number }).result_count).toBe(1);
+    await nppes.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",
