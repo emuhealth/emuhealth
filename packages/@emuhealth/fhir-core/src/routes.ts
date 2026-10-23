@@ -8,6 +8,7 @@ import { registerFhirInspector } from "./inspector.js";
 import { lookupCode, validateCode } from "./terminology.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
 import { guardedOperations } from "./operations.js";
+import { conditionalCreate, conditionalDelete, conditionalUpdate } from "./conditional.js";
 import { NDJSON, deleteExportJob, exportManifest, getExportJob, startExport, type ExportJob } from "./bulk.js";
 import { parseTypes, patientEverything } from "./everything.js";
 import {
@@ -282,6 +283,12 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     return options.searchBundle ? options.searchBundle(result, type) : result;
   }
 
+  /** Search used to match conditional criteria, with the request's access applied. */
+  const conditionalSearch =
+    (guard: AccessGuard) =>
+    (type: string, params: Array<[string, string]>): FhirResource =>
+      searchBundle(type, params, false, guard);
+
   async function bundle(c: AnyContext): Promise<Response> {
     const body = await readJson(c, ["application/fhir+json", "application/json"]);
     const prefer = c.req.header("Prefer");
@@ -532,9 +539,24 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     `${basePath}/${TYPE}`,
     handle(async (c) => {
       const type = c.req.param("type");
-      const operations = ops(c);
-      const result = operations.create(type, await readJson(c, ["application/fhir+json", "application/json"]));
-      return writeResponse(c, result, type);
+      const guard = access(c);
+      const operations = guardedOperations(fhir(), guard);
+      const body = await readJson(c, ["application/fhir+json", "application/json"]);
+      const ifNoneExist = c.req.header("If-None-Exist");
+      if (!ifNoneExist) return writeResponse(c, operations.create(type, body), type);
+      const outcome = conditionalCreate(operations, conditionalSearch(guard), type, body, ifNoneExist);
+      if ("created" in outcome) return writeResponse(c, outcome.created, type);
+      const { existing } = outcome;
+      return writeResponse(
+        c,
+        {
+          created: false,
+          resource: existing.resource,
+          versionId: existing.versionId,
+          lastUpdated: existing.lastUpdated,
+        },
+        type,
+      );
     }),
   );
 
@@ -546,7 +568,46 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       const ifNoneMatch = c.req.header("If-None-Match");
       if (ifNoneMatch && ifNoneMatch.replace(/^W\//, "") === `"${record.version_id}"`)
         return c.body(null, 304, headers);
+      // HTTP dates have whole seconds, so compare at that precision.
+      const ifModifiedSince = Date.parse(c.req.header("If-Modified-Since") ?? "");
+      if (!ifNoneMatch && !Number.isNaN(ifModifiedSince))
+        if (Math.floor(Date.parse(record.last_updated) / 1000) <= Math.floor(ifModifiedSince / 1000))
+          return c.body(null, 304, headers);
       return fhirJson(c, record.resource, 200, headers);
+    }),
+  );
+
+  // Conditional update and delete address the type with search criteria instead of an id.
+  app.put(
+    `${basePath}/${TYPE}`,
+    handle(async (c) => {
+      const type = c.req.param("type");
+      const guard = access(c);
+      const body = await readJson(c, ["application/fhir+json", "application/json"]);
+      const params: Array<[string, string]> = [...new URL(c.req.url).searchParams];
+      const result = conditionalUpdate(
+        guardedOperations(fhir(), guard),
+        conditionalSearch(guard),
+        type,
+        params,
+        body,
+        c.req.header("If-Match"),
+      );
+      return writeResponse(c, result, type);
+    }),
+  );
+  app.delete(
+    `${basePath}/${TYPE}`,
+    handle((c) => {
+      const guard = access(c);
+      const params: Array<[string, string]> = [...new URL(c.req.url).searchParams];
+      const { versionId } = conditionalDelete(
+        guardedOperations(fhir(), guard),
+        conditionalSearch(guard),
+        c.req.param("type"),
+        params,
+      );
+      return c.body(null, 204, versionId ? { ETag: `W/"${versionId}"` } : {});
     }),
   );
 

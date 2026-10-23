@@ -51,6 +51,23 @@ curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://
 curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observation:subject'
 ```
 
+## Conditional interactions
+
+Each interaction matches with a search that respects the request's SMART access. More than one match returns `412` with issue code `multiple-matches`.
+
+- **Create**: `POST /:type` with an `If-None-Exist: identifier=system|value` header creates the resource only when nothing matches. When one resource matches, it is returned with `200` and nothing is created.
+- **Update**: `PUT /:type?<criteria>` updates the one match. With no match, it creates the resource, keeping the `id` from the body if there is one. An `id` that differs from the match returns `400`.
+- **Delete**: `DELETE /:type?<criteria>` deletes the one match. No match is a successful no-op (`204`). Criteria are required.
+- **Read**: `If-None-Match` with the current ETag, or `If-Modified-Since` at or after the last update, returns `304`.
+
+```bash
+curl -X PUT 'http://localhost:4100/Patient?identifier=urn:example:mrn|12345' \
+  -H 'Content-Type: application/fhir+json' \
+  -d '{"resourceType":"Patient","identifier":[{"system":"urn:example:mrn","value":"12345"}],"name":[{"family":"Example"}]}'
+```
+
+The CapabilityStatement reports `conditionalCreate`, `conditionalUpdate`, `conditionalRead: full-support`, and `conditionalDelete: single`.
+
 ## Batch and transaction
 
 `POST /` (the base URL) with a `batch` or `transaction` Bundle. Each entry has a `request` with `method` and `url`, relative (`Patient/123`) or absolute on this server.
@@ -59,7 +76,7 @@ curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observat
 - **batch**: entries run independently in order. The `batch-response` has a status for every entry, and failed entries carry an `OperationOutcome` in `response.outcome`.
 - **transaction**: all or nothing. Entries run in FHIR order (deletes, creates, updates and patches, then reads) and the `transaction-response` lists results in request order. If any entry fails, every change is rolled back and the response is that entry's `OperationOutcome` with its status.
 - In a transaction, references to an entry's `fullUrl` (such as `urn:uuid:...`) are rewritten to the new `Type/id`. `request.ifNoneExist` makes a create conditional: one match reuses it (`200`), more than one fails with `412`.
-- Two entries that change the same resource are rejected with `400`. Conditional update and delete (`PUT Patient?identifier=...`) are not supported.
+- Two entries that change the same resource are rejected with `400`. Entries can be conditional updates and deletes (`PUT Patient?identifier=...`, `DELETE Patient?identifier=...`), as described below. In a transaction, a conditional update resolves its match before any entry runs, so other entries can reference its `fullUrl`.
 
 ```json
 {
