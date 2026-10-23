@@ -115,6 +115,13 @@ describe("createEmulator", () => {
     await redcap.close();
   });
 
+  it("starts the Oracle Health emulator under the tenant path", async () => {
+    const cerner = await createEmulator({ service: "cerner", port: 14028 });
+    const res = await fetch(`${cerner.url}/r4/5e7e0000-0000-4000-8000-000000000001/Patient/syn-patient-001`);
+    expect(res.status).toBe(200);
+    await cerner.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

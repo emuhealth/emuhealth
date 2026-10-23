@@ -32,6 +32,7 @@ export const docsSections: NavSection[] = [
       { name: "NPPES NPI Registry", href: "/docs/nppes" },
       { name: "Benchling", href: "/docs/benchling" },
       { name: "REDCap", href: "/docs/redcap" },
+      { name: "Oracle Health (Cerner)", href: "/docs/cerner" },
     ],
   },
   {

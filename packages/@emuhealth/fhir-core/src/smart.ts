@@ -65,6 +65,11 @@ export interface SmartRouteOptions {
   paths?: Partial<SmartPaths>;
   /** Vendor-specific fields to add to authorization code and refresh token responses. */
   tokenExtras?: (grant: SmartTokenGrant) => Record<string, unknown>;
+  /**
+   * Also allow client_credentials for confidential clients registered with a client_secret, for vendors whose
+   * system accounts use a shared secret instead of a JWT assertion (Oracle Health). Default false.
+   */
+  clientCredentialsWithSecret?: boolean;
 }
 
 /** What a token response is issued for, as passed to `tokenExtras`. */
@@ -148,7 +153,8 @@ export function setSmartConfig(store: Store, config: SmartConfig): void {
   for (const [i, client] of (config.clients ?? []).entries()) {
     if (typeof client?.client_id !== "string" || !client.client_id)
       throw new Error(`fhir.smart.clients[${i}].client_id is required`);
-    const backend = client.jwks !== undefined || client.jwks_uri !== undefined;
+    // Backend clients (keys) and system accounts (a secret, for vendors that allow it) need no redirect URIs.
+    const backend = client.jwks !== undefined || client.jwks_uri !== undefined || client.client_secret !== undefined;
     if (client.jwks !== undefined && !Array.isArray(client.jwks?.keys))
       throw new Error(`fhir.smart.clients[${i}].jwks must be a JWKS object with a keys array`);
     if (client.jwks_uri !== undefined && !/^https?:\/\//.test(client.jwks_uri))
@@ -156,7 +162,9 @@ export function setSmartConfig(store: Store, config: SmartConfig): void {
     if (client.redirect_uris !== undefined && !Array.isArray(client.redirect_uris))
       throw new Error(`fhir.smart.clients[${i}].redirect_uris must be an array`);
     if (!backend && (client.redirect_uris ?? []).length === 0)
-      throw new Error(`fhir.smart.clients[${i}].redirect_uris needs at least one URI (or jwks for a backend client)`);
+      throw new Error(
+        `fhir.smart.clients[${i}].redirect_uris needs at least one URI (or jwks or a client_secret for a backend client)`,
+      );
   }
   store.setData("fhir.smart.config", config);
 }
@@ -658,8 +666,10 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
     if (authError) return oauthError(c, "invalid_client", authError, 401);
 
     if (params.grant_type === "client_credentials") {
-      // SMART Backend Services: asymmetric clients only, system scopes only, short-lived tokens, no refresh.
-      if (!asymmetric)
+      // SMART Backend Services: asymmetric clients (or, where the vendor allows it, authenticated secret clients),
+      // system scopes only, short-lived tokens, no refresh.
+      const secretClient = options.clientCredentialsWithSecret && Boolean(findClient(clientId).client?.client_secret);
+      if (!asymmetric && !secretClient)
         return oauthError(c, "invalid_client", "client_credentials needs private_key_jwt client authentication.", 401);
       const client = findClient(clientId).client;
       const scope = [...scopes(filterScope(params.scope ?? "", client))]

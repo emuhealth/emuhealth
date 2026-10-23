@@ -182,6 +182,13 @@
       "ogTitle": "REDCap | emuhealth",
       "headings": ["Requests", "Content types", "Records", "Synthetic project", "Seed config"]
     },
+    "/docs/cerner": {
+      "title": "Oracle Health (Cerner) | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/cerner",
+      "ogTitle": "Oracle Health (Cerner) | emuhealth",
+      "headings": ["URLs", "OAuth and personas", "System accounts", "Required search parameters", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

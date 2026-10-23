@@ -1,0 +1,71 @@
+---
+title: "Oracle Health (Cerner)"
+---
+
+An emulator of the Oracle Health (Cerner) Millennium FHIR R4 API for apps that will connect to Millennium. It runs on `http://localhost:4109` by default and serves the full [FHIR R4](/docs/fhir) server under Millennium's tenant URL shape, with the same generated synthetic patients. emuhealth is not affiliated with Oracle, and the emulator holds synthetic data only.
+
+```bash
+npx emuhealth --service cerner
+curl 'http://localhost:4109/r4/5e7e0000-0000-4000-8000-000000000001/Patient/syn-patient-001'
+```
+
+## URLs
+
+The emulator has one synthetic tenant, `5e7e0000-0000-4000-8000-000000000001`.
+
+| What | URL |
+|------|-----|
+| FHIR base | `http://localhost:4109/r4/{tenant}` |
+| SMART discovery | `http://localhost:4109/r4/{tenant}/.well-known/smart-configuration` |
+| Authorize (provider persona) | `http://localhost:4109/tenants/{tenant}/protocols/oauth2/profiles/smart-v1/personas/provider/authorize` |
+| Authorize (patient persona) | `.../smart-v1/personas/patient/authorize` |
+| Token | `.../smart-v1/token` |
+| EHR launch simulator | `http://localhost:4109/r4/{tenant}/auth/launch?launch_uri=<your app launch URL>` |
+| Inspector | `http://localhost:4109/_inspector` |
+
+Everything in the [FHIR R4 docs](/docs/fhir) works under the FHIR base. Other tenant paths return `404`.
+
+## OAuth and personas
+
+SMART App Launch (standalone and EHR launch, PKCE, v1 and v2 scopes, `openid fhirUser`) works as on the [FHIR R4 server](/docs/fhir#smart-app-launch). The patient persona's authorize URL redirects to the same flow, which shows the patient picker for `launch/patient`. Token responses add `tenant` and, when a practitioner signs in, `username` and `user` with the practitioner's id.
+
+## System accounts
+
+Millennium system accounts get tokens with the client credentials grant and a client secret, not a signed JWT. Register the account with a `client_secret` (and optionally a `scope` limit), then call the token endpoint with Basic auth:
+
+```bash
+curl -u my-system-account:synthetic-secret \
+  -d grant_type=client_credentials -d scope=system/Patient.read \
+  http://localhost:4109/tenants/5e7e0000-0000-4000-8000-000000000001/protocols/oauth2/profiles/smart-v1/token
+```
+
+Signed JWT assertions (SMART Backend Services) work too, for clients registered with keys.
+
+## Required search parameters
+
+Like Millennium, searches on clinical types need at least one identifying parameter, or they get `400` with an OperationOutcome that lists the options:
+
+| Type | One of |
+|------|--------|
+| Observation, Condition, DiagnosticReport, DocumentReference, Procedure, CarePlan | `patient`, `subject`, `_id` |
+| AllergyIntolerance, MedicationRequest, Immunization, Goal, CareTeam, Device | `patient`, `_id` |
+| Encounter | `patient`, `subject`, `_id`, `identifier` |
+| Patient | `_id`, `identifier`, `name`, `family`, `given`, `birthdate`, `phone`, `email`, `address-postalcode` |
+| Provenance | `target`, `_id` |
+
+Other types, such as Practitioner and Organization, search without restrictions.
+
+## Seed config
+
+The `cerner` key takes the same options as `fhir` (`generate`, `resources`, `smart`, `terminology`):
+
+```yaml
+cerner:
+  smart:
+    clients:
+      - client_id: my-millennium-app
+        redirect_uris: ["http://localhost:3000/callback"]
+      - client_id: my-system-account
+        client_secret: synthetic-secret
+        scope: system/Patient.read system/Observation.read
+```
