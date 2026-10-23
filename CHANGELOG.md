@@ -1,6 +1,28 @@
 # Changelog
 
 <!-- release:start -->
+## 0.3.0
+
+The first health emulator: a stateful FHIR R4 server. Run it with `npx emuhealth --service fhir` on `http://localhost:4100`. Synthetic data only, never real patient data.
+
+### New Features
+
+- **FHIR R4 server**: create, read, vread, update (including create on update), JSON Patch, and logical delete for every R4 resource type, with `meta.versionId`, `ETag`, `If-Match` (412 on conflict), `If-None-Match`, `Prefer: return=minimal`, and instance, type, and system `_history`. Errors are `OperationOutcome` resources. Seed synthetic resources under `fhir.resources` in the config (#19)
+- **FHIR search**: `GET /:type` and `POST /:type/_search` with `_id`, `_lastUpdated`, and the common string, token, date, and reference parameters of the main US Core resources, modifiers (`:exact`, `:contains`, `:not`, `:text`, `:missing`, `:Type`), date prefixes, `_sort`, `_count` paging, `_summary=count`, and `Prefer: handling=strict` (#20)
+- **Includes and chained search**: `_include`, `_revinclude`, `:iterate`, and chained parameters such as `patient.family` (#21)
+- **Batch and transaction Bundles**: `POST /` with a Bundle. Transactions are all or nothing, rewrite `urn:uuid:` references to the new ids, and support conditional create with `ifNoneExist` (#22)
+- **CapabilityStatement** at `/metadata`, generated from what the server supports, so FHIR clients that check it on connect work out of the box. Paths that are not FHIR interactions return an `OperationOutcome` 404 (#24)
+
+### Documentation
+
+- FHIR R4 page on the [docs site](https://www.emuhealth.dev/docs/fhir) and a `fhir` agent skill (#19)
+
+### Testing
+
+- Longer timeout for the cold-start `createEmulator` test, which was timing out on busy CI runners (#23)
+
+<!-- release:end -->
+
 ## 0.2.0
 
 ### New Features
@@ -14,8 +36,6 @@
 - **Emulator pages link to emuhealth**: the header links, "Powered by emuhealth" footer, and page titles in every emulator UI point to emuhealth (#17)
 - **Docs at [www.emuhealth.dev](https://www.emuhealth.dev)**: CLI help and the README link to the new docs site (#17)
 - **Agent skill renamed** from `emulate` to `emuhealth` (#17)
-
-<!-- release:end -->
 
 ## 0.1.1
 
