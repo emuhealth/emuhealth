@@ -19,6 +19,7 @@ import {
   type SearchContext,
 } from "./search.js";
 import { getFhirStore, type FhirHistoryRecord, type FhirResource, type WriteResult } from "./store.js";
+import { getFhirVersion, mimeVersion, setFhirVersion, DEFAULT_FHIR_VERSION, type FhirVersion } from "./version.js";
 
 export const FHIR_JSON = "application/fhir+json; charset=utf-8";
 
@@ -42,6 +43,8 @@ export interface FhirRouteOptions {
   searchBundle?: (bundle: FhirResource, type: string) => FhirResource;
   /** Path of the HTML inspector (default /_inspector), or false to leave it out. */
   inspectorPath?: string | false;
+  /** FHIR version to serve (decision 0016). Without it the store's version applies, 4.0.1 by default. */
+  fhirVersion?: FhirVersion;
 }
 
 const TYPE = ":type{[A-Z][A-Za-z]+}";
@@ -57,8 +60,21 @@ const STATUS_TEXT: Record<FhirHistoryRecord["method"], string> = {
 // Context is generic over the app env; the routes only use env-independent members.
 type AnyContext = Context<any, any>;
 
+/** The JSON media type, with a fhirVersion parameter when the server is not on the default R4 (decision 0016). */
+function fhirJsonType(c: AnyContext): string {
+  const version = c.get("fhirVersion") as FhirVersion | undefined;
+  return version && version !== DEFAULT_FHIR_VERSION
+    ? `application/fhir+json; fhirVersion=${mimeVersion(version)}; charset=utf-8`
+    : FHIR_JSON;
+}
+
 function fhirJson(c: AnyContext, body: unknown, status = 200, headers: Record<string, string> = {}): Response {
-  return c.body(JSON.stringify(body), status, { "Content-Type": FHIR_JSON, ...headers });
+  return c.body(JSON.stringify(body), status, { "Content-Type": fhirJsonType(c), ...headers });
+}
+
+/** The fhirVersion parameter values in a media type header (Accept may list several types). */
+function requestedVersions(header: string | undefined): string[] {
+  return [...(header ?? "").matchAll(/fhirVersion\s*=\s*"?([0-9.]+)"?/gi)].map((m) => m[1]);
 }
 
 function versionHeaders(versionId: number, lastUpdated: string): Record<string, string> {
@@ -102,6 +118,35 @@ function handle(handler: (c: AnyContext) => Promise<Response> | Response) {
 export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRouteOptions): void {
   const basePath = (options.basePath ?? "").replace(/\/+$/, "");
   const base = `${options.baseUrl.replace(/\/+$/, "")}${basePath}`;
+  if (options.fhirVersion) setFhirVersion(store, options.fhirVersion);
+
+  // fhirVersion negotiation (decision 0016): one version per server; asking for another one is an error.
+  app.use(`${basePath}/:fhirPath{.*}`, async (c: AnyContext, next: () => Promise<void>) => {
+    const version = getFhirVersion(store);
+    c.set("fhirVersion", version);
+    const wanted = mimeVersion(version);
+    const accepted = requestedVersions(c.req.header("Accept"));
+    if (accepted.length && !accepted.includes(wanted))
+      return fhirJson(
+        c,
+        operationOutcome(
+          "not-supported",
+          `This server serves FHIR ${wanted}; it cannot return fhirVersion ${accepted.join(", ")}`,
+        ),
+        406,
+      );
+    const sent = requestedVersions(c.req.header("Content-Type"));
+    if (sent.length && sent[0] !== wanted)
+      return fhirJson(
+        c,
+        operationOutcome(
+          "not-supported",
+          `This server accepts FHIR ${wanted}; the request body is fhirVersion ${sent[0]}`,
+        ),
+        415,
+      );
+    await next();
+  });
   const fhir = () => getFhirStore(store);
   const searchContext = (): SearchContext => {
     const current = fhir();
@@ -278,6 +323,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
           base,
           software: options.software,
           description: options.description,
+          fhirVersion: getFhirVersion(store),
           oauth: {
             authorize: `${origin}${smartPaths.authorize}`,
             token: `${origin}${smartPaths.token}`,
@@ -287,6 +333,23 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
         }),
       ),
     ),
+  );
+
+  // $versions: the one version this server serves.
+  app.get(
+    `${basePath}/$versions`,
+    handle((c) => {
+      const version = mimeVersion(getFhirVersion(store));
+      if (/application\/json/.test(c.req.header("Accept") ?? "") && !/fhir\+json/.test(c.req.header("Accept") ?? ""))
+        return c.json({ versions: [version], default: version });
+      return fhirJson(c, {
+        resourceType: "Parameters",
+        parameter: [
+          { name: "version", valueCode: version },
+          { name: "default", valueCode: version },
+        ],
+      });
+    }),
   );
 
   function everything(c: AnyContext, id?: string): Response {
@@ -305,7 +368,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     const offset = parseCount(query.get("_getpagesoffset") ?? undefined) ?? 0;
     const records = patientEverything(store, ids, {
       since: query.get("_since") ?? undefined,
-      types: parseTypes(query.get("_type") ?? undefined),
+      types: parseTypes(query.get("_type") ?? undefined, fhir().version),
     }).filter((r) => guard.allows(r, "r"));
     const path = `${base}/Patient${id ? `/${id}` : ""}/$everything`;
     const link = (pageOffset: number) => {

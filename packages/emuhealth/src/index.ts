@@ -37,6 +37,7 @@ FHIR R4:
   Starts with 5 generated synthetic patients; fhir.generate sets patients, seed, and referenceDate, or false for none.
   Terminology fixtures: GET /CodeSystem/$lookup and /CodeSystem/$validate-code; fhir.terminology: false leaves them out.
   Load extra synthetic resources under fhir.resources.
+  fhir.fhirVersion: R4B or R5 serves that version (resource types, CapabilityStatement, generated data); GET /$versions.
   SMART App Launch: /.well-known/smart-configuration, /auth/authorize (patient and practitioner pickers),
   /auth/token (PKCE S256), /auth/launch (EHR launch simulator). Register clients under fhir.smart.clients.
   Presented tokens are enforced (scopes, patient compartment); fhir.smart.required: true requires a token everywhere.

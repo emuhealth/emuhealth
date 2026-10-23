@@ -1,4 +1,4 @@
-import { R4_RESOURCE_TYPES } from "./resource-types.js";
+import { resourceTypesFor, type FhirVersion } from "./resource-types.js";
 import { SEARCH_PARAMS, searchParamsFor } from "./search-params.js";
 import type { FhirResource } from "./store.js";
 
@@ -11,6 +11,8 @@ export interface CapabilityOptions {
   description?: string;
   /** SMART on FHIR OAuth endpoints, advertised in rest.security. */
   oauth?: { authorize: string; token: string; introspect?: string; revoke?: string };
+  /** FHIR version served (default 4.0.1). */
+  fhirVersion?: FhirVersion;
 }
 
 const TYPE_INTERACTIONS = [
@@ -42,6 +44,8 @@ function searchRevIncludes(type: string): string[] {
 /** A CapabilityStatement describing exactly what fhir-core implements. */
 export function buildCapabilityStatement(options: CapabilityOptions): FhirResource {
   const software = options.software ?? { name: "emuhealth" };
+  const fhirVersion = options.fhirVersion ?? "4.0.1";
+  const release = fhirVersion === "5.0.0" ? "R5" : fhirVersion === "4.3.0" ? "R4B" : "R4";
   return {
     resourceType: "CapabilityStatement",
     status: "active",
@@ -51,11 +55,11 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
     software,
     implementation: {
       description:
-        options.description ?? "emuhealth FHIR R4 emulator for development and testing. Synthetic data only.",
+        options.description ?? `emuhealth FHIR ${release} emulator for development and testing. Synthetic data only.`,
       url: options.base,
     },
     instantiates: ["http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data"],
-    fhirVersion: "4.0.1",
+    fhirVersion,
     format: ["application/fhir+json", "json"],
     patchFormat: ["application/json-patch+json"],
     rest: [
@@ -89,7 +93,7 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
               },
             }
           : {}),
-        resource: [...R4_RESOURCE_TYPES].map((type) => ({
+        resource: [...resourceTypesFor(fhirVersion)].sort().map((type) => ({
           type,
           interaction: TYPE_INTERACTIONS.map((code) => ({ code })),
           versioning: "versioned-update",
@@ -130,7 +134,10 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
             : {}),
         })),
         interaction: [{ code: "transaction" }, { code: "batch" }, { code: "history-system" }],
-        operation: [{ name: "export", definition: "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/export" }],
+        operation: [
+          { name: "export", definition: "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/export" },
+          { name: "versions", definition: "http://hl7.org/fhir/OperationDefinition/CapabilityStatement-versions" },
+        ],
       },
     ],
   };

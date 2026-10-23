@@ -25,3 +25,4 @@ Rules:
 | [0013](0013-inferno-acceptance-gate.md) | Inferno acceptance gate | Accepted |
 | [0014](0014-vendor-layers-over-fhir-core.md) | Vendor layers over fhir-core | Accepted |
 | [0015](0015-non-http-listeners.md) | Non-HTTP listeners | Accepted |
+| [0016](0016-fhir-r4b-and-r5.md) | FHIR R4B and R5 | Accepted |

@@ -45,7 +45,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | history | `GET /:type/:id/_history`, `GET /:type/_history`, `GET /_history` with `_count` and `_since` |
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 | batch, transaction | `POST /` with a `batch` or `transaction` Bundle |
-| capabilities | `GET /metadata` returns the CapabilityStatement |
+| capabilities | `GET /metadata` returns the CapabilityStatement; `GET /$versions` the FHIR version |
 | terminology | `GET /CodeSystem/$lookup?system=&code=` and `GET /CodeSystem/$validate-code?url=&code=[&display=]` on fixture CodeSystems (ICD-10-CM, ICD-10-PCS, RxNorm, CVX, CDC race and ethnicity, LOINC, UCUM subsets with the generator's codes) or your own; `fhir.terminology: false` leaves fixtures out |
 | inspector | `GET /_inspector` in a browser: resources by type with versions, recent changes, SMART clients and tokens, exports |
 | bulk export | `GET /$export`, `/Patient/$export`, `/Group/:id/$export` with `Prefer: respond-async`: 202 + status URL, manifest with one NDJSON file per type; `_type`, `_since`, `_outputFormat`; `DELETE` status URL to remove |
@@ -113,6 +113,17 @@ curl -X PATCH http://localhost:4100/Patient/<id> \
   -H 'If-Match: W/"1"' \
   -d '[{"op":"replace","path":"/gender","value":"female"}]'
 ```
+
+## FHIR versions
+
+R4 (4.0.1) by default. `fhir.fhirVersion: R4B` (4.3.0) or `R5` (5.0.0) switches the server:
+
+- resource types follow that version (R5 adds `DeviceAssociation`, `SubscriptionTopic`, and others);
+- the CapabilityStatement `fhirVersion` and `$versions` report it;
+- responses use `application/fhir+json; fhirVersion=5.0` (or `4.3`);
+- generated data is in R5 shape: Encounter `actualPeriod`, `class` list, `reason`; MedicationRequest `medication.concept`; Procedure `occurrenceDateTime`; DeviceAssociation for devices.
+
+On every version, `Accept` with another `fhirVersion` returns 406 and a body with another `fhirVersion` returns 415. Resources you write are stored as sent, without conversion.
 
 ## Errors
 

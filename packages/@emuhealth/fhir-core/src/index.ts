@@ -5,6 +5,8 @@ import { getFhirStore, type FhirResource } from "./store.js";
 import { generateSyntheticRecords, type GenerateOptions } from "./generator.js";
 import { seedTerminology, terminologyFixtures } from "./terminology.js";
 import { setSmartConfig, type SmartConfig } from "./smart.js";
+import { recordsForVersion } from "./r5.js";
+import { getFhirVersion, parseFhirVersion, setFhirVersion } from "./version.js";
 
 export { registerFhirRoutes, FHIR_JSON, type FhirRouteOptions } from "./routes.js";
 export { createFhirInstance, type FhirInstance, type FhirInstanceOptions } from "./instance.js";
@@ -58,7 +60,24 @@ export {
   type SmartTokenGrant,
   type SmartToken,
 } from "./smart.js";
-export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
+export {
+  R4_RESOURCE_TYPES,
+  R4B_RESOURCE_TYPES,
+  R5_RESOURCE_TYPES,
+  isR4ResourceType,
+  isResourceType,
+  resourceTypesFor,
+  type FhirVersion,
+} from "./resource-types.js";
+export {
+  DEFAULT_FHIR_VERSION,
+  getFhirVersion,
+  setFhirVersion,
+  parseFhirVersion,
+  mimeVersion,
+  releaseName,
+} from "./version.js";
+export { toR5, recordsForVersion } from "./r5.js";
 export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,
@@ -102,17 +121,32 @@ export interface FhirSeedConfig {
   smart?: SmartConfig;
   /** Terminology fixture CodeSystems (default true); false leaves them out. */
   terminology?: boolean;
+  /** FHIR version to serve: 4.0.1 (R4, the default), 4.3.0 (R4B), or 5.0.0 (R5). */
+  fhirVersion?: string;
 }
 
 /** Write generated records into the store, keeping their ids. */
 export function seedSyntheticRecords(store: Store, options: GenerateOptions = {}): number {
   const fhir = getFhirStore(store);
-  const records = generateSyntheticRecords(options);
+  const records = recordsForVersion(generateSyntheticRecords(options), getFhirVersion(store));
   for (const resource of records) fhir.update(resource.resourceType, resource.id!, resource);
   return records.length;
 }
 
 export function seedFromConfig(store: Store, _baseUrl: string, config: FhirSeedConfig): void {
+  if (config.fhirVersion !== undefined) {
+    const version = parseFhirVersion(config.fhirVersion);
+    if (!version) throw new Error("fhir.fhirVersion must be 4.0.1 (R4), 4.3.0 (R4B), or 5.0.0 (R5)");
+    if (version !== getFhirVersion(store)) {
+      setFhirVersion(store, version);
+      // The plugin seed generated the default population in the old version's shape.
+      if (config.generate === undefined) {
+        getFhirStore(store).clear();
+        seedTerminology(store);
+        seedSyntheticRecords(store);
+      }
+    }
+  }
   const fhir = getFhirStore(store);
   if (config.smart !== undefined) setSmartConfig(store, config.smart);
   if (config.generate !== undefined) {
