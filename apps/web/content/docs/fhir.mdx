@@ -178,6 +178,17 @@ curl -X PUT http://localhost:4100/Patient/synthetic-patient-1 \
 
 History supports `_count` and `_since`. Deleted versions appear as entries with `request.method` `DELETE` and no resource.
 
+## Inspector
+
+Open `http://localhost:4100/_inspector` in a browser to see what is in the server:
+
+- **Resources:** every resource type with its count, the resources of a type, and each resource's current JSON with all of its versions
+- **Recent changes:** the latest 100 creates, updates, patches, and deletes
+- **SMART:** registered clients and live tokens (shortened), and whether tokens are required
+- **Exports:** Bulk Data jobs and links to their manifests
+
+The inspector does not need a token, even when `fhir.smart.required` is on. It only shows synthetic data you loaded or generated.
+
 ## Capability statement
 
 `GET /metadata` returns a `CapabilityStatement` (FHIR 4.0.1, JSON) generated from what the server implements: every R4 resource type with its interactions, versioning, supported search parameters, `searchInclude` and `searchRevInclude` values, plus the `batch`, `transaction`, and system history interactions. FHIR clients that check `/metadata` on connect work without extra setup.

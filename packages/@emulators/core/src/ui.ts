@@ -186,6 +186,8 @@ body{
 .inspector-table tbody tr{transition:background .1s;}
 .inspector-table tbody tr:hover{background:#0a3300;}
 .inspector-empty{color:#1a8c00;text-align:center;padding:20px 0;font-size:.8125rem;}
+.inspector-section a{color:#33ff00;text-decoration:underline;text-decoration-color:#1a8c00;text-underline-offset:2px;}
+.inspector-section a:hover{text-decoration-color:#33ff00;}
 
 .checkout-layout{
   display:flex;min-height:calc(100vh - 42px);

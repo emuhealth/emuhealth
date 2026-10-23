@@ -56,7 +56,7 @@ Package: `@emuhealth/fhir-core`
 - [x] SMART Backend Services: `client_credentials` with JWT client assertion ([#32](https://github.com/emuhealth/emuhealth/pull/32))
 - [x] Synthetic patient generator seeded from config (Patient, Encounter, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization) ([ADR 0009](docs/decisions/0009-synthetic-patient-generator.md)) ([#26](https://github.com/emuhealth/emuhealth/pull/26))
 - [ ] License-free terminology fixtures (RxNorm subset, ICD-10-CM, CVX, UCUM); LOINC and SNOMED only within their license terms
-- [ ] FHIR inspector page added to `core/src/ui.ts`
+- [x] FHIR inspector page added to `core/src/ui.ts` ([#34](https://github.com/emuhealth/emuhealth/pull/34))
 - [ ] Acceptance gate: relevant ONC Inferno tests (US Core, SMART App Launch) pass
 
 ## Phase 2: EHR and clinical vendors

@@ -43,7 +43,8 @@ These diverge from upstream on purpose and are where conflicts are most likely:
 | `packages/emuhealth/src/registry.ts`      | Merges `registry-health.ts` into `SERVICE_REGISTRY` |
 | `packages/emuhealth/src/{commands/start,project-runner,api}.ts` | Default ports via `defaultServicePort` |
 | `packages/emuhealth/src/{config-loader,base-url}.ts` | `emuhealth.config.*` and `EMUHEALTH_*` names ([decision 0007](decisions/0007-branded-config-and-env-names.md)) |
-| `packages/@emulators/core/src/ui.ts`      | emuhealth links in `emuBar()`, footer, and page titles |
+| `packages/@emulators/core/src/ui.ts`      | emuhealth links in `emuBar()`, footer, and page titles; `.inspector-section a` link style |
+| `packages/@emulators/core/src/index.ts`   | Exports `renderJsonDetails` for the FHIR inspector |
 | `packages/@emulators/core/src/debug.ts`   | Also reads `EMUHEALTH_DEBUG`                      |
 | `.github/workflows/release.yml`           | Publishes `emuhealth` and non-private `@emuhealth/*` only |
 | `pnpm-workspace.yaml`                     | Adds `packages/@emuhealth/*`                      |
