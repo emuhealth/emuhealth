@@ -1,0 +1,53 @@
+---
+title: "Redox"
+---
+
+An emulator of the [Redox](https://www.redoxengine.com) API for apps that exchange Redox JSON data models with EHRs. It runs on `http://localhost:4113` by default: your app sends data models to `/endpoint`, and the emulator plays the EHR side, answering queries from the same synthetic records as the [FHIR R4](/docs/fhir) server and sending events to your destinations. emuhealth is not affiliated with Redox.
+
+```bash
+npx emuhealth --service redox
+TOKEN=$(curl -s -X POST http://localhost:4113/auth/authenticate -H 'Content-Type: application/json' \
+  -d '{"apiKey":"synthetic-api-key","secret":"synthetic-secret"}' | jq -r .accessToken)
+curl -X POST http://localhost:4113/endpoint -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"Meta":{"DataModel":"PatientSearch","EventType":"Query"},"Patient":{"Identifiers":[{"ID":"SYN-000002","IDType":"MR"}]}}'
+```
+
+## Authentication
+
+- `POST /auth/authenticate` with `{ "apiKey", "secret" }` returns `accessToken`, `refreshToken`, and `expires` (24 hours). `POST /auth/refreshToken` with `{ "apiKey", "refreshToken" }` rotates them.
+- `POST /v2/auth/token` with `grant_type=client_credentials` (Basic auth, form fields, or a `client_assertion` JWT) returns an OAuth Bearer token.
+
+Any API key and secret work until you list `redox.sources`. `/endpoint` without a valid token gets `401`.
+
+## Sending data models
+
+`POST /endpoint` takes a Redox JSON message with `Meta.DataModel` and `Meta.EventType`. Successful responses echo `Meta` with `Message`, `Transmission`, `Source`, and an empty `Errors`; failures return `400` with `Meta.Errors[{ ID, Text, Type: "message", Module: "Send" }]`.
+
+| Data model and event | Behavior |
+|----------------------|----------|
+| `PatientSearch` `Query` | Finds a patient by `Patient.Identifiers` (MRN `SYN-000002` or EHR id `syn-patient-002`) or by `Demographics` (`FirstName`, `LastName`, `DOB`, `Sex`); returns `Patient` or `null` |
+| `ClinicalSummary` `PatientQuery` | Returns `Header` plus `Problems` (ICD-10), `Medications` (RxNorm), `Allergies`, `Immunizations` (CVX), and `VitalSigns` (LOINC) |
+| `PatientAdmin` `NewPatient`, `PatientUpdate` | Creates or updates the patient (visible to later queries and the FHIR data) |
+| `Scheduling` `New`, `Reschedule`, `Cancel` | Tracks visits by `Visit.VisitNumber`; duplicates and unknown visits are errors |
+| `Results`, `Notes`, `Media` `New` | Accepted for a known patient |
+
+## Receiving EHR events
+
+Register your endpoints under `redox.destinations`. `POST /ehr/send` with `{ "DataModel", "EventType", "patientId" }` (or the form at `/_inspector`) builds an EHR event for a synthetic patient and posts it to every destination subscribed to that data model, with Redox's `verification-token` header set to the destination's token. `Results` events carry the patient's lab results with LOINC codes; `Scheduling` events carry a visit.
+
+`POST /ehr/verify` with `{ "url", "verificationToken" }` runs Redox's destination verification: it calls your URL with `challenge` and `verification-token` and reports whether you echoed the challenge back.
+
+## Seed config
+
+The `redox` key also takes the `fhir` options (`generate`, `resources`) for the synthetic records.
+
+```yaml
+redox:
+  sources:
+    - apiKey: synthetic-api-key
+      secret: synthetic-secret
+  destinations:
+    - url: http://localhost:3000/redox
+      verificationToken: synthetic-verification-token
+      dataModels: [PatientAdmin, Results, Scheduling] # default: all
+```

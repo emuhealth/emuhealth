@@ -68,7 +68,7 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 - [x] athenahealth (proprietary REST plus FHIR) ([#49](https://github.com/emuhealth/emuhealth/pull/49))
 - [x] CMS Blue Button 2.0 (patient access OAuth, ExplanationOfBenefit, Coverage) ([#50](https://github.com/emuhealth/emuhealth/pull/50))
 - [x] CDS Hooks (discovery, simulated EHR firing `patient-view` and `order-sign`) ([#51](https://github.com/emuhealth/emuhealth/pull/51))
-- [ ] Redox (JSON data models, signed webhooks via `core/src/webhooks.ts`)
+- [x] Redox (JSON data models, signed webhooks via `core/src/webhooks.ts`) ([#52](https://github.com/emuhealth/emuhealth/pull/52))
 
 ## Phase 3: Cloud health data platforms
 

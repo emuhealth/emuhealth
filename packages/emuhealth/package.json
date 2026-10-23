@@ -62,6 +62,7 @@
   "devDependencies": {
     "@emulators/core": "workspace:*",
     "@emuhealth/fhir-core": "workspace:*",
+    "@emuhealth/redox": "workspace:*",
     "@emuhealth/cdshooks": "workspace:*",
     "@emuhealth/bluebutton": "workspace:*",
     "@emuhealth/athena": "workspace:*",

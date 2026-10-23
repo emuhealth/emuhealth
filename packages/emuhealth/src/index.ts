@@ -131,6 +131,13 @@ CDS Hooks:
   Sample CDS services at /cds-services (patient-greeting, allergy-check). Fire hooks from the form at /_inspector.
   Docs: https://www.emuhealth.dev/docs/cdshooks
 
+Redox:
+  'npx emuhealth --service redox' serves the Redox API at http://localhost:4113.
+  POST /auth/authenticate {apiKey, secret} (any pair unless redox.sources is set) or /v2/auth/token for a Bearer token.
+  POST /endpoint with Redox data models: PatientSearch Query, ClinicalSummary PatientQuery, PatientAdmin, Scheduling, Results.
+  POST /ehr/send {DataModel, EventType, patientId} delivers an EHR event to redox.destinations with verification-token.
+  Docs: https://www.emuhealth.dev/docs/redox
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

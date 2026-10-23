@@ -154,6 +154,17 @@ describe("createEmulator", () => {
     await cds.close();
   });
 
+  it("starts the Redox emulator", async () => {
+    const redox = await createEmulator({ service: "redox", port: 14032 });
+    const res = await fetch(`${redox.url}/auth/authenticate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey: "k", secret: "s" }),
+    });
+    expect(res.status).toBe(200);
+    await redox.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

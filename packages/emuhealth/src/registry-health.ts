@@ -16,6 +16,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "athena",
   "bluebutton",
   "cdshooks",
+  "redox",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -302,6 +303,28 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
     initConfig: {
       cdshooks: {
         services: ["http://localhost:3000/cds-services"],
+      },
+    },
+  },
+  redox: {
+    label: "Redox API emulator",
+    endpoints:
+      "Authentication (/auth/authenticate, /auth/refreshToken, /v2/auth/token), POST /endpoint for Redox JSON data models (PatientSearch Query, ClinicalSummary PatientQuery, PatientAdmin NewPatient and PatientUpdate, Scheduling New, Reschedule, Cancel, Results, Notes, Media) with Meta.Errors, destination webhooks with the verification-token header, the challenge handshake, and POST /ehr/send to simulate EHR events; synthetic records; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/redox");
+      return { plugin: mod.redoxPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "redox-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      redox: {
+        destinations: [
+          {
+            url: "http://localhost:3000/redox",
+            verificationToken: "synthetic-verification-token",
+          },
+        ],
       },
     },
   },
