@@ -217,6 +217,13 @@
       "ogTitle": "Redox | emuhealth",
       "headings": ["Authentication", "Sending data models", "Receiving EHR events", "Seed config"]
     },
+    "/docs/healthlake": {
+      "title": "AWS HealthLake | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/healthlake",
+      "ogTitle": "AWS HealthLake | emuhealth",
+      "headings": ["Credentials and signing", "Control plane", "Data plane", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

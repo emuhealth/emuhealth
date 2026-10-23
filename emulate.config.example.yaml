@@ -550,3 +550,15 @@ redox:
     - url: http://localhost:3000/redox
       verificationToken: synthetic-verification-token
       dataModels: [PatientAdmin, Results, Scheduling]
+
+healthlake:
+  region: us-east-1
+  accountId: "123456789012"
+  # Key pairs that verify; default: AWS's documented example pair
+  credentials:
+    - accessKeyId: AKIAIOSFODNN7EXAMPLE
+      secretAccessKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  # Datastores at startup; preload loads the synthetic population
+  datastores:
+    - name: synthetic
+      preload: true

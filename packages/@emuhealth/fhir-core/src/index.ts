@@ -7,6 +7,7 @@ import { seedTerminology, terminologyFixtures } from "./terminology.js";
 import { setSmartConfig, type SmartConfig } from "./smart.js";
 
 export { registerFhirRoutes, FHIR_JSON, type FhirRouteOptions } from "./routes.js";
+export { createFhirInstance, type FhirInstance, type FhirInstanceOptions } from "./instance.js";
 export {
   FhirStore,
   getFhirStore,

@@ -1,0 +1,55 @@
+---
+title: "AWS HealthLake"
+---
+
+An emulator of [AWS HealthLake](https://aws.amazon.com/healthlake/) for apps that create FHIR datastores and read and write FHIR R4 through them. It runs on `http://localhost:4114` by default and checks SigV4 signatures, so the AWS SDKs and CLI work against it with an endpoint override. emuhealth is not affiliated with Amazon Web Services.
+
+```bash
+npx emuhealth --service healthlake
+AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \
+  aws healthlake list-fhir-datastores --endpoint-url http://localhost:4114 --region us-east-1
+```
+
+## Credentials and signing
+
+Every request, control plane and data plane, must be signed with AWS Signature Version 4 for service `healthlake` (header signing). The emulator rebuilds the canonical request and checks the signature, the credential scope, and that `X-Amz-Date` is within 15 minutes. The default key pair is AWS's documented example, `AKIAIOSFODNN7EXAMPLE` / `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY`; list your own under `healthlake.credentials`.
+
+Failures use the AWS JSON error shape with `__type`: `MissingAuthenticationTokenException`, `UnrecognizedClientException` for an unknown key, and `InvalidSignatureException` for a bad signature or an expired request, all with `403`.
+
+## Control plane
+
+`POST /` with `X-Amz-Target: HealthLake.<Operation>` and a JSON body (`application/x-amz-json-1.0`), as the SDKs send it:
+
+| Operation | Notes |
+|-----------|-------|
+| `CreateFHIRDatastore` | `DatastoreTypeVersion` must be `R4`; `PreloadDataConfig.PreloadDataType: SYNTHEA` loads the synthetic population. Returns `CREATING`, and the datastore is usable right away |
+| `DescribeFHIRDatastore`, `ListFHIRDatastores`, `DeleteFHIRDatastore` | `ListFHIRDatastores` takes `Filter.DatastoreName` and `Filter.DatastoreStatus` |
+| `StartFHIRImportJob`, `StartFHIRExportJob` | Jobs complete immediately. The emulator does not read from or write to S3: load data through the FHIR API, and use the datastore's FHIR `$export` for NDJSON |
+| `DescribeFHIRImportJob`, `DescribeFHIRExportJob`, `ListFHIRImportJobs`, `ListFHIRExportJobs` | |
+
+Unknown datastores return `ResourceNotFoundException`, and invalid input `ValidationException`.
+
+## Data plane
+
+Each datastore serves the full [FHIR R4](/docs/fhir) API at its `DatastoreEndpoint`, `http://localhost:4114/datastore/{id}/r4/`, signed with SigV4. Datastores are isolated from each other. The emulator starts with datastore `5e7e0000000000000000000000000001`, preloaded with the 5 generated synthetic patients.
+
+```ts
+import { SignatureV4 } from "@smithy/signature-v4";
+// Sign FHIR requests for service "healthlake" and send them to
+// http://localhost:4114/datastore/5e7e0000000000000000000000000001/r4/Patient
+```
+
+## Seed config
+
+```yaml
+healthlake:
+  region: us-east-1
+  accountId: "123456789012"
+  credentials:
+    - accessKeyId: AKIAIOSFODNN7EXAMPLE
+      secretAccessKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  datastores: # replaces the default datastore
+    - name: synthetic
+      preload: true
+      id: 5e7e0000000000000000000000000001 # optional, 32 hexadecimal characters
+```

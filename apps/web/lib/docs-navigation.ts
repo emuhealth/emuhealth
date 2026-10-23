@@ -37,6 +37,7 @@ export const docsSections: NavSection[] = [
       { name: "CMS Blue Button 2.0", href: "/docs/bluebutton" },
       { name: "CDS Hooks", href: "/docs/cdshooks" },
       { name: "Redox", href: "/docs/redox" },
+      { name: "AWS HealthLake", href: "/docs/healthlake" },
     ],
   },
   {
