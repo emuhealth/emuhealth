@@ -1,10 +1,14 @@
 // Summarizes `inferno execute --outputter json` results and fails when any required test fails or errors.
 // Skipped and omitted tests are reported but allowed: they mean the synthetic data has no resources of that kind.
-// Usage: node tests/inferno/check-results.mjs results.json
+// Unfinished tests (wait, running, cancel) and runs with fewer than --min tests also fail, so a script that stalls
+// cannot pass.
+// Usage: node tests/inferno/check-results.mjs results.json [--min <tests>]
 // Tests listed in exceptions.json, by the last part of their id, are reported with the reason instead of failing.
 import { readFileSync } from "node:fs";
 
 const file = process.argv[2];
+const minIndex = process.argv.indexOf("--min");
+const min = minIndex === -1 ? 1 : Number(process.argv[minIndex + 1]);
 if (!file) throw new Error("Usage: check-results.mjs <results.json>");
 const text = readFileSync(file, "utf8");
 const results = JSON.parse(text.slice(text.indexOf("[")));
@@ -44,8 +48,10 @@ if (excepted.length > 0) {
 report("Optional tests that failed", optionalFailing);
 report("Skipped or omitted", skipped);
 
-if (tests.length === 0) {
-  console.error("No test results found");
+const unfinished = tests.filter((r) => ["wait", "running", "queued", "cancel"].includes(r.result));
+report("Unfinished", unfinished);
+if (tests.length < min) {
+  console.error(`\nOnly ${tests.length} test results, expected at least ${min}`);
   process.exit(1);
 }
-process.exit(failing.length > 0 ? 1 : 0);
+process.exit(failing.length > 0 || unfinished.length > 0 ? 1 : 0);

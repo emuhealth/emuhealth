@@ -79,7 +79,7 @@ jobs:
             "smart_auth_info:{\"access_token\":\"$token\"}" > ../inferno-results.json || true
 
       - name: Check results
-        run: node tests/inferno/check-results.mjs inferno-results.json
+        run: node tests/inferno/check-results.mjs inferno-results.json --min 250
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -151,7 +151,7 @@ jobs:
           cp smart_stu2_with_commands*expected*.json ../smart-results.json
 
       - name: Check results
-        run: node tests/inferno/check-results.mjs smart-results.json
+        run: node tests/inferno/check-results.mjs smart-results.json --min 60
 
       - uses: actions/upload-artifact@v4
         if: always()
