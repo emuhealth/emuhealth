@@ -19,12 +19,15 @@ export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
 export {
   parseSearch,
   runSearch,
+  resolveIncludes,
   dateRange,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   type ParsedSearch,
   type SearchOptions,
   type SearchResult,
+  type SearchContext,
+  type IncludeDirective,
 } from "./search.js";
 export {
   SEARCH_PARAMS,

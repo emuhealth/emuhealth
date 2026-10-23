@@ -236,3 +236,122 @@ describe("dateRange", () => {
     expect(dateRange("not a date")).toBeUndefined();
   });
 });
+
+describe("fhir-core _include, _revinclude, and chained search", () => {
+  // Synthetic records only.
+  const linked: FhirResource[] = [
+    { resourceType: "Organization", id: "org1", name: "Example Clinic" },
+    {
+      resourceType: "Practitioner",
+      id: "dr1",
+      identifier: [{ system: "urn:example:npi", value: "999" }],
+      name: [{ family: "House" }],
+    },
+    {
+      resourceType: "Patient",
+      id: "p1",
+      name: [{ family: "Example" }],
+      managingOrganization: { reference: "Organization/org1" },
+      generalPractitioner: [{ reference: "Practitioner/dr1" }],
+    },
+    { resourceType: "Patient", id: "p2", name: [{ family: "Other" }] },
+    {
+      resourceType: "Observation",
+      id: "o1",
+      status: "final",
+      code: { text: "A" },
+      subject: { reference: "Patient/p1" },
+    },
+    {
+      resourceType: "Observation",
+      id: "o2",
+      status: "final",
+      code: { text: "B" },
+      subject: { reference: "Patient/p1" },
+    },
+    {
+      resourceType: "Observation",
+      id: "o3",
+      status: "final",
+      code: { text: "C" },
+      subject: { reference: "Patient/p2" },
+    },
+    { resourceType: "Condition", id: "c1", code: { text: "D" }, subject: { reference: "Patient/p2" } },
+  ];
+  let app: Hono;
+  beforeEach(() => {
+    app = new Hono();
+    const store = new Store();
+    fhirPlugin.register(app as never, store, new WebhookDispatcher(), base);
+    seedFromConfig(store, base, { resources: linked });
+  });
+
+  async function entries(path: string, headers: Record<string, string> = {}) {
+    const res = await get(app, path, headers);
+    expect(res.status).toBe(200);
+    const bundle = await res.json();
+    return {
+      bundle,
+      match: bundle.entry
+        .filter((e: any) => e.search.mode === "match")
+        .map((e: any) => `${e.resource.resourceType}/${e.resource.id}`),
+      include: bundle.entry
+        .filter((e: any) => e.search.mode === "include")
+        .map((e: any) => `${e.resource.resourceType}/${e.resource.id}`),
+    };
+  }
+
+  it("_include adds referenced resources once, as include entries", async () => {
+    const { bundle, match, include } = await entries("/Observation?status=final&_include=Observation:patient");
+    expect(match).toEqual(["Observation/o1", "Observation/o2", "Observation/o3"]);
+    expect(include).toEqual(["Patient/p1", "Patient/p2"]);
+    expect(bundle.total).toBe(3);
+    expect(bundle.link[0].url).toBe(`${base}/Observation?status=final&_include=Observation%3Apatient`);
+  });
+
+  it("_include respects a target type and only includes for the current page", async () => {
+    expect((await entries("/Observation?_include=Observation:subject:Practitioner")).include).toEqual([]);
+    const paged = await entries("/Observation?_count=1&_include=Observation:patient");
+    expect(paged.match).toEqual(["Observation/o1"]);
+    expect(paged.include).toEqual(["Patient/p1"]);
+  });
+
+  it("_revinclude adds resources that point at the matches", async () => {
+    const { match, include } = await entries("/Patient?_id=p1&_revinclude=Observation:subject");
+    expect(match).toEqual(["Patient/p1"]);
+    expect(include).toEqual(["Observation/o1", "Observation/o2"]);
+    const both = await entries("/Patient?_revinclude=Observation:patient&_revinclude=Condition:patient");
+    expect(both.include).toEqual(["Observation/o1", "Observation/o2", "Observation/o3", "Condition/c1"]);
+  });
+
+  it(":iterate follows includes from included resources", async () => {
+    const once = await entries("/Observation?_id=o1&_include=Observation:patient&_include=Patient:organization");
+    expect(once.include).toEqual(["Patient/p1"]);
+    const iterated = await entries(
+      "/Observation?_id=o1&_include=Observation:patient&_include:iterate=Patient:organization&_include:iterate=Patient:general-practitioner",
+    );
+    expect(iterated.include).toEqual(["Patient/p1", "Organization/org1", "Practitioner/dr1"]);
+  });
+
+  it("chained parameters filter through references", async () => {
+    expect((await entries("/Observation?patient.family=exam")).match).toEqual(["Observation/o1", "Observation/o2"]);
+    expect((await entries("/Observation?subject:Patient.name=other")).match).toEqual(["Observation/o3"]);
+    expect((await entries("/Observation?subject.family=nobody")).match).toEqual([]);
+    expect((await entries("/Patient?general-practitioner.identifier=urn:example:npi|999")).match).toEqual([
+      "Patient/p1",
+    ]);
+    expect((await entries("/Observation?patient.organization.name=example")).match).toEqual([
+      "Observation/o1",
+      "Observation/o2",
+    ]);
+  });
+
+  it("ignores unsupported include and chain values unless strict", async () => {
+    expect((await entries("/Observation?_include=Observation:status")).include).toEqual([]);
+    expect((await entries("/Observation?_include=Patient:organization")).include).toEqual([]);
+    expect((await entries("/Observation?status.family=x")).match).toHaveLength(3);
+    const strict = { Prefer: "handling=strict" };
+    expect((await get(app, "/Observation?_include=Observation:status", strict)).status).toBe(400);
+    expect((await get(app, "/Observation?status.family=x", strict)).status).toBe(400);
+  });
+});
