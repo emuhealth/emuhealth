@@ -51,7 +51,7 @@ Package: `@emuhealth/fhir-core`
 - [x] `batch` and `transaction` Bundles ([#22](https://github.com/emuhealth/emuhealth/pull/22))
 - [x] `OperationOutcome` errors and `CapabilityStatement` at `/metadata` ([#24](https://github.com/emuhealth/emuhealth/pull/24))
 - [x] `Patient/$everything` ([#27](https://github.com/emuhealth/emuhealth/pull/27))
-- [ ] Bulk Data `$export` with NDJSON output
+- [x] Bulk Data `$export` with NDJSON output ([#33](https://github.com/emuhealth/emuhealth/pull/33))
 - [x] SMART App Launch: EHR and standalone launch, PKCE, v1 and v2 scopes, `.well-known/smart-configuration`, patient and practitioner picker built on `renderUserButton` ([ADR 0010](docs/decisions/0010-smart-app-launch.md)) ([#29](https://github.com/emuhealth/emuhealth/pull/29), [#30](https://github.com/emuhealth/emuhealth/pull/30))
 - [x] SMART Backend Services: `client_credentials` with JWT client assertion ([#32](https://github.com/emuhealth/emuhealth/pull/32))
 - [x] Synthetic patient generator seeded from config (Patient, Encounter, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization) ([ADR 0009](docs/decisions/0009-synthetic-patient-generator.md)) ([#26](https://github.com/emuhealth/emuhealth/pull/26))
