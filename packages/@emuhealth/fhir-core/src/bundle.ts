@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { FhirError, operationOutcome } from "./outcome.js";
-import type { FhirResource, FhirStore, WriteResult } from "./store.js";
+import type { GuardedOperations } from "./operations.js";
+import type { FhirResource, WriteResult } from "./store.js";
 
 /** What batch and transaction processing needs from the server. */
 export interface BundleDeps {
-  fhir: FhirStore;
+  /** Store operations with the request's SMART access checks applied. */
+  ops: GuardedOperations;
   /** Base URL including any base path, without a trailing slash. */
   base: string;
   search(type: string, params: Array<[string, string]>): FhirResource;
@@ -98,7 +100,7 @@ function runEntry(entry: BundleEntry, deps: BundleDeps, assignedId?: string): En
   if (!method || !url) throw new FhirError(400, "required", "Entry needs request.method and request.url");
   const { segments, params } = parseUrl(url, deps.base);
   const [type, id, historySegment, versionId] = segments;
-  const { fhir } = deps;
+  const fhir = deps.ops;
 
   if (method === "GET" || method === "HEAD") {
     if (type === "_history" && segments.length === 1) return { status: 200, resource: deps.history(params) };
@@ -215,7 +217,7 @@ function processTransaction(entries: BundleEntry[], deps: BundleDeps): FhirResou
           throw new FhirError(412, "conflict", `entry[${index}] ifNoneExist matched ${found.length} ${type} resources`);
         if (found.length === 1) {
           const match = found[0].resource;
-          const record = deps.fhir.read(type, match.id!);
+          const record = deps.ops.read(type, match.id!);
           existing.set(index, {
             status: 200,
             resource: record.resource,

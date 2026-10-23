@@ -9,6 +9,8 @@ export interface CapabilityOptions {
   software?: { name: string; version?: string };
   /** Free text describing this server, for example the vendor being emulated. */
   description?: string;
+  /** SMART on FHIR OAuth endpoints, advertised in rest.security. */
+  oauth?: { authorize: string; token: string; introspect?: string; revoke?: string };
 }
 
 const TYPE_INTERACTIONS = [
@@ -58,7 +60,34 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
     rest: [
       {
         mode: "server",
-        documentation: "Requests are not authenticated. Load synthetic data only, never real patient data.",
+        documentation:
+          "SMART on FHIR tokens are enforced when presented; requests without a token have full access unless fhir.smart.required is on. Load synthetic data only, never real patient data.",
+        ...(options.oauth
+          ? {
+              security: {
+                cors: true,
+                service: [
+                  {
+                    coding: [
+                      {
+                        system: "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                        code: "SMART-on-FHIR",
+                      },
+                    ],
+                    text: "OAuth2 using SMART-on-FHIR profile",
+                  },
+                ],
+                extension: [
+                  {
+                    url: "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+                    extension: Object.entries(options.oauth)
+                      .filter(([, value]) => value)
+                      .map(([url, valueUri]) => ({ url, valueUri })),
+                  },
+                ],
+              },
+            }
+          : {}),
         resource: [...R4_RESOURCE_TYPES].map((type) => ({
           type,
           interaction: TYPE_INTERACTIONS.map((code) => ({ code })),

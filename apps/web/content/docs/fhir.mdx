@@ -20,7 +20,7 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 - `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
 - `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
 
-SMART App Launch is available (see below), but tokens are not enforced on FHIR requests yet: requests without a token have full access. Scope enforcement is on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md).
+Requests without a token have full access by default. Requests that present a SMART token are limited to its scopes and patient (see [SMART App Launch](#smart-app-launch)).
 
 ## Search
 
@@ -111,6 +111,8 @@ The server is also a SMART on FHIR authorization server, so SMART apps can launc
 - **EHR launch:** open `/auth/launch?launch_uri=<your app launch URL>` and pick a patient (or pass `patient`, `encounter`, and `practitioner` ids). The app receives `iss` and `launch`, and sending `launch` with the `launch` scope to `/auth/authorize` skips the pickers; the token carries `patient` and `encounter`.
 - **PKCE:** `S256` is required for public clients (`plain` is rejected). Set `fhir.smart.requirePkce: false` to allow public clients without it.
 - **Tokens:** access tokens last one hour. `offline_access` or `online_access` adds a refresh token; a refresh can narrow but not widen scopes. Tokens are cleared on reset.
+- **Enforcement:** a request that presents a SMART access token is held to it. Scopes grant interactions per resource type (`patient/Observation.rs` in v2, `patient/Observation.read` in v1, `*` for all types); interactions outside them get `403`. `patient/` scopes also limit reads, searches, history, `$everything`, includes, and Bundle entries to the token's patient: other patients' records look like `404`, and writes outside the patient get `403`. `user/` scopes are not limited to a patient. v2 granular scopes such as `patient/Observation.rs?category=laboratory` filter reads and searches. Unknown or expired tokens get `401` with `WWW-Authenticate: Bearer`.
+- **Strict mode:** requests without a token have full access by default, so quick start and `curl` keep working. Set `fhir.smart.required: true` to require a token on every FHIR request; `/metadata` and `/.well-known/smart-configuration` stay public. `/metadata` advertises the OAuth endpoints in `rest.security`.
 - **Clients:** any `client_id` and `redirect_uri` is accepted until you register clients. Registered clients are checked, confidential clients must send their secret (Basic auth or `client_secret`), and an optional `scope` limits what a client can be granted:
 
 ```yaml

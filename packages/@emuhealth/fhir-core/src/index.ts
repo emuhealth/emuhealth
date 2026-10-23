@@ -22,6 +22,17 @@ export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { patientEverything, type EverythingOptions } from "./everything.js";
 export {
+  parseScopes,
+  guardForToken,
+  resolveAccess,
+  inPatientCompartment,
+  UNRESTRICTED,
+  type AccessGuard,
+  type Interaction,
+  type ScopeGrant,
+} from "./access.js";
+export { guardedOperations, type GuardedOperations } from "./operations.js";
+export {
   registerSmartRoutes,
   findAccessToken,
   getSmartConfig,
