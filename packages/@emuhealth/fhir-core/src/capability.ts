@@ -72,6 +72,13 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
           searchInclude: searchIncludes(type),
           searchRevInclude: searchRevIncludes(type),
           searchParam: [...searchParamsFor(type).values()].map((d) => ({ name: d.name, type: d.type })),
+          ...(type === "Patient"
+            ? {
+                operation: [
+                  { name: "everything", definition: "http://hl7.org/fhir/OperationDefinition/Patient-everything" },
+                ],
+              }
+            : {}),
         })),
         interaction: [{ code: "transaction" }, { code: "batch" }, { code: "history-system" }],
       },

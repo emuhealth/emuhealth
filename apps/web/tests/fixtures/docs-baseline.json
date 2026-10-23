@@ -135,6 +135,7 @@
         "Resources",
         "Search",
         "Batch and transaction",
+        "Patient $everything",
         "Versioning",
         "History",
         "Capability statement",

@@ -19,6 +19,7 @@ export { FhirError, operationOutcome, type OperationOutcome, type IssueCode } fr
 export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
 export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
+export { patientEverything, type EverythingOptions } from "./everything.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
 export {
   generateSyntheticRecords,
