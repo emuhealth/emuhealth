@@ -19,7 +19,7 @@ npx emuhealth --service fhir
 # http://localhost:4100
 ```
 
-It starts with 5 generated synthetic patients (`Patient/syn-patient-001` and up) with encounters, vitals, conditions, medications, labs, allergies, and immunizations.
+It starts with 5 generated synthetic patients (`Patient/syn-patient-001` and up) covering every US Core 3.1.1 profile: encounters, vitals, smoking status, conditions, medications, labs and reports, notes, procedures, goals, care plans, care teams, allergies, immunizations, and a Provenance per patient. `syn-patient-004` is a two-year-old with pediatric growth data.
 
 Or programmatically:
 
@@ -46,7 +46,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 | batch, transaction | `POST /` with a `batch` or `transaction` Bundle |
 | capabilities | `GET /metadata` returns the CapabilityStatement |
-| terminology | `GET /CodeSystem/$lookup?system=&code=` and `GET /CodeSystem/$validate-code?url=&code=[&display=]` on fixture CodeSystems (ICD-10-CM, RxNorm, CVX, LOINC, UCUM subsets with the generator's codes) or your own; `fhir.terminology: false` leaves fixtures out |
+| terminology | `GET /CodeSystem/$lookup?system=&code=` and `GET /CodeSystem/$validate-code?url=&code=[&display=]` on fixture CodeSystems (ICD-10-CM, ICD-10-PCS, RxNorm, CVX, CDC race and ethnicity, LOINC, UCUM subsets with the generator's codes) or your own; `fhir.terminology: false` leaves fixtures out |
 | inspector | `GET /_inspector` in a browser: resources by type with versions, recent changes, SMART clients and tokens, exports |
 | bulk export | `GET /$export`, `/Patient/$export`, `/Group/:id/$export` with `Prefer: respond-async`: 202 + status URL, manifest with one NDJSON file per type; `_type`, `_since`, `_outputFormat`; `DELETE` status URL to remove |
 | $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |

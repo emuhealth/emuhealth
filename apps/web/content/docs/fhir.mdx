@@ -26,7 +26,7 @@ Requests without a token have full access by default. Requests that present a SM
 
 `GET /:type?<params>` and `POST /:type/_search` (form-encoded parameters) return a `searchset` Bundle with `total` and `self`, `next`, and `previous` links.
 
-- Every type supports `_id` and `_lastUpdated`. Patient, Practitioner, PractitionerRole, Organization, Location, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, DocumentReference, CarePlan, CareTeam, Goal, ServiceRequest, Coverage, Device, and Medication support their common parameters, such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, and `birthdate`.
+- Every type supports `_id` and `_lastUpdated`. Patient, Practitioner, PractitionerRole, Organization, Location, Provenance, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, DocumentReference, CarePlan, CareTeam, Goal, ServiceRequest, Coverage, Device, and Medication support their common parameters, such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, and `birthdate`.
 - **string**: accent- and case-insensitive prefix match; `:exact` and `:contains` are supported.
 - **token**: `code`, `system|code`, `|code`, or `system|`; `:not` and `:text` are supported.
 - **date**: partial dates cover their whole range (`2026`, `2026-02`); prefixes `eq`, `ne`, `lt`, `gt`, `le`, `ge`, `sa`, `eb`, and `ap`. Periods are matched as ranges.
@@ -199,9 +199,15 @@ Errors are `OperationOutcome` resources with a matching status: `400` for invali
 
 ## Synthetic patients
 
-A built-in generator creates a deterministic synthetic population: the same options always produce the same records, with readable ids like `Patient/syn-patient-001`. Each patient gets Encounters, vital sign Observations (heart rate, respiratory rate, temperature, oxygen saturation, blood pressure, height, weight), Conditions with matching MedicationRequests and labs (HbA1c, cholesterol), sometimes an AllergyIntolerance, and Immunizations. One Organization and two Practitioners are shared.
+A built-in generator creates a deterministic synthetic population: the same options always produce the same records, with readable ids like `Patient/syn-patient-001`. It covers every US Core 3.1.1 profile:
 
-Everything generated is tagged `urn:emuhealth:tag|synthetic`, uses `urn:emuhealth:synthetic:*` identifiers and fictional 555-01xx phone numbers, and codes from ICD-10-CM, RxNorm, CVX, and a small set of LOINC codes.
+- Patients with race, ethnicity, birth sex, language, and previous names and addresses. Every fifth patient, starting with the fourth, is a two-year-old, so the pediatric growth profiles have data.
+- Encounters with vital sign Observations (heart rate, respiratory rate, temperature, pulse oximetry, blood pressure, height, weight, and pediatric percentiles), smoking status, Conditions with matching MedicationRequests, lab Observations and DiagnosticReports (HbA1c, cholesterol), and sometimes an AllergyIntolerance.
+- Immunizations, a Procedure, a Goal, a CarePlan, a CareTeam, note DiagnosticReports, and DocumentReferences (one inline, one pointing at a `Binary`). Some patients also have an implanted Device or a declined vaccine.
+- A Provenance per patient that targets the whole record, so `_revinclude=Provenance:target` works.
+- One Organization, Location, and Endpoint, and two Practitioners with PractitionerRoles, are shared.
+
+Everything generated is tagged `urn:emuhealth:tag|synthetic`, uses `urn:emuhealth:synthetic:*` identifiers and fictional 555-01xx phone numbers, and codes from ICD-10-CM, ICD-10-PCS, RxNorm, CVX, CDC Race and Ethnicity, and a small set of LOINC codes. NPIs have a valid check digit but start with 0, which no real NPI does. Where US Core would use SNOMED CT or CPT, which emuhealth does not bundle, concepts carry the meaning in `text` with the data absent reason `unknown` code.
 
 ```yaml
 fhir:
@@ -215,7 +221,7 @@ Set `generate: false` to start without generated patients, and add `terminology:
 
 ## Terminology
 
-The server starts with five small CodeSystem fixtures (`content: fragment`) holding exactly the codes the generator uses: ICD-10-CM conditions, RxNorm medications and drug allergens, CVX vaccines, LOINC vital signs and labs, and UCUM units. They are not the full code systems. Each is tagged `urn:emuhealth:tag|terminology-fixture`, and LOINC and RxNorm attribution is in `THIRD_PARTY_NOTICES.md`.
+The server starts with seven small CodeSystem fixtures (`content: fragment`) holding exactly the codes the generator uses: ICD-10-CM conditions, ICD-10-PCS procedures, RxNorm medications and drug allergens, CVX vaccines, CDC race and ethnicity categories, LOINC vital signs, labs, and note types, and UCUM units. They are not the full code systems. Each is tagged `urn:emuhealth:tag|terminology-fixture`, and LOINC and RxNorm attribution is in `THIRD_PARTY_NOTICES.md`.
 
 - `GET /CodeSystem/$lookup?system=<url>&code=<code>` returns a `Parameters` resource with the display.
 - `GET /CodeSystem/$validate-code?url=<url>&code=<code>[&display=<text>]` returns `result`, the display, and a `message` when the code is unknown or the display does not match.

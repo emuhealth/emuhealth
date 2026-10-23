@@ -38,7 +38,7 @@ jobs:
 
       - name: Start the FHIR validator
         working-directory: us-core-test-kit
-        run: docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx redis
+        run: docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx
 
       - uses: pnpm/action-setup@v4
 
@@ -104,7 +104,9 @@ jobs:
 
       - name: Start Inferno background services
         working-directory: us-core-test-kit
-        run: docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx redis
+        run: |
+          docker compose -f docker-compose.background.yml up -d hl7_validator_service nginx
+          docker run -d --name redis -p 6379:6379 redis
 
       - uses: pnpm/action-setup@v4
 
@@ -137,6 +139,7 @@ jobs:
           bundle exec puma > ../inferno-web.log 2>&1 &
           bundle exec sidekiq -r ./worker.rb > ../inferno-worker.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://localhost:4567/api/test_suites > /dev/null && exit 0; sleep 2; done
+          docker ps -a
           cat ../inferno-web.log
           exit 1
 
