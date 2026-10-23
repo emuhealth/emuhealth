@@ -6,6 +6,7 @@ import { buildCapabilityStatement } from "./capability.js";
 import { registerSmartRoutes, type SmartPaths } from "./smart.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
 import { guardedOperations } from "./operations.js";
+import { NDJSON, deleteExportJob, exportManifest, getExportJob, startExport, type ExportJob } from "./bulk.js";
 import { parseTypes, patientEverything } from "./everything.js";
 import {
   DEFAULT_PAGE_SIZE,
@@ -317,6 +318,76 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   app.get(
     `${basePath}/Patient/${ID}/$everything`,
     handle((c) => everything(c, c.req.param("id"))),
+  );
+
+  // Bulk Data $export: kick-off returns 202 with a status URL; the emulator finishes jobs immediately.
+  function kickOff(c: AnyContext, level: "system" | "patient" | "group", groupId?: string): Response {
+    if (!/respond-async/.test(c.req.header("Prefer") ?? ""))
+      throw new FhirError(400, "required", "Bulk export needs the Prefer: respond-async header");
+    const job = startExport(store, fhir(), access(c), {
+      level,
+      groupId,
+      params: new URL(c.req.url).searchParams,
+      request: c.req.url,
+    });
+    return c.body(null, 202, { "Content-Location": `${base}/$export-status/${job.id}` });
+  }
+
+  /** Jobs started with a token can only be read with a token from the same client. */
+  function exportJob(c: AnyContext): ExportJob {
+    const job = getExportJob(store, c.req.param("job"));
+    if (!job) throw new FhirError(404, "not-found", "Unknown or deleted export job");
+    if (job.requiresAccessToken) {
+      const guard = access(c);
+      if (!guard.token)
+        throw new FhirError(401, "login", "This export needs an access token", {
+          "WWW-Authenticate": 'Bearer realm="fhir"',
+        });
+      if (guard.token.clientId !== job.clientId)
+        throw new FhirError(403, "forbidden", "This export belongs to another client");
+    }
+    return job;
+  }
+
+  app.get(
+    `${basePath}/$export`,
+    handle((c) => kickOff(c, "system")),
+  );
+  app.get(
+    `${basePath}/Patient/$export`,
+    handle((c) => kickOff(c, "patient")),
+  );
+  app.get(
+    `${basePath}/Group/${ID}/$export`,
+    handle((c) => kickOff(c, "group", c.req.param("id"))),
+  );
+  app.get(
+    `${basePath}/$export-status/:job`,
+    handle((c) => {
+      const job = exportJob(c);
+      return c.json(
+        exportManifest(job, (type) => `${base}/$export-file/${job.id}/${type}.ndjson`),
+        200,
+      );
+    }),
+  );
+  app.delete(
+    `${basePath}/$export-status/:job`,
+    handle((c) => {
+      const job = exportJob(c);
+      deleteExportJob(store, job.id);
+      return c.body(null, 202);
+    }),
+  );
+  app.get(
+    `${basePath}/$export-file/:job/:file{[A-Za-z]+\\.ndjson}`,
+    handle((c) => {
+      const job = exportJob(c);
+      const type = c.req.param("file").replace(/\.ndjson$/, "");
+      const text = job.files[type];
+      if (text === undefined) throw new FhirError(404, "not-found", `No ${type} file in this export`);
+      return c.body(text, 200, { "Content-Type": NDJSON });
+    }),
   );
 
   // POST to the base URL processes batch and transaction Bundles.
