@@ -1,0 +1,16 @@
+{
+  "name": "hl7v2-to-fhir-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulators": "npx emuhealth start --service fhir,hl7v2",
+    "start": "node src/server.ts",
+    "type-check": "tsc --noEmit",
+    "test": "node --test src/bridge.test.ts"
+  },
+  "devDependencies": {
+    "emuhealth": "workspace:*",
+    "typescript": "^5.7"
+  }
+}

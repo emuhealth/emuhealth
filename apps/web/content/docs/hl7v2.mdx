@@ -79,3 +79,7 @@ hl7v2:
 ```
 
 `generate: false` starts with an empty registry.
+
+## Example
+
+The [HL7 v2 to FHIR example](https://github.com/emuhealth/emuhealth/tree/main/examples/hl7v2-to-fhir) is an MLLP bridge that turns ADT and ORU messages into FHIR Patients and Observations. Its test uses this emulator's `/send` as the hospital feed and the [FHIR server](/docs/fhir) as the destination.

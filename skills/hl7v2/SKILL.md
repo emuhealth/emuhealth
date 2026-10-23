@@ -55,3 +55,5 @@ hl7v2:
 ```
 
 Docs: https://www.emuhealth.dev/docs/hl7v2
+
+Example: https://github.com/emuhealth/emuhealth/tree/main/examples/hl7v2-to-fhir (MLLP bridge from this emulator's `/send` into the FHIR server).
