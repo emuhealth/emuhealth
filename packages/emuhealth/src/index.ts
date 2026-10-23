@@ -201,6 +201,13 @@ Withings:
   /notify action=subscribe|list|revoke; POST /emulator/notify userid=&appli= sends a notification now.
   Docs: https://www.emuhealth.dev/docs/withings
 
+Terra:
+  'npx emuhealth --service terra' serves the Terra API at http://localhost:4123 (any dev-id and x-api-key headers).
+  POST /v2/auth/generateWidgetSession returns a connect URL; users pick a provider and a synthetic account.
+  GET /v2/{daily|sleep|activity|body}?user_id=&start_date=&end_date=&to_webhook=false for inline data;
+  otherwise data goes to terra.webhook, signed with terra-signature: t=<time>,v1=<HMAC-SHA256>.
+  Docs: https://www.emuhealth.dev/docs/terra
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

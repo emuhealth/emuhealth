@@ -60,6 +60,7 @@ Health and life science services use a fixed range starting at `http://localhost
 - **Fitbit** on `http://localhost:4120` (OAuth 2.0 with a consent page, and the Web API for profile, daily activity and time series, heart rate with intraday data, sleep stages, and weight, with Fitbit's scopes, error envelope, and rate limit headers, for synthetic users)
 - **Oura** on `http://localhost:4121` (OAuth 2.0 with a consent page, and API v2 `/v2/usercollection` documents: personal info, daily sleep, activity, readiness, and SpO2 with contributors and scores, sleep periods, and heart rate, with `next_token` paging and scope checks, for synthetic users)
 - **Withings** on `http://localhost:4122` (OAuth 2.0 with a consent page and `requesttoken`, Measure `getmeas` for weight, blood pressure, heart pulse, and SpO2, `getactivity`, Sleep `getsummary`, `getdevice`, and Notify subscriptions that call your callback URL, with Withings' status codes in HTTP 200 responses, for synthetic users)
+- **Terra** on `http://localhost:4123` (widget sessions and a connect page that link synthetic users to providers such as Fitbit, Oura, Withings, and Dexcom, normalized daily, sleep, activity, and body data returned inline or sent to your webhook, and `terra-signature` signed auth, deauth, and data events)
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 

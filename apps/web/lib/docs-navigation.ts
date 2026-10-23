@@ -46,6 +46,7 @@ export const docsSections: NavSection[] = [
       { name: "Fitbit", href: "/docs/fitbit" },
       { name: "Oura", href: "/docs/oura" },
       { name: "Withings", href: "/docs/withings" },
+      { name: "Terra", href: "/docs/terra" },
     ],
   },
   {
