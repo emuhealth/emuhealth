@@ -110,6 +110,15 @@ Apple HealthKit and Android Health Connect are on-device APIs and out of scope.
 - [x] Veeva Vault, Medidata Rave (APIs partly gated, check access first) ([#66](https://github.com/emuhealth/emuhealth/pull/66), [#67](https://github.com/emuhealth/emuhealth/pull/67))
 - [x] FHIR R4B and R5 support ([#68](https://github.com/emuhealth/emuhealth/pull/68))
 
+## Phase 7: Fidelity
+
+Prove the emulators match the real APIs. Third-party validators and clients run in CI only.
+
+- [ ] Validate generated and served FHIR R4, R4B, and R5 resources with the HL7 FHIR Validator in CI
+- [ ] Contract tests with official clients in CI: rwslib (Rave), fhirclient (FHIR), dicomweb-client (DICOMweb), python-hl7 (HL7 v2), the Vault API Postman collection (Veeva)
+- [ ] Settle flagged assumptions: Vault error HTTP status codes and Rave import reason codes, from authoritative sources or clearly labeled in docs
+- [ ] End-to-end examples in `examples/`: SMART on FHIR app against Epic, HL7 v2 feed into FHIR, EDC sync from Rave
+
 ## Suggested order
 
 1. Phase 0
