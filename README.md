@@ -57,6 +57,7 @@ Health and life science services use a fixed range starting at `http://localhost
 - **Stedi** on `http://localhost:4117` (the 2024-04-01 JSON clearinghouse APIs: eligibility (270/271) with 271-style benefits, professional claims (837P) that are adjudicated at once, claim status (276/277), 835 ERA reports, transactions, and payers, with synthetic payers and members)
 - **Availity** on `http://localhost:4118` (OAuth client credentials, the payer list and configurations, asynchronous Coverages (270/271) and Claim Statuses (276/277) that you poll until `statusCode` 4, Service Reviews (278), and the Demo plan's `X-Api-Mock-Scenario-ID` scenarios, with synthetic payers, members, and claims)
 - **Dexcom** on `http://localhost:4119` (OAuth 2.0 at `/v2/oauth2/login` and `/v2/oauth2/token`, and API v3 estimated glucose values every 5 minutes, events, devices, alerts, calibrations, and data range for synthetic G7 users)
+- **Fitbit** on `http://localhost:4120` (OAuth 2.0 with a consent page, and the Web API for profile, daily activity and time series, heart rate with intraday data, sleep stages, and weight, with Fitbit's scopes, error envelope, and rate limit headers, for synthetic users)
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 

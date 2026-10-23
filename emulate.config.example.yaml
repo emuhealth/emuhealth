@@ -612,3 +612,12 @@ dexcom:
   # Users from the synthetic patient generator
   generate:
     patients: 5
+
+fitbit:
+  # Registered apps; with none, any client id and redirect URI is accepted
+  clients:
+    - client_id: my-fitbit-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5

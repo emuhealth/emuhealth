@@ -259,6 +259,13 @@
       "ogTitle": "Dexcom | emuhealth",
       "headings": ["OAuth", "Data endpoints", "Synthetic glucose", "Seed config"]
     },
+    "/docs/fitbit": {
+      "title": "Fitbit | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/fitbit",
+      "ogTitle": "Fitbit | emuhealth",
+      "headings": ["OAuth", "Endpoints", "Errors and limits", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

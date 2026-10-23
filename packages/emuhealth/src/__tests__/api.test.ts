@@ -223,6 +223,13 @@ describe("createEmulator", () => {
     await dexcom.close();
   });
 
+  it("starts the Fitbit emulator", async () => {
+    const fitbit = await createEmulator({ service: "fitbit", port: 14039 });
+    const res = await fetch(`${fitbit.url}/1/user/-/profile.json`);
+    expect(((await res.json()) as { errors: Array<{ errorType: string }> }).errors[0].errorType).toBe("invalid_token");
+    await fitbit.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

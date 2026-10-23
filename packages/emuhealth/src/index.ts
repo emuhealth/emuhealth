@@ -180,6 +180,13 @@ Dexcom:
   Register apps under dexcom.clients; with none, any client id and redirect URI works.
   Docs: https://www.emuhealth.dev/docs/dexcom
 
+Fitbit:
+  'npx emuhealth --service fitbit' serves the Fitbit Web API at http://localhost:4120.
+  OAuth: /oauth2/authorize (pick a synthetic user), POST /oauth2/token (Basic auth), /oauth2/revoke.
+  /1/user/-/profile.json, /activities/date/{date}.json, /activities/{steps|distance|calories}/date/{date}/{period}.json,
+  /activities/heart/date/{date}/1d[/1min].json, /1.2/user/-/sleep/date/{date}.json, /body/log/weight/date/{date}.json.
+  Docs: https://www.emuhealth.dev/docs/fitbit
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

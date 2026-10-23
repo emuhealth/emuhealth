@@ -1,0 +1,50 @@
+---
+title: "Fitbit"
+---
+
+An emulator of the [Fitbit Web API](https://dev.fitbit.com/build/reference/web-api/) for apps that read activity, heart rate, sleep, and weight. It runs on `http://localhost:4120` by default with Fitbit's paths and response shapes, for synthetic users. emuhealth is not affiliated with Google or Fitbit.
+
+```bash
+npx emuhealth --service fitbit
+```
+
+Point your client at `http://localhost:4120` for both `https://www.fitbit.com` (authorization) and `https://api.fitbit.com`.
+
+## OAuth
+
+1. `GET /oauth2/authorize?client_id=&redirect_uri=&response_type=code&scope=activity heartrate profile sleep weight` shows a consent page with the synthetic users. Picking one redirects back with `code`. PKCE (`code_challenge`, S256) is supported.
+2. `POST /oauth2/token` with Basic auth (`client_id:client_secret`) and `grant_type=authorization_code`, `code`, and `redirect_uri` returns `access_token` (8 hours), `refresh_token`, `scope`, and `user_id`. `grant_type=refresh_token` rotates the refresh token. `POST /oauth2/revoke` revokes a token.
+
+Any client id and redirect URI work until you register apps under `fitbit.clients`.
+
+## Endpoints
+
+`-` means the token's user; that user's `encodedId` (such as `SYN002`) also works, and another user's id is `403`.
+
+| Endpoint | Scope |
+|----------|-------|
+| `GET /1/user/-/profile.json` | `profile` |
+| `GET /1/user/-/activities/date/{date}.json` (summary with steps, distances, calories, active minutes, resting heart rate) | `activity` |
+| `GET /1/user/-/activities/{steps\|distance\|calories\|minutesSedentary\|minutesVeryActive}/date/{date}/{period or end date}.json` | `activity` |
+| `GET /1/user/-/activities/heart/date/{date}/{period or end date}.json` (zones and resting heart rate) | `heartrate` |
+| `GET /1/user/-/activities/heart/date/{date}/1d/{1min\|5min\|15min}.json` (intraday) | `heartrate` |
+| `GET /1.2/user/-/sleep/date/{date}.json` and `/{start}/{end}.json` (stages, levels, summary; up to 100 days) | `sleep` |
+| `GET /1/user/-/body/log/weight/date/{date}.json` | `weight` |
+
+Dates are `yyyy-MM-dd` or `today`, and periods are `1d`, `7d`, `30d`, `1w`, `1m`, `3m`, `6m`, or `1y`. Data is deterministic per user and day, so tests can assert on it.
+
+## Errors and limits
+
+Errors use Fitbit's envelope, `{ "errors": [{ "errorType", "message" }], "success": false }`: `invalid_token` (401), `insufficient_scope` and `insufficient_permissions` (403), and `validation` (400) for bad dates or periods. Responses carry `fitbit-rate-limit-limit`, `fitbit-rate-limit-remaining`, and `fitbit-rate-limit-reset`.
+
+## Seed config
+
+```yaml
+fitbit:
+  clients:
+    - client_id: my-fitbit-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5
+```
