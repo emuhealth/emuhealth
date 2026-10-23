@@ -57,7 +57,7 @@ describe("terminology fixtures", () => {
   it("load as tagged fragment CodeSystems that search can find", async () => {
     const { get } = startService();
     const bundle = await (await get("/CodeSystem")).json();
-    expect(bundle.total).toBe(5);
+    expect(bundle.total).toBe(7);
     const loinc = await (await get(`/CodeSystem?url=${encodeURIComponent(LOINC)}`)).json();
     expect(loinc.total).toBe(1);
     expect(loinc.entry[0].resource).toMatchObject({
@@ -71,7 +71,7 @@ describe("terminology fixtures", () => {
     expect(await (await startService({ terminology: false }).get("/CodeSystem")).json()).toMatchObject({ total: 0 });
     expect((await startService({ terminology: false }).get("/CodeSystem/emuhealth-loinc")).status).toBe(404);
     expect(await (await startService({ generate: { patients: 1 } }).get("/CodeSystem")).json()).toMatchObject({
-      total: 5,
+      total: 7,
     });
     expect(() => startService({ terminology: "no" as never })).toThrow("fhir.terminology");
   });

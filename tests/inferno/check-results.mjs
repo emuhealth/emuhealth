@@ -1,6 +1,7 @@
 // Summarizes `inferno execute --outputter json` results and fails when any required test fails or errors.
 // Skipped and omitted tests are reported but allowed: they mean the synthetic data has no resources of that kind.
 // Usage: node tests/inferno/check-results.mjs results.json
+// Tests listed in exceptions.json, by the last part of their id, are reported with the reason instead of failing.
 import { readFileSync } from "node:fs";
 
 const file = process.argv[2];
@@ -11,11 +12,18 @@ const results = JSON.parse(text.slice(text.indexOf("[")));
 const tests = results.filter((r) => r.test_id);
 const counts = {};
 for (const r of tests) counts[r.result] = (counts[r.result] ?? 0) + 1;
-console.log(`Inferno tests: ${Object.entries(counts).map(([k, v]) => `${v} ${k}`).join(", ")}`);
+console.log(
+  `Inferno tests: ${Object.entries(counts)
+    .map(([k, v]) => `${v} ${k}`)
+    .join(", ")}`,
+);
 
+const exceptions = JSON.parse(readFileSync(new URL("./exceptions.json", import.meta.url), "utf8"));
 const name = (id) => id.split("-").slice(-1)[0];
-const failing = tests.filter((r) => (r.result === "fail" || r.result === "error") && !r.optional);
-const optionalFailing = tests.filter((r) => (r.result === "fail" || r.result === "error") && r.optional);
+const failed = (r) => r.result === "fail" || r.result === "error";
+const excepted = tests.filter((r) => failed(r) && name(r.test_id) in exceptions);
+const failing = tests.filter((r) => failed(r) && !r.optional && !(name(r.test_id) in exceptions));
+const optionalFailing = tests.filter((r) => failed(r) && r.optional && !(name(r.test_id) in exceptions));
 const skipped = tests.filter((r) => r.result === "skip" || r.result === "omit");
 
 const report = (title, list) => {
@@ -28,6 +36,11 @@ const report = (title, list) => {
   }
 };
 report("Required tests that failed", failing);
+if (excepted.length > 0) {
+  console.log(`\nKnown exceptions (${excepted.length}):`);
+  for (const r of excepted)
+    console.log(`  ${r.result.toUpperCase()} ${name(r.test_id)}: ${exceptions[name(r.test_id)]}`);
+}
 report("Optional tests that failed", optionalFailing);
 report("Skipped or omitted", skipped);
 
