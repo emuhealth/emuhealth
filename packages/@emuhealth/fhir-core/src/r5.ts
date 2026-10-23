@@ -137,6 +137,16 @@ function contacts(r: Json, moveAddress: boolean): Json {
   };
 }
 
+/**
+ * R5's vital signs profile binds component units to ucum-vitals-common, which has no L/min, so the US Core inhaled
+ * oxygen flow rate component on pulse oximetry is left out.
+ */
+function observation(r: Json): Json {
+  if (!r.component) return r;
+  const component = r.component.filter((c: Json) => !c.code?.coding?.some((x: Json) => x.code === "3151-8"));
+  return component.length === r.component.length ? r : { ...r, component };
+}
+
 /** R5 drops Device.patient; the link moves to a DeviceAssociation. */
 function device(r: Json): Json[] {
   const { patient, type, distinctIdentifier: _distinct, udiCarrier, ...rest } = r;
@@ -179,6 +189,8 @@ export function toR5(resources: FhirResource[]): FhirResource[] {
         return [endpoint(r) as FhirResource];
       case "Device":
         return device(r) as FhirResource[];
+      case "Observation":
+        return [observation(r) as FhirResource];
       case "CareTeam":
         return [careTeam(r) as FhirResource];
       case "AllergyIntolerance":
