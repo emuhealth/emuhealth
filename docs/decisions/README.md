@@ -22,3 +22,4 @@ Rules:
 | [0010](0010-smart-app-launch.md) | SMART App Launch | Accepted |
 | [0011](0011-terminology-fixtures.md) | Terminology fixtures | Accepted |
 | [0012](0012-delegated-merge-and-release-approval.md) | Delegated merge and release approval | Accepted |
+| [0013](0013-inferno-acceptance-gate.md) | Inferno acceptance gate | Accepted |

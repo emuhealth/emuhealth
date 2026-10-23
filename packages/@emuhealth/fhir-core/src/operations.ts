@@ -26,6 +26,8 @@ export function guardedOperations(fhir: FhirStore, guard: AccessGuard): GuardedO
   return {
     guard,
     read(type, id) {
+      // A token can always read the user it was issued to (its fhirUser claim).
+      if (guard.token?.fhirUser === `${type}/${id}`) return fhir.read(type, id);
       guard.require(type, "r");
       const record = fhir.read(type, id);
       if (!guard.allows(record.resource, "r")) throw hidden(type, id);

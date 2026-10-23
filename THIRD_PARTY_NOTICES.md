@@ -60,8 +60,9 @@ Medicine (NLM), National Institutes of Health, Department of Health and Human
 Services; NLM is not responsible for the product and does not endorse or
 recommend this or any other product.
 
-### ICD-10-CM and CVX
+### ICD-10-CM, ICD-10-PCS, CVX, and CDC Race and Ethnicity
 
-ICD-10-CM codes are published by the National Center for Health Statistics and
-CVX codes by the Centers for Disease Control and Prevention. Both are U.S.
-government works in the public domain.
+ICD-10-CM codes are published by the National Center for Health Statistics,
+ICD-10-PCS codes by the Centers for Medicare & Medicaid Services, and CVX codes
+and the Race and Ethnicity code set by the Centers for Disease Control and
+Prevention. All are U.S. government works in the public domain.

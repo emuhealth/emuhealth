@@ -81,6 +81,16 @@ function token(app: Hono, params: Record<string, string>, headers: Record<string
 }
 
 describe("SMART discovery", () => {
+  it("publishes OpenID Connect discovery for the id_token", async () => {
+    const res: JsonResponse = await createApp().request(`${base}/.well-known/openid-configuration`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      issuer: base,
+      jwks_uri: `${base}/.well-known/jwks.json`,
+      id_token_signing_alg_values_supported: ["RS256"],
+    });
+  });
+
   it("publishes smart-configuration and a JWKS", async () => {
     const app = createApp();
     const res: JsonResponse = await app.request(`${base}/.well-known/smart-configuration`);

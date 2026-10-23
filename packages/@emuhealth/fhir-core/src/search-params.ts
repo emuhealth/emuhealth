@@ -66,6 +66,9 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
     p("identifier", "token", ["identifier"]),
     p("name", "string", ["name", "alias"]),
     p("address", "string", ["address"]),
+    p("address-city", "string", ["address.city"]),
+    p("address-state", "string", ["address.state"]),
+    p("address-postalcode", "string", ["address.postalCode"]),
     p("organization", "reference", ["managingOrganization"], ["Organization"]),
   ],
   Observation: [
@@ -171,6 +174,12 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
   ],
   Device: [p("patient", "reference", ["patient"], ["Patient"]), p("type", "token", ["type"])],
   Medication: [p("code", "token", ["code"])],
+  Provenance: [
+    p("target", "reference", ["target"]),
+    p("patient", "reference", ["target"], ["Patient"]),
+    p("agent", "reference", ["agent.who"]),
+    p("recorded", "date", ["recorded"]),
+  ],
   CodeSystem: [
     p("url", "token", ["url"]),
     p("system", "token", ["url"]),

@@ -263,6 +263,21 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
     }),
   );
 
+  // OpenID Connect discovery for the id_token, relative to the issuer (the FHIR base URL).
+  app.get(`${basePath}/.well-known/openid-configuration`, (c) =>
+    c.json({
+      issuer: base,
+      jwks_uri: url(paths.jwks),
+      authorization_endpoint: url(paths.authorize),
+      token_endpoint: url(paths.token),
+      response_types_supported: ["code"],
+      subject_types_supported: ["public"],
+      id_token_signing_alg_values_supported: ["RS256"],
+      scopes_supported: ["openid", "fhirUser"],
+      claims_supported: ["iss", "sub", "aud", "exp", "iat", "nonce", "fhirUser"],
+    }),
+  );
+
   app.get(paths.jwks, async (c) => {
     const { publicKey } = await keyPairPromise;
     const jwk = await exportJWK(publicKey);

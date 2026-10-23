@@ -1,0 +1,10 @@
+# emuhealth config for the Inferno SMART App Launch gate: registers Inferno as a public app and as a backend
+# services client that signs its assertions with the keys Inferno publishes.
+fhir:
+  smart:
+    clients:
+      - client_id: inferno-public
+        redirect_uris:
+          - http://localhost:4567/custom/smart_stu2/redirect
+      - client_id: inferno-backend
+        jwks_uri: http://localhost:4567/custom/smart_stu2/.well-known/jwks.json

@@ -49,10 +49,15 @@ describe("generateSyntheticRecords", () => {
     expect(count("Encounter")).toBeGreaterThanOrEqual(12);
     expect(count("Observation")).toBeGreaterThanOrEqual(12 * 7);
     expect(count("Immunization")).toBeGreaterThanOrEqual(12);
+    expect(count("Provenance")).toBe(12);
     expect(generateSyntheticRecords({ patients: 0 }).map((r) => r.resourceType)).toEqual([
       "Organization",
+      "Location",
+      "Endpoint",
       "Practitioner",
+      "PractitionerRole",
       "Practitioner",
+      "PractitionerRole",
     ]);
   });
 
@@ -72,7 +77,9 @@ describe("generateSyntheticRecords", () => {
     const records = generateSyntheticRecords({ patients: 20, seed: 5, referenceDate: "2030-06-01" });
     for (const patient of records.filter((r) => r.resourceType === "Patient") as Array<FhirResource & any>) {
       const age = (Date.parse("2030-06-01") - Date.parse(patient.birthDate)) / (365.25 * 86_400_000);
-      expect(age).toBeGreaterThanOrEqual(18);
+      // Every fifth patient, starting with the fourth, is a two-year-old.
+      if (Number(patient.id.slice(-3)) % 5 === 4) expect(Math.floor(age)).toBe(2);
+      else expect(age).toBeGreaterThanOrEqual(18);
       expect(age).toBeLessThan(87);
       expect(patient.identifier[0].system).toBe("urn:emuhealth:synthetic:mrn");
       expect(patient.telecom[0].value).toMatch(/^555-01\d{2}$/);
@@ -109,7 +116,7 @@ describe("fhir service default population", () => {
   it("starts without generated patients with fhir.generate: false, and empty with terminology: false too", async () => {
     const noPatients = startService({ generate: false });
     expect(await noPatients.total("/Patient")).toBe(0);
-    expect(await noPatients.total("/CodeSystem")).toBe(5);
+    expect(await noPatients.total("/CodeSystem")).toBe(7);
     const empty = startService({ generate: false, terminology: false });
     expect(await empty.total("/_history")).toBe(0);
   });

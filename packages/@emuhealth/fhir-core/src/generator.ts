@@ -34,6 +34,14 @@ const CONDITION_CATEGORY = "http://terminology.hl7.org/CodeSystem/condition-cate
 const ALLERGY_CLINICAL = "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical";
 const ALLERGY_VERIFICATION = "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification";
 const MRN_SYSTEM = "urn:emuhealth:synthetic:mrn";
+const ICD10PCS = "http://www.cms.gov/Medicare/Coding/ICD10";
+const CDC_RACE_ETHNICITY = "urn:oid:2.16.840.1.113883.6.238";
+const NPI = "http://hl7.org/fhir/sid/us-npi";
+const DATA_ABSENT = "http://terminology.hl7.org/CodeSystem/data-absent-reason";
+const DATA_ABSENT_EXTENSION = "http://hl7.org/fhir/StructureDefinition/data-absent-reason";
+const US_CORE = "http://hl7.org/fhir/us/core/StructureDefinition";
+const ENCOUNTER_SYSTEM = "urn:emuhealth:synthetic:encounter";
+const DOCUMENT_SYSTEM = "urn:emuhealth:synthetic:document";
 
 const GIVEN = {
   female: ["Olivia", "Emma", "Ava", "Sophia", "Mia", "Amelia", "Harper", "Ella", "Grace", "Nora", "Maya", "Zoe"],
@@ -136,6 +144,44 @@ const VACCINES = [
   { code: "33", display: "pneumococcal polysaccharide vaccine, 23 valent" },
 ];
 
+// ICD-10-PCS procedure codes (public domain, published by CMS).
+const PROCEDURES = [
+  { code: "4A02X4Z", display: "Measurement of Cardiac Electrical Activity, External Approach" },
+  { code: "BW03ZZZ", display: "Plain Radiography of Chest" },
+  { code: "3E0234Z", display: "Introduction of Serum, Toxoid and Vaccine into Muscle, Percutaneous Approach" },
+];
+
+// OMB race and ethnicity categories from the CDC Race and Ethnicity code system (public domain).
+const RACES = [
+  { code: "2106-3", display: "White" },
+  { code: "2054-5", display: "Black or African American" },
+  { code: "2028-9", display: "Asian" },
+  { code: "1002-5", display: "American Indian or Alaska Native" },
+  { code: "2076-8", display: "Native Hawaiian or Other Pacific Islander" },
+];
+const ETHNICITIES = [
+  { code: "2135-2", display: "Hispanic or Latino" },
+  { code: "2186-5", display: "Not Hispanic or Latino" },
+];
+
+// Smoking status values are SNOMED CT in US Core, which emuhealth does not bundle (decision 0011), so the
+// generator records them as text only.
+const SMOKING_STATUS = ["Never smoked tobacco", "Former smoker", "Current every day smoker"];
+
+// LOINC clinical note types and report categories, which US Core expects a server to support.
+const NOTE_TYPES = [
+  { code: "11506-3", display: "Progress note" },
+  { code: "11488-4", display: "Consult note" },
+  { code: "18842-5", display: "Discharge summary" },
+  { code: "34117-2", display: "History and physical note" },
+  { code: "28570-0", display: "Procedure note" },
+];
+const NOTE_CATEGORIES = [
+  { code: "LP29708-2", display: "Cardiology" },
+  { code: "LP7839-6", display: "Pathology" },
+  { code: "LP29684-5", display: "Radiology" },
+];
+
 // LOINC codes for the vital signs and labs above, and the UCUM units their values use.
 const LOINC_CODES = [
   { code: "8867-4", display: "Heart rate" },
@@ -150,6 +196,14 @@ const LOINC_CODES = [
   { code: "29463-7", display: "Body weight" },
   { code: "4548-4", display: "Hemoglobin A1c/Hemoglobin.total in Blood" },
   { code: "2093-3", display: "Cholesterol [Mass/volume] in Serum or Plasma" },
+  { code: "3151-8", display: "Inhaled oxygen flow rate" },
+  { code: "3150-0", display: "Inhaled oxygen concentration" },
+  { code: "72166-2", display: "Tobacco smoking status" },
+  { code: "77606-2", display: "Weight-for-length Per age and sex" },
+  { code: "59576-9", display: "Body mass index (BMI) [Percentile] Per age and sex" },
+  { code: "8289-1", display: "Head Occipital-frontal circumference Percentile" },
+  ...NOTE_TYPES,
+  ...NOTE_CATEGORIES,
 ];
 const UCUM_CODES = [
   { code: "/min", display: "per minute" },
@@ -159,6 +213,7 @@ const UCUM_CODES = [
   { code: "cm", display: "centimeter" },
   { code: "kg", display: "kilogram" },
   { code: "mg/dL", display: "milligram per deciliter" },
+  { code: "L/min", display: "liter per minute" },
 ];
 
 export interface TerminologySubset {
@@ -189,6 +244,13 @@ export function generatorTerminology(): TerminologySubset[] {
     { system: CVX, name: "CVXSubset", title: "CVX (emuhealth subset)", concepts: VACCINES },
     { system: LOINC, name: "LOINCSubset", title: "LOINC (emuhealth subset)", concepts: LOINC_CODES },
     { system: UCUM, name: "UCUMSubset", title: "UCUM (emuhealth subset)", concepts: UCUM_CODES },
+    { system: ICD10PCS, name: "ICD10PCSSubset", title: "ICD-10-PCS (emuhealth subset)", concepts: PROCEDURES },
+    {
+      system: CDC_RACE_ETHNICITY,
+      name: "CDCRaceEthnicitySubset",
+      title: "CDC Race and Ethnicity (emuhealth subset)",
+      concepts: [...RACES, ...ETHNICITIES],
+    },
   ];
 }
 
@@ -237,7 +299,41 @@ const tagged = (resource: FhirResource): FhirResource => ({ ...resource, meta: {
 const loinc = (code: string, display: string) => ({ coding: [{ system: LOINC, code, display }], text: display });
 const quantity = (value: number, unit: string, code = unit) => ({ value, unit, system: UCUM, code });
 
-function category(code: "vital-signs" | "laboratory") {
+const absent = (code: string) => ({ extension: [{ url: DATA_ABSENT_EXTENSION, valueCode: code }] });
+/**
+ * A concept whose code would come from SNOMED CT or CPT, which emuhealth does not bundle (decision 0011).
+ * US Core says to use the "unknown" data absent reason code, with the meaning in text.
+ */
+const uncoded = (text: string) => ({ coding: [{ system: DATA_ABSENT, code: "unknown", display: "Unknown" }], text });
+const narrative = (text: string) => ({
+  status: "generated",
+  div: `<div xmlns="http://www.w3.org/1999/xhtml"><p>${text}</p></div>`,
+});
+const base64 = (text: string) => Buffer.from(text, "utf8").toString("base64");
+
+/**
+ * A synthetic NPI. It has a valid check digit, but starts with 0, and real NPIs start with 1 or 2,
+ * so it can never belong to a real provider.
+ */
+function syntheticNpi(serial: number): string {
+  const body = `0${String(serial).padStart(8, "0")}`;
+  // Luhn over the 80840 prefix plus the first nine digits, as the NPI standard defines.
+  const digits = `80840${body}`.split("").map(Number);
+  let sum = 0;
+  for (let i = 0; i < digits.length; i++) {
+    let d = digits[digits.length - 1 - i];
+    if (i % 2 === 0) {
+      d *= 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+  }
+  return `${body}${(10 - (sum % 10)) % 10}`;
+}
+
+function category(code: "vital-signs" | "laboratory" | "social-history") {
+  if (code === "social-history")
+    return [{ coding: [{ system: OBS_CATEGORY, code, display: "Social History" }], text: "Social History" }];
   const display = code === "vital-signs" ? "Vital Signs" : "Laboratory";
   return [{ coding: [{ system: OBS_CATEGORY, code, display }], text: display }];
 }
@@ -253,15 +349,49 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
     throw new Error("fhir.generate.referenceDate must be a date in YYYY-MM-DD form");
 
   const rng = new Random(seed);
+  // US Core content added later draws from its own stream, so the records above keep their values for a seed.
+  const extra = new Random(seed ^ 0x5eed);
   const out: FhirResource[] = [];
   const organization = "Organization/syn-organization-1";
+  const location = "Location/syn-location-1";
+  const clinicAddress = {
+    use: "work",
+    line: ["100 Main St"],
+    city: "Springfield",
+    state: "IL",
+    postalCode: "62701",
+    country: "US",
+  };
   out.push(
     tagged({
       resourceType: "Organization",
       id: "syn-organization-1",
+      identifier: [{ system: NPI, value: syntheticNpi(1) }],
       active: true,
       name: "Synthetic Health Clinic",
       telecom: [{ system: "phone", value: "555-0100", use: "work" }],
+      address: [clinicAddress],
+    }),
+    tagged({
+      resourceType: "Location",
+      id: "syn-location-1",
+      status: "active",
+      name: "Synthetic Health Clinic, Main Street",
+      telecom: [{ system: "phone", value: "555-0100", use: "work" }],
+      address: clinicAddress,
+      managingOrganization: { reference: organization },
+    }),
+    tagged({
+      resourceType: "Endpoint",
+      id: "syn-endpoint-1",
+      status: "active",
+      connectionType: {
+        system: "http://terminology.hl7.org/CodeSystem/endpoint-connection-type",
+        code: "hl7-fhir-rest",
+      },
+      name: "Synthetic Health Clinic FHIR endpoint",
+      payloadType: [{ text: "FHIR R4 resources" }],
+      address: "http://localhost:4100",
     }),
   );
   const practitioners = [1, 2].map((n) => {
@@ -271,9 +401,25 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
         resourceType: "Practitioner",
         id: `syn-practitioner-${n}`,
         active: true,
-        identifier: [{ system: "urn:emuhealth:synthetic:practitioner", value: `SYN-PR-${n}` }],
+        identifier: [
+          { system: "urn:emuhealth:synthetic:practitioner", value: `SYN-PR-${n}` },
+          { system: NPI, value: syntheticNpi(100 + n) },
+        ],
         name: [{ family: rng.pick(FAMILY), given: [rng.pick(GIVEN[gender])], prefix: ["Dr."] }],
         gender,
+      }),
+      tagged({
+        resourceType: "PractitionerRole",
+        id: `syn-practitionerrole-${n}`,
+        active: true,
+        practitioner: { reference: `Practitioner/syn-practitioner-${n}` },
+        organization: { reference: organization },
+        // Text only: the US Core bindings here use the NUCC taxonomy, which emuhealth does not bundle.
+        code: [{ text: "Physician" }],
+        specialty: [{ text: "Family Medicine" }],
+        location: [{ reference: location }],
+        telecom: [{ system: "phone", value: `555-010${n}`, use: "work" }],
+        endpoint: [{ reference: "Endpoint/syn-endpoint-1" }],
       }),
     );
     return `Practitioner/syn-practitioner-${n}`;
@@ -284,9 +430,17 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
     const subject = { reference: `Patient/${pid}` };
     const gender = rng.pick(["female", "male"] as const);
     const age = rng.int(18, 85);
-    const birth = reference - age * 365.25 * DAY - rng.int(0, 364) * DAY;
+    const adultBirth = reference - age * 365.25 * DAY - rng.int(0, 364) * DAY;
+    // Every fifth patient, starting with the fourth, is a two-year-old, so the pediatric profiles have data.
+    const pediatric = n % 5 === 4;
+    const birth = pediatric ? reference - 2 * 365.25 * DAY - extra.int(0, 60) * DAY : adultBirth;
     const place = rng.pick(CITIES);
     const practitioner = rng.pick(practitioners);
+    const first = out.length;
+    const race = extra.pick(RACES);
+    const ethnicity = extra.pick(ETHNICITIES);
+    const previousFamily = extra.pick(FAMILY);
+    const movedOut = reference - extra.int(400, 3000) * DAY;
     out.push(
       tagged({
         resourceType: "Patient",
@@ -318,8 +472,58 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
         managingOrganization: { reference: organization },
       }),
     );
+    const patient = out[out.length - 1];
+    patient.extension = [
+      {
+        url: `${US_CORE}/us-core-race`,
+        extension: [
+          { url: "ombCategory", valueCoding: { system: CDC_RACE_ETHNICITY, ...race } },
+          { url: "text", valueString: race.display },
+        ],
+      },
+      {
+        url: `${US_CORE}/us-core-ethnicity`,
+        extension: [
+          { url: "ombCategory", valueCoding: { system: CDC_RACE_ETHNICITY, ...ethnicity } },
+          { url: "text", valueString: ethnicity.display },
+        ],
+      },
+      { url: `${US_CORE}/us-core-birthsex`, valueCode: gender === "female" ? "F" : "M" },
+    ];
+    if (n % 2 === 0 && !pediatric)
+      (patient.name as unknown[]).push({
+        use: "old",
+        family: previousFamily,
+        given: (patient.name as Array<{ given: string[] }>)[0].given,
+        period: { end: isoDate(movedOut) },
+      });
+    (patient.address as unknown[]).push({
+      use: "old",
+      line: [`${extra.int(10, 999)} ${extra.pick(STREETS)} Ave`],
+      city: place.city,
+      state: place.state,
+      postalCode: String(extra.int(10000, 99999)),
+      country: "US",
+      period: { end: isoDate(movedOut) },
+    });
+    const spanish = ethnicity.code === "2135-2" && extra.chance(0.5);
+    patient.communication = [
+      {
+        language: {
+          coding: [
+            {
+              system: "urn:ietf:bcp:47",
+              code: spanish ? "es" : "en-US",
+              display: spanish ? "Spanish" : "English (United States)",
+            },
+          ],
+        },
+      },
+    ];
+    const short = pid.slice(12);
 
-    const conditions = rng.sample(CONDITIONS, rng.int(0, 3));
+    const sampled = rng.sample(CONDITIONS, rng.int(0, 3));
+    const conditions = pediatric ? sampled.filter((c) => c.code === "J45.909") : sampled;
     const obese = conditions.some((c) => c.code === "E66.9");
     for (const [i, condition] of conditions.entries()) {
       const onset = reference - rng.int(180, 3650) * DAY;
@@ -353,7 +557,9 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
               text: condition.medication.display,
             },
             subject,
+            encounter: { reference: `Encounter/syn-encounter-${short}-1` },
             authoredOn: isoDate(onset + rng.int(0, 30) * DAY),
+            reportedBoolean: false,
             requester: { reference: practitioner },
             reasonReference: [{ reference: `Condition/syn-condition-${pid.slice(12)}-${i + 1}` }],
             dosageInstruction: [{ text: condition.medication.dosage }],
@@ -363,22 +569,63 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
     }
 
     const encounterCount = rng.int(1, 3);
-    const height = gender === "female" ? rng.float(152, 175) : rng.float(165, 190);
-    const bmi = obese ? rng.float(31, 38) : rng.float(19, 29);
+    const adultHeight = gender === "female" ? rng.float(152, 175) : rng.float(165, 190);
+    const height = pediatric ? extra.float(82, 92) : adultHeight;
+    const bmi = pediatric ? extra.float(15, 17.5) : obese ? rng.float(31, 38) : rng.float(19, 29);
+    const reason = conditions[0]
+      ? {
+          coding: [{ system: ICD10, code: conditions[0].code, display: conditions[0].display }],
+          text: conditions[0].display,
+        }
+      : { text: "General examination" };
+    const encounterStarts: number[] = [];
+    const labResults: Array<{ encounter: number; ids: string[]; code: string; display: string; at: number }> = [];
     for (let e = 1; e <= encounterCount; e++) {
       const eid = `syn-encounter-${pid.slice(12)}-${e}`;
       const start = reference - rng.int(7, 1095) * DAY + rng.int(8, 16) * 3_600_000;
       const encounter = { reference: `Encounter/${eid}` };
+      encounterStarts.push(start);
+      const period = { start: isoDateTime(start), end: isoDateTime(start + 30 * 60_000) };
       out.push(
         tagged({
           resourceType: "Encounter",
           id: eid,
+          identifier: [{ system: ENCOUNTER_SYSTEM, value: `SYN-ENC-${short}-${e}` }],
           status: "finished",
           class: { system: "http://terminology.hl7.org/CodeSystem/v3-ActCode", code: "AMB", display: "ambulatory" },
-          type: [{ text: "Office visit" }],
+          type: [uncoded("Office visit")],
           subject,
-          participant: [{ individual: { reference: practitioner } }],
-          period: { start: isoDateTime(start), end: isoDateTime(start + 30 * 60_000) },
+          participant: [
+            {
+              type: [
+                {
+                  coding: [
+                    {
+                      system: "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                      code: "PPRF",
+                      display: "primary performer",
+                    },
+                  ],
+                },
+              ],
+              period,
+              individual: { reference: practitioner },
+            },
+          ],
+          period,
+          reasonCode: [reason],
+          hospitalization: {
+            dischargeDisposition: {
+              coding: [
+                {
+                  system: "http://terminology.hl7.org/CodeSystem/discharge-disposition",
+                  code: "home",
+                  display: "Home",
+                },
+              ],
+            },
+          },
+          location: [{ location: { reference: location } }],
           serviceProvider: { reference: organization },
         }),
       );
@@ -398,8 +645,13 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           }),
         );
       const hasHypertension = conditions.some((c) => c.code === "I10");
-      vital("hr", loinc("8867-4", "Heart rate"), { valueQuantity: quantity(rng.int(58, 96), "/min") });
-      vital("rr", loinc("9279-1", "Respiratory rate"), { valueQuantity: quantity(rng.int(12, 20), "/min") });
+      // Two-year-olds breathe and beat faster than adults.
+      vital("hr", loinc("8867-4", "Heart rate"), {
+        valueQuantity: quantity(rng.int(58, 96) + (pediatric ? 30 : 0), "/min"),
+      });
+      vital("rr", loinc("9279-1", "Respiratory rate"), {
+        valueQuantity: quantity(rng.int(12, 20) + (pediatric ? 10 : 0), "/min"),
+      });
       vital("temp", loinc("8310-5", "Body temperature"), {
         valueQuantity: quantity(round(rng.float(36.3, 37.4), 1), "Cel"),
       });
@@ -412,17 +664,28 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           ],
           text: "Oxygen saturation",
         },
-        { valueQuantity: quantity(rng.int(94, 100), "%") },
+        {
+          valueQuantity: quantity(rng.int(94, 100), "%"),
+          // Room air: no supplemental oxygen.
+          component: [
+            { code: loinc("3151-8", "Inhaled oxygen flow rate"), valueQuantity: quantity(0, "L/min") },
+            { code: loinc("3150-0", "Inhaled oxygen concentration"), valueQuantity: quantity(21, "%") },
+          ],
+        },
       );
+      const systolic = hasHypertension ? rng.int(135, 160) : rng.int(105, 132);
+      const diastolic = hasHypertension ? rng.int(85, 100) : rng.int(65, 84);
+      // Blood pressure is usually not taken at a two-year-old's visit, which the record says with a data absent reason.
+      const notPerformed = { coding: [{ system: DATA_ABSENT, code: "not-performed", display: "Not Performed" }] };
       vital("bp", loinc("85354-9", "Blood pressure panel with all children optional"), {
         component: [
           {
             code: loinc("8480-6", "Systolic blood pressure"),
-            valueQuantity: quantity(hasHypertension ? rng.int(135, 160) : rng.int(105, 132), "mm[Hg]"),
+            ...(pediatric ? { dataAbsentReason: notPerformed } : { valueQuantity: quantity(systolic, "mm[Hg]") }),
           },
           {
             code: loinc("8462-4", "Diastolic blood pressure"),
-            valueQuantity: quantity(hasHypertension ? rng.int(85, 100) : rng.int(65, 84), "mm[Hg]"),
+            ...(pediatric ? { dataAbsentReason: notPerformed } : { valueQuantity: quantity(diastolic, "mm[Hg]") }),
           },
         ],
       });
@@ -430,6 +693,17 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
       vital("weight", loinc("29463-7", "Body weight"), {
         valueQuantity: quantity(round(bmi * (height / 100) ** 2, 1), "kg"),
       });
+      if (pediatric) {
+        vital("wfl", loinc("77606-2", "Weight-for-length Per age and sex"), {
+          valueQuantity: quantity(extra.int(20, 80), "%"),
+        });
+        vital("bmip", loinc("59576-9", "Body mass index (BMI) [Percentile] Per age and sex"), {
+          valueQuantity: quantity(extra.int(20, 80), "%"),
+        });
+        vital("hc", loinc("8289-1", "Head Occipital-frontal circumference Percentile"), {
+          valueQuantity: quantity(extra.int(20, 80), "%"),
+        });
+      }
       for (const condition of conditions.filter((c) => c.lab)) {
         const a1c = condition.lab === "a1c";
         out.push(
@@ -448,6 +722,18 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           }),
         );
       }
+      const labs = conditions.filter((c) => c.lab);
+      if (labs.length > 0)
+        labResults.push({
+          encounter: e,
+          ids: labs.map((c) => `Observation/syn-observation-${short}-${e}-${c.lab}`),
+          code: labs[0].lab === "a1c" ? "4548-4" : "2093-3",
+          display:
+            labs[0].lab === "a1c"
+              ? "Hemoglobin A1c/Hemoglobin.total in Blood"
+              : "Cholesterol [Mass/volume] in Serum or Plasma",
+          at: start,
+        });
     }
 
     if (rng.chance(0.3)) {
@@ -460,9 +746,10 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
           verificationStatus: { coding: [{ system: ALLERGY_VERIFICATION, code: "confirmed" }] },
           category: [allergy.category],
           criticality: rng.pick(["low", "high"]),
-          code: allergy.coding ? { coding: allergy.coding, text: allergy.text } : { text: allergy.text },
+          code: allergy.coding ? { coding: allergy.coding, text: allergy.text } : uncoded(allergy.text),
           patient: subject,
           recordedDate: isoDate(reference - rng.int(365, 3650) * DAY),
+          reaction: [{ manifestation: [{ text: allergy.category === "food" ? "Hives" : "Skin rash" }] }],
         }),
       );
     }
@@ -483,6 +770,261 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
         }),
       );
     }
+
+    usCoreRecords(out, extra, {
+      n,
+      short,
+      subject,
+      practitioner,
+      organization,
+      pediatric,
+      reference,
+      encounterStarts,
+      labResults,
+    });
+    out.push(provenance(out.slice(first), short, practitioner, organization, encounterStarts));
   }
   return out;
+}
+
+interface PatientContext {
+  n: number;
+  short: string;
+  subject: { reference: string };
+  practitioner: string;
+  organization: string;
+  pediatric: boolean;
+  reference: number;
+  encounterStarts: number[];
+  labResults: Array<{ encounter: number; ids: string[]; code: string; display: string; at: number }>;
+}
+
+/** The rest of a patient's US Core record: smoking status, procedures, care planning, notes, reports, and devices. */
+function usCoreRecords(out: FhirResource[], rng: Random, ctx: PatientContext): void {
+  const { n, short, subject, practitioner, organization, pediatric, reference, encounterStarts } = ctx;
+  const push = (resource: FhirResource) => out.push(tagged(resource));
+  const lastVisit = Math.max(...encounterStarts);
+  const encounter = (e: number) => ({ reference: `Encounter/syn-encounter-${short}-${e}` });
+  const visit = encounterStarts.indexOf(lastVisit) + 1;
+
+  push({
+    resourceType: "Observation",
+    id: `syn-observation-${short}-smoking`,
+    status: "final",
+    category: category("social-history"),
+    code: loinc("72166-2", "Tobacco smoking status"),
+    subject,
+    effectiveDateTime: isoDateTime(lastVisit),
+    issued: isoDateTime(lastVisit + 3_600_000),
+    valueCodeableConcept: { text: pediatric ? SMOKING_STATUS[0] : rng.pick(SMOKING_STATUS) },
+  });
+
+  for (const lab of ctx.labResults) {
+    push({
+      resourceType: "DiagnosticReport",
+      id: `syn-diagnosticreport-${short}-${lab.encounter}-lab`,
+      status: "final",
+      category: [
+        {
+          coding: [{ system: "http://terminology.hl7.org/CodeSystem/v2-0074", code: "LAB", display: "Laboratory" }],
+        },
+      ],
+      code: loinc(lab.code, lab.display),
+      subject,
+      encounter: encounter(lab.encounter),
+      effectiveDateTime: isoDateTime(lab.at + 5 * 60_000),
+      issued: isoDateTime(lab.at + DAY),
+      performer: [{ reference: organization }],
+      result: lab.ids.map((id) => ({ reference: id })),
+    });
+  }
+
+  const noteText = `Synthetic progress note for ${subject.reference}. Patient seen for a routine visit. No real patient data.`;
+  push({
+    resourceType: "DiagnosticReport",
+    id: `syn-diagnosticreport-${short}-note`,
+    status: "final",
+    category: [{ coding: [{ system: LOINC, ...NOTE_CATEGORIES[(n - 1) % NOTE_CATEGORIES.length] }] }],
+    code: loinc("11506-3", "Progress note"),
+    subject,
+    encounter: encounter(visit),
+    effectiveDateTime: isoDateTime(lastVisit),
+    issued: isoDateTime(lastVisit + 3_600_000),
+    performer: [{ reference: practitioner }],
+    presentedForm: [{ contentType: "text/plain", data: base64(noteText) }],
+  });
+
+  push({ resourceType: "Binary", id: `syn-binary-${short}-note`, contentType: "text/plain", data: base64(noteText) });
+  const clinicalNote = { system: "http://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category" };
+  // The inline note is always a progress note; the other rotates through the remaining note types by patient.
+  const otherType = NOTE_TYPES[1 + ((n - 1) % (NOTE_TYPES.length - 1))];
+  for (const [suffix, attachment, type] of [
+    ["inline", { contentType: "text/plain", data: base64(noteText) }, NOTE_TYPES[0]],
+    ["binary", { contentType: "text/plain", url: `Binary/syn-binary-${short}-note` }, otherType],
+  ] as const) {
+    push({
+      resourceType: "DocumentReference",
+      id: `syn-documentreference-${short}-${suffix}`,
+      identifier: [{ system: DOCUMENT_SYSTEM, value: `SYN-DOC-${short}-${suffix}` }],
+      status: "current",
+      type: loinc(type.code, type.display),
+      category: [{ coding: [{ ...clinicalNote, code: "clinical-note", display: "Clinical Note" }] }],
+      subject,
+      date: isoDateTime(lastVisit + 3_600_000),
+      author: [{ reference: practitioner }],
+      content: [
+        {
+          attachment,
+          format: {
+            system: "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
+            code: "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+            display: "mimeType Sufficient",
+          },
+        },
+      ],
+      context: {
+        encounter: [encounter(visit)],
+        period: { start: isoDateTime(lastVisit), end: isoDateTime(lastVisit + 30 * 60_000) },
+      },
+    });
+  }
+
+  const procedure = rng.pick(PROCEDURES);
+  push({
+    resourceType: "Procedure",
+    id: `syn-procedure-${short}-1`,
+    status: "completed",
+    code: { coding: [{ system: ICD10PCS, ...procedure }], text: procedure.display },
+    subject,
+    encounter: encounter(visit),
+    performedDateTime: isoDateTime(lastVisit + 10 * 60_000),
+  });
+
+  push({
+    resourceType: "Goal",
+    id: `syn-goal-${short}-1`,
+    lifecycleStatus: "active",
+    description: { text: pediatric ? "Stay up to date on well-child visits" : "Walk 30 minutes five days a week" },
+    subject,
+    target: [{ dueDate: isoDate(reference + rng.int(90, 365) * DAY) }],
+  });
+
+  push({
+    resourceType: "CarePlan",
+    id: `syn-careplan-${short}-1`,
+    text: narrative("Assessment and plan: continue current treatment and follow up in three months."),
+    status: "active",
+    intent: "plan",
+    category: [
+      {
+        coding: [
+          {
+            system: "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+            code: "assess-plan",
+            display: "Assessment and Plan of Treatment",
+          },
+        ],
+      },
+    ],
+    subject,
+    period: { start: isoDate(lastVisit) },
+  });
+
+  push({
+    resourceType: "CareTeam",
+    id: `syn-careteam-${short}-1`,
+    status: "active",
+    subject,
+    participant: [
+      { role: [{ text: "Primary care physician" }], member: { reference: practitioner } },
+      { role: [{ text: "Patient" }], member: subject },
+    ],
+  });
+
+  // Every fifth patient, starting with the third, has an implanted device.
+  if (n % 5 === 3) {
+    push({
+      resourceType: "Device",
+      id: `syn-device-${short}-1`,
+      udiCarrier: [
+        {
+          deviceIdentifier: "00000000000000",
+          carrierHRF: `(01)00000000000000(11)200101(17)300101(10)SYN${short}(21)SYN-SERIAL-${short}`,
+          carrierAIDC: base64(`0100000000000000112001011730010110SYN${short}`),
+        },
+      ],
+      distinctIdentifier: `SYN-DEVICE-${short}`,
+      manufactureDate: "2020-01-01",
+      expirationDate: "2030-01-01",
+      lotNumber: `SYN${short}`,
+      serialNumber: `SYN-SERIAL-${short}`,
+      type: uncoded("Cardiac pacemaker"),
+      patient: subject,
+    });
+  }
+
+  // Every fifth patient, starting with the first, declined a vaccine on a date nobody recorded.
+  if (n % 5 === 1) {
+    push({
+      resourceType: "Immunization",
+      id: `syn-immunization-${short}-declined`,
+      status: "not-done",
+      statusReason: {
+        coding: [
+          {
+            system: "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+            code: "PATOBJ",
+            display: "patient objection",
+          },
+        ],
+      },
+      vaccineCode: { coding: [{ system: CVX, ...VACCINES[0] }], text: VACCINES[0].display },
+      patient: subject,
+      _occurrenceDateTime: absent("unknown"),
+      primarySource: true,
+    });
+  }
+}
+
+/** One US Core Provenance per patient: the practitioner authored the record and the clinic sent it. */
+function provenance(
+  records: FhirResource[],
+  short: string,
+  practitioner: string,
+  organization: string,
+  encounterStarts: number[],
+): FhirResource {
+  return tagged({
+    resourceType: "Provenance",
+    id: `syn-provenance-${short}`,
+    target: records.filter((r) => r.resourceType !== "Binary").map((r) => ({ reference: `${r.resourceType}/${r.id}` })),
+    recorded: isoDateTime(Math.max(...encounterStarts) + 3_600_000),
+    agent: [
+      {
+        type: {
+          coding: [
+            {
+              system: "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+              code: "author",
+              display: "Author",
+            },
+          ],
+        },
+        who: { reference: practitioner },
+        onBehalfOf: { reference: organization },
+      },
+      {
+        type: {
+          coding: [
+            {
+              system: "http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type",
+              code: "transmitter",
+              display: "Transmitter",
+            },
+          ],
+        },
+        who: { reference: organization },
+      },
+    ],
+  });
 }

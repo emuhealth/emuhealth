@@ -172,6 +172,12 @@ describe("SMART patient scopes", () => {
     ).toBe(403);
   });
 
+  it("can always read the token's own fhirUser", async () => {
+    const token = await tokenFor(app, "openid fhirUser patient/Observation.rs");
+    expect((await call(app, token, "GET", "/Practitioner/dr1")).status).toBe(200);
+    expect((await call(app, token, "GET", "/Practitioner")).status).toBe(403);
+  });
+
   it("applies v1 read scopes to every type, history, and $everything", async () => {
     const token = await tokenFor(app, "patient/*.read");
     expect((await call(app, token, "GET", "/Patient/p1")).status).toBe(200);

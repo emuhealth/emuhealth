@@ -1,0 +1,3 @@
+{
+  "_tls(_version)?$": "emuhealth is a local emulator served over plain HTTP. Put it behind a TLS proxy if you need TLS."
+}
