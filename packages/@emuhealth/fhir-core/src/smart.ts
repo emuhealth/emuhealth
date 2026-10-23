@@ -150,6 +150,12 @@ export function setSmartConfig(store: Store, config: SmartConfig): void {
   store.setData("fhir.smart.config", config);
 }
 
+/** Live access and refresh tokens, for the inspector. */
+export function listSmartTokens(store: Store): SmartToken[] {
+  const now = Date.now();
+  return [...map<SmartToken>(store, "tokens").values()].filter((t) => t.expiresAt > now);
+}
+
 /** Look up a live access token. Expired tokens are removed. */
 export function findAccessToken(store: Store, token: string): SmartToken | undefined {
   const found = map<SmartToken>(store, "tokens").get(token);

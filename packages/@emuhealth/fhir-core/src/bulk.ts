@@ -40,6 +40,10 @@ function jobs(store: Store): Map<string, ExportJob> {
   return value;
 }
 
+export function listExportJobs(store: Store): ExportJob[] {
+  return [...jobs(store).values()];
+}
+
 export function getExportJob(store: Store, id: string): ExportJob | undefined {
   return jobs(store).get(id);
 }
