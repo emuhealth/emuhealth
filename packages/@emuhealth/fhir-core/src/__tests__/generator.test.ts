@@ -106,9 +106,12 @@ describe("fhir service default population", () => {
     expect(await total("/Patient")).toBe(3);
   });
 
-  it("starts empty with fhir.generate: false", async () => {
-    const { total } = startService({ generate: false });
-    expect(await total("/_history")).toBe(0);
+  it("starts without generated patients with fhir.generate: false, and empty with terminology: false too", async () => {
+    const noPatients = startService({ generate: false });
+    expect(await noPatients.total("/Patient")).toBe(0);
+    expect(await noPatients.total("/CodeSystem")).toBe(5);
+    const empty = startService({ generate: false, terminology: false });
+    expect(await empty.total("/_history")).toBe(0);
   });
 
   it("rejects a non-object generate value", () => {

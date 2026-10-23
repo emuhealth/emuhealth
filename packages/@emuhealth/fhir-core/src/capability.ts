@@ -110,6 +110,17 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
                 ],
               }
             : {}),
+          ...(type === "CodeSystem"
+            ? {
+                operation: [
+                  { name: "lookup", definition: "http://hl7.org/fhir/OperationDefinition/CodeSystem-lookup" },
+                  {
+                    name: "validate-code",
+                    definition: "http://hl7.org/fhir/OperationDefinition/CodeSystem-validate-code",
+                  },
+                ],
+              }
+            : {}),
           ...(type === "Group"
             ? {
                 operation: [

@@ -136,6 +136,62 @@ const VACCINES = [
   { code: "33", display: "pneumococcal polysaccharide vaccine, 23 valent" },
 ];
 
+// LOINC codes for the vital signs and labs above, and the UCUM units their values use.
+const LOINC_CODES = [
+  { code: "8867-4", display: "Heart rate" },
+  { code: "9279-1", display: "Respiratory rate" },
+  { code: "8310-5", display: "Body temperature" },
+  { code: "2708-6", display: "Oxygen saturation in Arterial blood" },
+  { code: "59408-5", display: "Oxygen saturation in Arterial blood by Pulse oximetry" },
+  { code: "85354-9", display: "Blood pressure panel with all children optional" },
+  { code: "8480-6", display: "Systolic blood pressure" },
+  { code: "8462-4", display: "Diastolic blood pressure" },
+  { code: "8302-2", display: "Body height" },
+  { code: "29463-7", display: "Body weight" },
+  { code: "4548-4", display: "Hemoglobin A1c/Hemoglobin.total in Blood" },
+  { code: "2093-3", display: "Cholesterol [Mass/volume] in Serum or Plasma" },
+];
+const UCUM_CODES = [
+  { code: "/min", display: "per minute" },
+  { code: "Cel", display: "degree Celsius" },
+  { code: "%", display: "percent" },
+  { code: "mm[Hg]", display: "millimeter of mercury" },
+  { code: "cm", display: "centimeter" },
+  { code: "kg", display: "kilogram" },
+  { code: "mg/dL", display: "milligram per deciliter" },
+];
+
+export interface TerminologySubset {
+  system: string;
+  name: string;
+  title: string;
+  concepts: Array<{ code: string; display: string }>;
+}
+
+/** Every code the generator uses, grouped by code system. The terminology fixtures are built from this. */
+export function generatorTerminology(): TerminologySubset[] {
+  const rxnorm = new Map<string, string>();
+  for (const c of CONDITIONS) if (c.medication) rxnorm.set(c.medication.code, c.medication.display);
+  for (const a of ALLERGIES) for (const coding of a.coding ?? []) rxnorm.set(coding.code, coding.display);
+  return [
+    {
+      system: ICD10,
+      name: "ICD10CMSubset",
+      title: "ICD-10-CM (emuhealth subset)",
+      concepts: CONDITIONS.map(({ code, display }) => ({ code, display })),
+    },
+    {
+      system: RXNORM,
+      name: "RxNormSubset",
+      title: "RxNorm (emuhealth subset)",
+      concepts: [...rxnorm].map(([code, display]) => ({ code, display })),
+    },
+    { system: CVX, name: "CVXSubset", title: "CVX (emuhealth subset)", concepts: VACCINES },
+    { system: LOINC, name: "LOINCSubset", title: "LOINC (emuhealth subset)", concepts: LOINC_CODES },
+    { system: UCUM, name: "UCUMSubset", title: "UCUM (emuhealth subset)", concepts: UCUM_CODES },
+  ];
+}
+
 /** mulberry32: small, fast, deterministic PRNG. */
 function prng(seed: number): () => number {
   let a = seed >>> 0;

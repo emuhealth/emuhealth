@@ -10,7 +10,7 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
   fhir: {
     label: "FHIR R4 server emulator",
     endpoints:
-      "create, read, vread, update (including create on update), JSON Patch, logical delete, _history, search with includes and chaining, batch and transaction Bundles, CapabilityStatement at /metadata, Patient/$everything, Bulk Data $export, SMART App Launch and Backend Services, ETag and If-Match, generated synthetic patients, inspector at /_inspector",
+      "create, read, vread, update (including create on update), JSON Patch, logical delete, _history, search with includes and chaining, batch and transaction Bundles, CapabilityStatement at /metadata, Patient/$everything, Bulk Data $export, SMART App Launch and Backend Services, ETag and If-Match, generated synthetic patients, terminology $lookup and $validate-code, inspector at /_inspector",
     async load() {
       const mod = await import("@emuhealth/fhir-core");
       return { plugin: mod.fhirPlugin, seedFromConfig: mod.seedFromConfig };

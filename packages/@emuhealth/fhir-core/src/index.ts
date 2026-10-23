@@ -3,6 +3,7 @@ import { FHIR_JSON, registerFhirRoutes } from "./routes.js";
 import { operationOutcome } from "./outcome.js";
 import { getFhirStore, type FhirResource } from "./store.js";
 import { generateSyntheticRecords, type GenerateOptions } from "./generator.js";
+import { seedTerminology, terminologyFixtures } from "./terminology.js";
 import { setSmartConfig, type SmartConfig } from "./smart.js";
 
 export { registerFhirRoutes, FHIR_JSON, type FhirRouteOptions } from "./routes.js";
@@ -22,6 +23,7 @@ export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { patientEverything, type EverythingOptions } from "./everything.js";
 export { registerFhirInspector, resourceSummary } from "./inspector.js";
+export { terminologyFixtures, seedTerminology, lookupCode, validateCode, TERMINOLOGY_TAG } from "./terminology.js";
 export {
   startExport,
   exportManifest,
@@ -58,7 +60,9 @@ export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,
   SYNTHETIC_TAG,
+  generatorTerminology,
   type GenerateOptions,
+  type TerminologySubset,
 } from "./generator.js";
 export {
   parseSearch,
@@ -93,6 +97,8 @@ export interface FhirSeedConfig {
   resources?: FhirResource[];
   /** SMART App Launch clients and options. */
   smart?: SmartConfig;
+  /** Terminology fixture CodeSystems (default true); false leaves them out. */
+  terminology?: boolean;
 }
 
 /** Write generated records into the store, keeping their ids. */
@@ -111,8 +117,12 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: FhirSeedC
       throw new Error("fhir.generate must be an object of generator options or false");
     // Replace the default population from the plugin seed with the configured one.
     fhir.clear();
+    seedTerminology(store);
     if (config.generate !== false) seedSyntheticRecords(store, config.generate);
   }
+  if (config.terminology !== undefined && typeof config.terminology !== "boolean")
+    throw new Error("fhir.terminology must be true or false");
+  if (config.terminology === false) for (const cs of terminologyFixtures()) fhir.purge("CodeSystem", cs.id!);
   if (config.resources === undefined) return;
   if (!Array.isArray(config.resources)) throw new Error("fhir.resources must be an array of FHIR resources");
   for (const [index, resource] of config.resources.entries()) {
@@ -142,6 +152,7 @@ export const fhirPlugin: ServicePlugin = {
     for (const method of ["GET", "POST", "PUT", "PATCH", "DELETE"]) app.on(method, "/:rest{(?!_emulate).*}", notFound);
   },
   seed(store: Store): void {
+    seedTerminology(store);
     seedSyntheticRecords(store);
   },
 };
