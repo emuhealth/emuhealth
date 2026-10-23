@@ -159,6 +159,13 @@ Azure Health Data Services:
   get one from the microsoft service with client_credentials and scope http://localhost:4116/synthetic-fhir/.default.
   Docs: https://www.emuhealth.dev/docs/azurehealth
 
+Stedi:
+  'npx emuhealth --service stedi' serves Stedi healthcare APIs at http://localhost:4117 (any API key in Authorization).
+  POST /2024-04-01/change/medicalnetwork/eligibility/v3, /professionalclaims/v3/submission, /claimstatus/v2;
+  GET /2024-04-01/change/medicalnetwork/reports/v2/{transactionId}/835, /2023-08-01/transactions, /2024-04-01/payers.
+  Payers SYN01 and SYN02; members SYNM000001 and up from the synthetic patients. Claims are paid at once with an 835.
+  Docs: https://www.emuhealth.dev/docs/stedi
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

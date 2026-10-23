@@ -195,6 +195,13 @@ describe("createEmulator", () => {
     await azure.close();
   });
 
+  it("starts the Stedi emulator", async () => {
+    const stedi = await createEmulator({ service: "stedi", port: 14036 });
+    const res = await fetch(`${stedi.url}/2024-04-01/payers`, { headers: { Authorization: "test_key" } });
+    expect(((await res.json()) as { items: unknown[] }).items).toHaveLength(2);
+    await stedi.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

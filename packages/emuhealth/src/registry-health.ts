@@ -20,6 +20,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "healthlake",
   "gcphealthcare",
   "azurehealth",
+  "stedi",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -409,6 +410,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             ],
           },
         ],
+      },
+    },
+  },
+  stedi: {
+    label: "Stedi healthcare clearinghouse emulator",
+    endpoints:
+      "Stedi 2024-04-01 healthcare APIs with an API key: eligibility v3 (270/271), professional claims v3 submission (837P) with immediate adjudication, claim status v2 (276/277), 835 ERA reports by transaction, transactions list, payers; transaction.processed.v2 events to webhooks; synthetic payers and members; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/stedi");
+      return { plugin: mod.stediPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "stedi-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      stedi: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
       },
     },
   },
