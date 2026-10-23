@@ -123,8 +123,8 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 - [x] Conditional create, read, update, and delete in fhir-core, advertised in the CapabilityStatement ([#78](https://github.com/emuhealth/emuhealth/pull/78))
 - [x] FHIR API behavior tests (CRUD, search, history, Bundles, conditional interactions) run on R4, R4B, and R5; Inferno has no base R4B or R5 kit ([#81](https://github.com/emuhealth/emuhealth/pull/81))
-- [ ] Writes to an R5 server convert the R4 shapes the R5 converter knows and reject other R4-only elements with an OperationOutcome
-- [ ] Scheduled CI run of the fidelity gates with the latest validator and client versions, plus terminology checks against tx.fhir.org
+- [x] Writes to an R5 server convert the R4 shapes the R5 converter knows and reject other R4-only elements with an OperationOutcome ([#82](https://github.com/emuhealth/emuhealth/pull/82))
+- [x] Scheduled CI run of the fidelity gates with the latest validator and client versions, plus terminology checks against tx.fhir.org ([#83](https://github.com/emuhealth/emuhealth/pull/83))
 - [x] HL7 v2 strict mode: unknown message types get `AR` with ERR code 200 ([#79](https://github.com/emuhealth/emuhealth/pull/79))
 - [ ] Client contract tests for Epic and Oracle Health with the SMART JS client (`fhirclient` on npm) and for Blue Button with CMS's Node SDK
 - [x] Release checklist in AGENTS.md covers the generated hero version and the approval comment ([#80](https://github.com/emuhealth/emuhealth/pull/80))
