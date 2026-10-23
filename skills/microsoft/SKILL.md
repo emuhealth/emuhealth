@@ -233,7 +233,7 @@ grant_type=client_credentials&\
 scope=https://graph.microsoft.com/.default"
 ```
 
-Returns an `access_token` only (no `refresh_token` or `id_token`).
+Returns an `access_token` only (no `refresh_token` or `id_token`). For a non-Graph resource (`scope=<resource>/.default`, such as an Azure Health Data Services FHIR service at `http://localhost:4116/synthetic-fhir`), the access token is a signed JWT with `aud` set to that resource and `iss` the tenant's v2.0 issuer, verifiable against `/discovery/v2.0/keys`.
 
 ### Refresh Token
 

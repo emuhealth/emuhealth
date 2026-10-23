@@ -573,3 +573,14 @@ gcphealthcare:
         - id: synthetic-fhir-store
           enableUpdateCreate: true
           preload: true
+
+azurehealth:
+  # Workspaces and FHIR services (replaces the default synthetic-fhir)
+  workspaces:
+    - name: synthetic
+      fhirServices:
+        - name: fhir
+          preload: true
+  # Verify Entra ID tokens issued by the microsoft service (omit to accept any Bearer token)
+  entra:
+    issuer: http://localhost:4005/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0

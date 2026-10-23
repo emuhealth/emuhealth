@@ -66,6 +66,19 @@ function isPendingCodeExpired(p: PendingCode): boolean {
 
 const SERVICE_LABEL = "Microsoft";
 
+/** emuhealth: an app-only access token for a non-Graph resource, signed like the id tokens. */
+async function createAppAccessToken(clientId: string, resource: string, baseUrl: string): Promise<string> {
+  const { privateKey } = await keyPairPromise;
+  return new SignJWT({ appid: clientId, azp: clientId, oid: clientId, tid: DEFAULT_TENANT_ID, ver: "2.0", roles: [] })
+    .setProtectedHeader({ alg: "RS256", kid: KID, typ: "JWT" })
+    .setIssuer(`${baseUrl}/${DEFAULT_TENANT_ID}/v2.0`)
+    .setSubject(clientId)
+    .setAudience(resource)
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(privateKey);
+}
+
 async function createIdToken(
   user: MicrosoftUser,
   clientId: string,
@@ -487,8 +500,15 @@ export function oauthRoutes({ app, store, baseUrl, tokenMap }: RouteContext): vo
       const clientError = validateClientCredentials();
       if (clientError) return clientError;
 
-      const accessToken = "microsoft_" + randomBytes(20).toString("base64url");
       const scopes = scope ? scope.split(/\s+/).filter(Boolean) : [".default"];
+      // emuhealth: a token for another resource (for example an Azure FHIR service) is a signed JWT with that
+      // resource as its audience, as Entra issues it, so the resource can verify it against our JWKS.
+      const resource = scopes
+        .find((s) => s.endsWith("/.default") && !s.startsWith("https://graph.microsoft.com"))
+        ?.slice(0, -"/.default".length);
+      const accessToken = resource
+        ? await createAppAccessToken(client_id, resource, baseUrl)
+        : "microsoft_" + randomBytes(20).toString("base64url");
 
       if (tokenMap) {
         tokenMap.set(accessToken, { login: client_id, id: 0, scopes });

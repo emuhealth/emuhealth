@@ -29,7 +29,7 @@ Include `code_challenge` and `code_challenge_method` (`plain` or `S256`) in the 
 
 ## Client Credentials
 
-Request tokens for service-to-service flows using `grant_type=client_credentials` with `scope=https://graph.microsoft.com/.default`. Returns an `access_token` only (no `refresh_token` or `id_token`).
+Request tokens for service-to-service flows using `grant_type=client_credentials` with `scope=https://graph.microsoft.com/.default`. Returns an `access_token` only (no `refresh_token` or `id_token`). For any other resource (`scope=<resource>/.default`, for example an [Azure Health Data Services](/docs/azurehealth) FHIR service), the access token is a JWT signed with the emulator's keys, with that resource as `aud`, so the resource can verify it.
 
 ## Refresh Tokens
 

@@ -1,0 +1,53 @@
+---
+title: "Azure Health Data Services"
+---
+
+An emulator of the FHIR services in [Azure Health Data Services](https://learn.microsoft.com/azure/healthcare-apis/), for apps that read and write FHIR R4 with Entra ID tokens. It runs on `http://localhost:4116` by default. emuhealth is not affiliated with Microsoft.
+
+```bash
+npx emuhealth --service azurehealth
+curl -H 'Authorization: Bearer test' http://localhost:4116/synthetic-fhir/Patient/syn-patient-001
+```
+
+## FHIR services
+
+On Azure, a FHIR service in a workspace lives at `https://{workspace}-{fhirservice}.fhir.azurehealthcareapis.com`. The emulator serves the same thing at a path, `http://localhost:4116/{workspace}-{fhirservice}`, and each one is a full, isolated [FHIR R4](/docs/fhir) server. It starts with workspace `synthetic` and FHIR service `fhir`, at `http://localhost:4116/synthetic-fhir`, preloaded with the 5 generated synthetic patients.
+
+Every request needs `Authorization: Bearer <token>`, except `GET /metadata` and SMART discovery, which are public as on Azure. Without a valid token the response is `401` with an OperationOutcome and `WWW-Authenticate: Bearer authorization_uri="...", resource_id="<service URL>"`. Responses carry `x-ms-request-id`.
+
+The emulator does not include the Azure Resource Manager control plane; set up workspaces and FHIR services in the seed config.
+
+## Entra ID tokens
+
+By default any Bearer token is accepted. Set `azurehealth.entra.issuer` to verify tokens: the emulator reads the issuer's OpenID configuration, then checks each token's signature against its JWKS, its issuer, its expiry, and that its audience is the FHIR service URL.
+
+With the emuhealth Microsoft emulator (`npx emuhealth --service microsoft,azurehealth`), the whole Entra flow runs locally. Register an app with the Microsoft emulator, ask it for a client credentials token scoped to the FHIR service, and call the FHIR service with it:
+
+```bash
+TOKEN=$(curl -s http://localhost:4005/oauth2/v2.0/token \
+  -d grant_type=client_credentials -d client_id=my-app -d client_secret=my-secret \
+  -d scope=http://localhost:4116/synthetic-fhir/.default | jq -r .access_token)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:4116/synthetic-fhir/Patient
+```
+
+For any scope other than Microsoft Graph, the Microsoft emulator issues a signed JWT access token with that resource as its audience, as Entra ID does.
+
+## Seed config
+
+```yaml
+azurehealth:
+  workspaces: # replaces the default
+    - name: synthetic # 3 to 24 lowercase letters and digits
+      fhirServices:
+        - name: fhir
+          preload: true
+  entra:
+    issuer: http://localhost:4005/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0 # the microsoft service
+    # jwksUri: optional, otherwise read from the issuer's OpenID configuration
+microsoft:
+  oauth_clients:
+    - client_id: my-app
+      client_secret: my-secret
+      name: My FHIR app
+      redirect_uris: ["http://localhost:3000/callback"]
+```

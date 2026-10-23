@@ -74,7 +74,7 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 
 - [x] AWS HealthLake (alongside `@emulators/aws`, SigV4) ([#53](https://github.com/emuhealth/emuhealth/pull/53))
 - [x] Google Cloud Healthcare API (FHIR stores first) ([#54](https://github.com/emuhealth/emuhealth/pull/54))
-- [ ] Azure Health Data Services (Entra auth via the Microsoft emulator)
+- [x] Azure Health Data Services (Entra auth via the Microsoft emulator) ([#55](https://github.com/emuhealth/emuhealth/pull/55))
 
 ## Phase 4: Revenue cycle and payer
 

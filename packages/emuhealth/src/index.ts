@@ -152,6 +152,13 @@ Google Cloud Healthcare API:
   Default store: projects/synthetic-project/locations/us-central1/datasets/synthetic-dataset/fhirStores/synthetic-fhir-store.
   Docs: https://www.emuhealth.dev/docs/gcphealthcare
 
+Azure Health Data Services:
+  'npx emuhealth --service azurehealth' serves Azure Health Data Services FHIR at http://localhost:4116/{workspace}-{fhirservice}.
+  Default service: http://localhost:4116/synthetic-fhir (preloaded). Requests need an Entra ID Bearer token; /metadata is public.
+  Set azurehealth.entra.issuer (for example the microsoft service: http://localhost:4005/<tenant>/v2.0) to verify tokens:
+  get one from the microsoft service with client_credentials and scope http://localhost:4116/synthetic-fhir/.default.
+  Docs: https://www.emuhealth.dev/docs/azurehealth
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt
