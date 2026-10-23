@@ -463,3 +463,18 @@ ncbi:
   generate:
     articles: 80 # 0 to 5000
     seed: 1
+
+nppes:
+  # Synthetic providers (NPIs start with 0); false starts empty
+  generate:
+    individuals: 40
+    organizations: 15
+    seed: 1
+  # Your own synthetic providers in the API's result shape
+  providers:
+    - number: "0999999990"
+      enumeration_type: NPI-1
+      basic:
+        first_name: JAMIE
+        last_name: EXAMPLE
+        credential: M.D.

@@ -80,6 +80,13 @@ NCBI E-utilities:
   PubMed articles are synthetic (PMIDs from 99000001); ncbi.generate sets articles and seed, or false for none.
   Docs: https://www.emuhealth.dev/docs/ncbi
 
+NPPES NPI Registry:
+  'npx emuhealth --service nppes' serves the NPI Registry API at http://localhost:4106/api/?version=2.1.
+  Search by number, enumeration_type (NPI-1, NPI-2), first_name, last_name, organization_name (trailing *),
+  taxonomy_description, city, state, postal_code; limit (max 200), skip (max 1000). Missing criteria return Errors.
+  Synthetic providers: NPIs start with 0; nppes.generate sets individuals, organizations, seed; nppes.providers adds your own.
+  Docs: https://www.emuhealth.dev/docs/nppes
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

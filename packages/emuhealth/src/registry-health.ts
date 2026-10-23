@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials", "ncbi"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials", "ncbi", "nppes"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -127,6 +127,27 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
       ncbi: {
         generate: {
           articles: 80,
+          seed: 1,
+        },
+      },
+    },
+  },
+  nppes: {
+    label: "NPPES NPI Registry API emulator",
+    endpoints:
+      "NPI Registry API at /api/?version=2.1: number, enumeration_type, first_name, last_name, organization_name (trailing * wildcards), taxonomy_description, address_purpose, city, state, postal_code, country_code, limit (max 200), skip; the registry's Errors shapes; synthetic providers with NPIs that start with 0; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/nppes");
+      return { plugin: mod.nppesPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "nppes-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      nppes: {
+        generate: {
+          individuals: 40,
+          organizations: 15,
           seed: 1,
         },
       },

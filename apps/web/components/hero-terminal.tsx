@@ -5,6 +5,7 @@ const services = [
   { name: "rxnav", port: 4103, note: "RxNav" },
   { name: "clinicaltrials", port: 4104, note: "ClinicalTrials.gov" },
   { name: "ncbi", port: 4105, note: "NCBI E-utilities" },
+  { name: "nppes", port: 4106, note: "NPPES NPI Registry" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
