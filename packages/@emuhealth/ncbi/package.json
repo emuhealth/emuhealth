@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/ncbi",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "NCBI E-utilities emulator for emuhealth: einfo, esearch with history, esummary, efetch, and elink for PubMed (synthetic articles) and Gene.",
   "license": "Apache-2.0",

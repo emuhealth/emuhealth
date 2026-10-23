@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/terra",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Terra API emulator for emuhealth: widget sessions that connect synthetic users to wearable providers, normalized daily, sleep, activity, and body data, and signed webhooks.",
   "license": "Apache-2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/dexcom",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Dexcom API v3 emulator for emuhealth: OAuth 2.0 and continuous glucose (EGVs), events, devices, and data range for synthetic users.",
   "license": "Apache-2.0",

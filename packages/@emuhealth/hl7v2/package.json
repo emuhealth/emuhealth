@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/hl7v2",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "HL7 v2 emulator for emuhealth: an MLLP listener and HTTP API that acknowledge ADT, ORU, and order messages over a synthetic patient registry.",
   "license": "Apache-2.0",
