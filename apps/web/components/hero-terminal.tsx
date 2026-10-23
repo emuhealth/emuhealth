@@ -1,5 +1,7 @@
+import pkg from "../../../packages/emuhealth/package.json";
+
 const services = [
-  { name: "fhir", port: 4100, note: "FHIR R4" },
+  { name: "fhir", port: 4100, note: "FHIR R4, R4B, R5" },
   { name: "epic", port: 4101, note: "Epic" },
   { name: "openfda", port: 4102, note: "openFDA" },
   { name: "rxnav", port: 4103, note: "RxNav" },
@@ -44,7 +46,7 @@ export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
           <span className="text-neutral-500">$</span> <span className="text-neutral-200">npx emuhealth</span>
           {"\n\n"}
           <span className={`${pixelFont} text-neutral-200`}>emuhealth</span>
-          {" v0.8.0\n"}
+          {` v${pkg.version}\n`}
           <span className="text-amber-400">
             Synthetic data only. Never load real patient data (PHI) into emuhealth.
           </span>
