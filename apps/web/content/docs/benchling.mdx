@@ -1,0 +1,63 @@
+---
+title: "Benchling"
+---
+
+An emulator of the [Benchling](https://docs.benchling.com) API v2 for apps and integrations that read and write sequences, notebook entries, registry entities, and assay results. It runs on `http://localhost:4107` by default under `/api/v2`, with a synthetic tenant. emuhealth is not affiliated with Benchling.
+
+```bash
+npx emuhealth --service benchling
+curl -u sk_any_key: 'http://localhost:4107/api/v2/dna-sequences?pageSize=5'
+```
+
+Point your client at `http://localhost:4107` instead of `https://<tenant>.benchling.com`.
+
+## Authentication
+
+- **API key:** any key as the Basic auth username, with an empty password (`curl -u sk_any_key:`).
+- **App (OAuth client credentials):** `POST /api/v2/token` with `grant_type=client_credentials` returns a Bearer token (reported as `expires_in: 900`; the emulator does not expire it).
+
+Requests without either get `401` with Benchling's error shape: `{ "error": { "message", "type": "invalid_request_error", "userMessage" } }`.
+
+## Endpoints
+
+| Endpoint | Notes |
+|----------|-------|
+| `GET`, `POST /api/v2/dna-sequences`; `GET`, `PATCH /api/v2/dna-sequences/{id}` | Filters: `name`, `nameIncludes`, `folderId`, `schemaId`, `registryId`, `entityRegistryIds.anyOf`, `archiveReason`; `sort=name` or newest first |
+| `POST /api/v2/dna-sequences:archive`, `:unarchive` | Body `{ "dnaSequenceIds": [...], "reason": "Made in error" }` |
+| `/api/v2/aa-sequences` | The same for protein sequences (`aminoAcids`, `aaSequenceIds`) |
+| `GET`, `POST /api/v2/entries`; `GET`, `PATCH /api/v2/entries/{id}` | Notebook entries with `days` and `notes` |
+| `POST /api/v2/registries/{id}:register-entities`; `GET /api/v2/tasks/{id}` | Registration, see below |
+| `GET /api/v2/registries/{id}/registered-entities` | Registered entities, optionally by `entityRegistryIds` |
+| `GET`, `POST /api/v2/assay-results`; `GET /api/v2/assay-results/{id}` | List needs `schemaId`; `entityIds` filters by linked entity |
+| `GET /api/v2/entity-schemas`, `/assay-result-schemas`, `/registries`, `/projects`, `/folders` | And `/{id}` for each |
+| `GET /api/v2/events` | Events since `createdAt.gte`, filtered by `eventTypes` |
+| `GET /_inspector` | Browse the tenant |
+
+Lists page with `pageSize` (default 50, at most 100) and the `nextToken` from the previous page. Create and update take plain field values (`"fields": { "Resistance": { "value": "Kanamycin" } }` or `"Resistance": "Kanamycin"`), checked against the schema; responses return Benchling's typed field objects.
+
+## Registration
+
+`POST /api/v2/registries/src_SYNREG01:register-entities` with `{ "entityIds": [...], "namingStrategy": "NEW_IDS" }` returns `202` and a `taskId`. The task is already `SUCCEEDED` when you poll `GET /api/v2/tasks/{taskId}`; its `response.entities` carry their new `entityRegistryId`, made from the schema prefix (`PLS001`, `PRT001`). Each registration emits a `v2.entity.registered` event.
+
+## Webhooks and events
+
+Configure subscriptions under `benchling.webhooks`. Deliveries are signed the way Benchling signs them through Svix: headers `webhook-id`, `webhook-timestamp`, and `webhook-signature: v1,<base64 HMAC-SHA256 of "id.timestamp.body">`, keyed with the base64 part of a `whsec_` secret. The body has `version`, `baseURL`, `tenantId`, `appId`, `channel: "app_signals"`, and a `message` with `type`, `id`, `timestamp`, `resourceId`, and the resource.
+
+Events: `v2.entry.created`, `v2.entry.updated.fields`, and `v2.entity.registered`. The same events are listed by `GET /api/v2/events` for apps that poll.
+
+## Synthetic tenant
+
+The tenant has a project, two folders, Plasmid and Protein entity schemas, a registry, a Plate Reader Absorbance assay schema, 10 DNA sequences of random bases (half registered), 5 protein sequences, 3 notebook entries, and 20 absorbance results. Everything is generated from a seed.
+
+## Seed config
+
+```yaml
+benchling:
+  generate:
+    seed: 1
+    dnaSequences: 10 # 0 to 500; generate: false keeps only the project, folders, schemas, and registry
+  webhooks:
+    - url: http://localhost:3000/benchling/webhook
+      events: [v2.entry.created, v2.entity.registered]
+      secret: whsec_c3ludGhldGljLXNlY3JldA==
+```
