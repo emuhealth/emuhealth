@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -89,6 +89,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             tty: "IN",
           },
         ],
+      },
+    },
+  },
+  clinicaltrials: {
+    label: "ClinicalTrials.gov API v2 emulator",
+    endpoints:
+      "ClinicalTrials.gov API v2 under /api/v2: studies search (query.cond, query.term, query.intr, query.titles, query.locn, query.spons, query.id, filter.overallStatus, filter.ids, filter.advanced AREA[], sort, fields, pageSize, pageToken, countTotal), single studies, version, stats/size; synthetic studies in the NCT99 range; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/clinicaltrials");
+      return { plugin: mod.clinicaltrialsPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "clinicaltrials-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      clinicaltrials: {
+        generate: {
+          studies: 60,
+          seed: 1,
+        },
       },
     },
   },

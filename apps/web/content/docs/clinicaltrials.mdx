@@ -1,0 +1,64 @@
+---
+title: "ClinicalTrials.gov"
+---
+
+An emulator of the [ClinicalTrials.gov API v2](https://clinicaltrials.gov/data-api/api) for apps that search and display clinical studies. It runs on `http://localhost:4104` by default, under the same `/api/v2` paths, parameters, and JSON shapes, with synthetic studies only.
+
+```bash
+npx emuhealth --service clinicaltrials
+curl 'http://localhost:4104/api/v2/studies?query.cond=asthma&filter.overallStatus=RECRUITING&pageSize=5'
+```
+
+Point your client at `http://localhost:4104/api/v2` instead of `https://clinicaltrials.gov/api/v2`.
+
+## Endpoints
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /api/v2/studies` | `{ studies, nextPageToken, totalCount }` |
+| `GET /api/v2/studies/{nctId}` | One study |
+| `GET /api/v2/version` | `apiVersion` and `dataTimestamp` |
+| `GET /api/v2/stats/size` | `totalStudies` |
+| `GET /_inspector` | Browse the studies |
+
+## Search parameters
+
+| Parameter | Meaning |
+|-----------|---------|
+| `query.cond`, `query.term`, `query.intr`, `query.titles`, `query.outc`, `query.spons`, `query.locn`, `query.id` | Text search in conditions and keywords, anywhere, interventions, titles, outcomes, sponsors, locations, or ids. Every word must match; `OR` separates alternatives. |
+| `filter.overallStatus` | Comma separated statuses such as `RECRUITING,NOT_YET_RECRUITING`; an unknown status is a `400` |
+| `filter.ids` | Comma separated NCT ids |
+| `filter.advanced` | `AREA[Piece]value` clauses joined by `AND`, for example `AREA[Phase]PHASE3 AND AREA[StudyType]INTERVENTIONAL` |
+| `sort` | Comma separated `Piece:asc` or `Piece:desc`, for example `LastUpdatePostDate:desc` |
+| `fields` | Comma separated piece names (`NCTId`, `BriefTitle`, `OverallStatus`, `Condition`, `Phase`, `LeadSponsorName`, `StartDate`, `EnrollmentCount`, `LocationCity`, and more) or paths under `protocolSection`; the response keeps their nesting |
+| `pageSize` | Studies per page, default 10, at most 1000 |
+| `pageToken` | The `nextPageToken` from the previous page |
+| `countTotal` | `true` adds `totalCount` |
+
+## Responses and errors
+
+Studies use the API v2 structure: `protocolSection` with `identificationModule`, `statusModule`, `sponsorCollaboratorsModule`, `descriptionModule`, `conditionsModule`, `designModule`, `armsInterventionsModule`, `outcomesModule`, `eligibilityModule`, and `contactsLocationsModule`, plus `hasResults`.
+
+Errors are plain text, as in the real API: `400` for invalid parameters (for example ``Parameter `nctId` has incorrect format``) and `404` with `NCT number NCT99000000 not found`.
+
+## Synthetic data
+
+60 studies are generated from a seed across the conditions the [FHIR patient generator](/docs/fhir#synthetic-patients) uses, with invented sponsors, sites, titles, and dates. Their ids run from `NCT99000001` up, a range ClinicalTrials.gov has not assigned, so they never collide with real trials.
+
+## Seed config
+
+```yaml
+clinicaltrials:
+  generate:
+    studies: 60 # 0 to 2000; or generate: false to start empty
+    seed: 1
+  studies:
+    - protocolSection:
+        identificationModule:
+          nctId: NCT99999999
+          briefTitle: My synthetic study
+        statusModule:
+          overallStatus: RECRUITING
+```
+
+Your studies need `protocolSection.identificationModule.nctId`; one with an existing id replaces it.

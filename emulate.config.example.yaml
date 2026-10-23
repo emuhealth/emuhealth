@@ -443,3 +443,17 @@ rxnav:
       tty: SCD
       ingredients: ["900001"]
   # defaults: false starts without the built-in RxNorm subset
+
+clinicaltrials:
+  # Synthetic studies (NCT99 ids); false starts empty
+  generate:
+    studies: 60 # 0 to 2000
+    seed: 1
+  # Your own synthetic studies in the API v2 shape
+  studies:
+    - protocolSection:
+        identificationModule:
+          nctId: NCT99999999
+          briefTitle: My synthetic study
+        statusModule:
+          overallStatus: RECRUITING
