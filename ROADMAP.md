@@ -96,7 +96,7 @@ Public reference APIs are read-heavy and quick to build, so they can be pulled f
 ## Phase 6: Devices and wearables
 
 - [x] Dexcom (CGM, OAuth) ([#58](https://github.com/emuhealth/emuhealth/pull/58))
-- [ ] Fitbit
+- [x] Fitbit ([#59](https://github.com/emuhealth/emuhealth/pull/59))
 - [ ] Oura
 - [ ] Withings
 - [ ] Terra (aggregator)

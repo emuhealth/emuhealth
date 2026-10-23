@@ -19,6 +19,7 @@ const services = [
   { name: "stedi", port: 4117, note: "Stedi" },
   { name: "availity", port: 4118, note: "Availity" },
   { name: "dexcom", port: 4119, note: "Dexcom" },
+  { name: "fitbit", port: 4120, note: "Fitbit" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

@@ -23,6 +23,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "stedi",
   "availity",
   "dexcom",
+  "fitbit",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -472,6 +473,29 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         clients: [
           {
             client_id: "my-dexcom-app",
+            client_secret: "synthetic-secret",
+            redirect_uris: ["http://localhost:3000/callback"],
+          },
+        ],
+      },
+    },
+  },
+  fitbit: {
+    label: "Fitbit Web API emulator",
+    endpoints:
+      "OAuth 2.0 (/oauth2/authorize consent page, /oauth2/token with Basic auth, /oauth2/revoke); /1/user/-/profile.json, activities/date, activity time series (steps, distance, calories), heart rate with intraday, /1.2 sleep with stages, weight logs; scopes, error envelope, rate limit headers; synthetic users; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/fitbit");
+      return { plugin: mod.fitbitPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "fitbit-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      fitbit: {
+        clients: [
+          {
+            client_id: "my-fitbit-app",
             client_secret: "synthetic-secret",
             redirect_uris: ["http://localhost:3000/callback"],
           },
