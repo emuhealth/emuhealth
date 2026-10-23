@@ -23,7 +23,7 @@ ACKs use original mode. The emulator answers every message whatever MSH-15 and M
 
 - `AA` when the message was accepted.
 - `AE` when it parsed but could not be applied. Examples: a missing PID segment, an empty PID-3, a discharge with no active visit, or a merge from an unknown patient.
-- `AR` when it could not be parsed or MSH-9, MSH-10, or MSH-12 is missing.
+- `AR` when it could not be parsed or MSH-9, MSH-10, or MSH-12 is missing, or, in strict mode, when the emulator does not apply its message type.
 
 The ACK echoes the sender in MSH-5 and MSH-6, the trigger event in MSH-9 (`ACK^A01^ACK`), and the processing ID and version. MSA-2 carries the original control ID. Errors add MSA-3 text and an ERR segment with an HL7 table 0357 code.
 
@@ -42,7 +42,7 @@ The patient is identified by the PID-3 identifier with type `MR`, or the first i
 | `ORU^R01`                                    | Store each OBX (code, value, units, reference range, flags, status, time) with the OBR placer order number                               |
 | `ORM^O01`, `OML^O21`                         | Store new orders from ORC and OBR, and apply cancel (`CA`, `OC`) and status change (`SC`) control codes to existing ones                 |
 
-Any other message type, such as `SIU^S12` or `MDM^T02`, is recorded and acknowledged with `AA` without changing the registry. Escape sequences (`\F\`, `\S\`, `\T\`, `\R\`, `\E\`, `\.br\`, `\X..\`) are decoded in stored values. The last 1000 messages are kept.
+Any other message type, such as `SIU^S12` or `MDM^T02`, is recorded and acknowledged with `AA` without changing the registry. Set `hl7v2.strict: true` to reject those types with `AR` and ERR code `200` (unsupported message type) instead, as stricter interface engines do. Escape sequences (`\F\`, `\S\`, `\T\`, `\R\`, `\E\`, `\.br\`, `\X..\`) are decoded in stored values. The last 1000 messages are kept.
 
 ## HTTP API
 
@@ -70,6 +70,7 @@ hl7v2:
     port: 2575
     host: 127.0.0.1
   generate: true
+  strict: false # true rejects message types the emulator does not apply
   patients:
     - mrn: syn-mrn-100
       family: SYNTHETIC

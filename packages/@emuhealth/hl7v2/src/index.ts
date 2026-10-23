@@ -30,6 +30,8 @@ export interface Hl7v2SeedConfig {
   generate?: boolean;
   /** Extra synthetic patients. */
   patients?: Array<Partial<Patient> & { mrn: string }>;
+  /** Reject message types the emulator does not apply with AR and ERR code 200 (default false: accept with AA). */
+  strict?: boolean;
 }
 
 export interface Visit {
@@ -188,7 +190,13 @@ function seedPatients(store: Store): void {
   for (const p of SYNTHETIC_PATIENTS) map.set(p.mrn, newPatient(p));
 }
 
+// Kept outside the store data so the setting survives reset.
+const strictStores = new WeakMap<Store, boolean>();
+
 export function seedFromConfig(store: Store, _baseUrl: string, config: Hl7v2SeedConfig): void {
+  if (config.strict !== undefined && typeof config.strict !== "boolean")
+    throw new Error("hl7v2.strict must be true or false");
+  strictStores.set(store, config.strict === true);
   if (config.generate === false) patients(store).clear();
   if (config.mllp !== undefined && config.mllp !== false) {
     if (typeof config.mllp !== "object" || config.mllp === null)
@@ -469,6 +477,8 @@ export function receive(store: Store, raw: string, peer?: string): string {
   if (!type) error = { text: "MSH-9 message type is required", code: "101" };
   else if (!controlId) error = { text: "MSH-10 message control ID is required", code: "101" };
   else if (!get(m, header, 12, 1)) error = { text: "MSH-12 version ID is required", code: "101" };
+  else if (strictStores.get(store) && !HANDLED[type])
+    error = { text: `Message type ${fullType} is not supported`, code: "200" };
   if (error) code = "AR";
   else
     try {

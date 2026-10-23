@@ -221,6 +221,7 @@ HL7 v2 over MLLP:
   Every framed message gets an ACK (AA, AE, AR); ADT, ORU, ORM, and OML update a synthetic patient registry.
   POST /messages (ER7 body) returns the ACK; GET /messages, /patients, /samples/adt-a01; POST /send {port, message}.
   hl7v2.mllp sets port and host (false turns MLLP off); hl7v2.patients adds synthetic patients.
+  hl7v2.strict: true rejects message types it does not apply with AR and ERR code 200.
   Docs: https://www.emuhealth.dev/docs/hl7v2
 
 Veeva Vault:
