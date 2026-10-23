@@ -10,6 +10,7 @@
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <vapil.version>26.2.1</vapil.version>
   </properties>
 
   <repositories>
@@ -27,7 +28,7 @@
     <dependency>
       <groupId>com.veeva.vault</groupId>
       <artifactId>vapil</artifactId>
-      <version>26.2.1</version>
+      <version>${vapil.version}</version>
     </dependency>
   </dependencies>
 </project>
