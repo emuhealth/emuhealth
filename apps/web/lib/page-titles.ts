@@ -4,6 +4,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",
+  cdshooks: "CDS Hooks",
   bluebutton: "CMS Blue Button 2.0",
   athena: "athenahealth",
   cerner: "Oracle Health (Cerner)",

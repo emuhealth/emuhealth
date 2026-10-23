@@ -533,3 +533,9 @@ bluebutton:
     clients:
       - client_id: my-blue-button-app
         redirect_uris: ["http://localhost:3000/callback"]
+
+cdshooks:
+  # Your CDS services' discovery URLs, offered in the inspector
+  services:
+    - http://localhost:3000/cds-services
+  # Same keys as fhir for the EHR's synthetic records (generate, resources)

@@ -11,6 +11,7 @@ const services = [
   { name: "cerner", port: 4109, note: "Oracle Health (Cerner)" },
   { name: "athena", port: 4110, note: "athenahealth" },
   { name: "bluebutton", port: 4111, note: "CMS Blue Button 2.0" },
+  { name: "cdshooks", port: 4112, note: "CDS Hooks" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
