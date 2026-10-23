@@ -18,8 +18,7 @@ export default function LandingPage() {
           sandbox accounts, no network. Synthetic data only.
         </p>
         <p className="mb-8 max-w-xl text-sm text-neutral-500">
-          The first emulators, FHIR R4 and SMART on FHIR, are in development. Epic, Oracle Health, openFDA, and more
-          follow.
+          The FHIR R4 server is available now. SMART on FHIR, Epic, Oracle Health, openFDA, and more are in development.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -52,7 +51,9 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto max-w-3xl px-6 pb-16 pt-4 sm:pb-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
-          <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">Planned for the first health release.</p>
+          <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
+            The FHIR store and config seeding are available now. SMART on FHIR is in development.
+          </p>
           <div className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
             <div>
               <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Stateful FHIR store</h3>
@@ -130,7 +131,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Use it your way</h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            Examples use the FHIR emulator, which is in development.
+            Run the FHIR R4 server from the CLI or start it from your tests.
           </p>
           <div className="space-y-4">
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
