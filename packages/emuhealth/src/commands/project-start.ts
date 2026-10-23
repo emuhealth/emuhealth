@@ -16,6 +16,7 @@ function printReady(metadata: RunMetadata, watching: boolean) {
   console.log(`\nemuhealth\n  ${SYNTHETIC_DATA_NOTICE}\n`);
   for (const service of metadata.services) {
     console.log(`  ${service.name}  ${service.url}\n    Source: ${service.source}`);
+    for (const url of service.listenerUrls ?? []) console.log(`    Listening: ${url}`);
     if (service.inspectorUrl)
       console.log(`    Inspector: ${service.inspectorUrl}\n    Routes: ${service.inspectorUrl}?tab=routes`);
   }
@@ -183,7 +184,8 @@ export async function projectStartCommand(options: ProjectOptions): Promise<void
       }
       const started = receive(candidate, "started");
       candidate.send({ type: "start" });
-      await started;
+      const startedMetadata = ((await started) as { metadata?: RunMetadata }).metadata;
+      if (startedMetadata) metadata.services = startedMetadata.services;
       if (stopped) {
         await stop(candidate);
         return;

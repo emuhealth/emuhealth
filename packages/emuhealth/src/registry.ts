@@ -16,6 +16,21 @@ export interface LoadedService {
   seedFromConfig?(store: Store, baseUrl: string, config: unknown, webhooks?: WebhookDispatcher): void;
   createAppKeyResolver?(store: Store): AppKeyResolver;
   prepareSeed?(config: Record<string, unknown>): Promise<PreparedServiceSeed>;
+  /** Opens listeners beyond the HTTP server, such as MLLP for HL7 v2 (decision 0015). */
+  listen?(context: ServiceListenContext): Promise<ServiceListener | undefined>;
+}
+
+export interface ServiceListenContext {
+  store: Store;
+  webhooks: WebhookDispatcher;
+  baseUrl: string;
+  config?: Record<string, unknown>;
+  hostname?: string;
+}
+
+export interface ServiceListener {
+  urls: string[];
+  close(): Promise<void>;
 }
 
 export interface ServiceEntry {

@@ -1,0 +1,81 @@
+---
+title: "HL7 v2 over MLLP"
+---
+
+An emulator of an HL7 v2 interface engine endpoint for apps that send or receive ADT, results, and orders. It listens for [MLLP](https://www.hl7.org/implement/standards/product_brief.cfm?product_id=55) on `localhost:2575` and serves an HTTP API and inspector on `http://localhost:4125`. Every message gets an acknowledgement, and admits, results, and orders update a synthetic patient registry you can query.
+
+```bash
+npx emuhealth --service hl7v2
+curl -s http://localhost:4125/samples/adt-a01 | curl -s --data-binary @- http://localhost:4125/messages | tr '\r' '\n'
+```
+
+Point your interface at `localhost:2575` instead of the interface engine or EHR it would normally connect to.
+
+## MLLP
+
+Messages are framed as MLLP expects: a vertical tab (`0x0B`), the message with segments separated by carriage returns, then `0x1C 0x0D`. A connection can carry any number of messages, and each one gets a framed ACK on the same connection. Frames split across TCP packets are reassembled.
+
+The listener binds to the same host as the HTTP server (`127.0.0.1` by default). Set `hl7v2.mllp.port` to move it, or `hl7v2.mllp: false` to turn it off. With port `0` the operating system picks a free port, and `GET /mllp` returns it.
+
+## Acknowledgements
+
+ACKs use original mode. The emulator answers every message whatever MSH-15 and MSH-16 say.
+
+- `AA` when the message was accepted.
+- `AE` when it parsed but could not be applied. Examples: a missing PID segment, an empty PID-3, a discharge with no active visit, or a merge from an unknown patient.
+- `AR` when it could not be parsed or MSH-9, MSH-10, or MSH-12 is missing.
+
+The ACK echoes the sender in MSH-5 and MSH-6, the trigger event in MSH-9 (`ACK^A01^ACK`), and the processing ID and version. MSA-2 carries the original control ID. Errors add MSA-3 text and an ERR segment with an HL7 table 0357 code.
+
+## Message handling
+
+The patient is identified by the PID-3 identifier with type `MR`, or the first identifier when none has that type.
+
+| Message                                      | Effect                                                                                                                                   |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADT^A01`, `A04`, `A05`                      | Create or update the patient from PID, and open a visit from PV1 (class, location, attending doctor, visit number in PV1-19, admit time) |
+| `ADT^A02`, `A06`, `A07`                      | Transfer or change the class of the visit in PV1-19, or of the latest active visit                                                       |
+| `ADT^A03`                                    | Discharge the visit, with PV1-45 as the discharge time                                                                                   |
+| `ADT^A11`, `A13`                             | Cancel the admit, or cancel the discharge                                                                                                |
+| `ADT^A08`, `A28`, `A31` and other ADT events | Update demographics                                                                                                                      |
+| `ADT^A40`                                    | Merge the patient in MRG-1 into the one in PID, moving visits, results, orders, and identifiers                                          |
+| `ORU^R01`                                    | Store each OBX (code, value, units, reference range, flags, status, time) with the OBR placer order number                               |
+| `ORM^O01`, `OML^O21`                         | Store new orders from ORC and OBR, and apply cancel (`CA`, `OC`) and status change (`SC`) control codes to existing ones                 |
+
+Any other message type, such as `SIU^S12` or `MDM^T02`, is recorded and acknowledged with `AA` without changing the registry. Escape sequences (`\F\`, `\S\`, `\T\`, `\R\`, `\E\`, `\.br\`, `\X..\`) are decoded in stored values. The last 1000 messages are kept.
+
+## HTTP API
+
+| Route                                         | Purpose                                                                                                                      |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `POST /messages`                              | Process an ER7 message in the body (segments separated by `\r` or newlines) and return the ACK as `x-application/hl7-v2+er7` |
+| `GET /messages?type=ADT^A01&limit=100`        | Recent inbound and outbound messages with their ACK code, error, raw text, and ACK, newest first                             |
+| `GET /messages/{id}`, `DELETE /messages`      | One message, or clear the log                                                                                                |
+| `GET /patients`, `GET /patients/{mrn}`        | The registry with visits, observations, orders, and merges                                                                   |
+| `GET /samples/{kind}?patient=syn-patient-001` | A synthetic `adt-a01`, `adt-a03`, `adt-a08`, `oru-r01`, or `orm-o01` message for a registry patient                          |
+| `POST /send`                                  | Send `{ "host": "127.0.0.1", "port": 6661, "message": "MSH                                                                   | ..." }`to your MLLP receiver and return its`ackCode`and`ack` |
+| `GET /mllp`                                   | The MLLP port in use                                                                                                         |
+
+`POST /send` lets you test a receiver you are building: the emulator plays the sending system, and the exchange shows up in the message log.
+
+## Synthetic data
+
+The registry starts with the [synthetic patients](/docs/fhir#synthetic-patients) `syn-patient-001` to `syn-patient-005` (names such as `SYNTHETIC^AVERY`) with fictional addresses. Samples use LOINC codes for results and orders, fictional `555-01xx` phone numbers, and placeholder provider IDs that start with `0`.
+
+## Seed config
+
+```yaml
+hl7v2:
+  mllp:
+    port: 2575
+    host: 127.0.0.1
+  generate: true
+  patients:
+    - mrn: syn-mrn-100
+      family: SYNTHETIC
+      given: QUINN
+      birthDate: "19900101"
+      sex: F
+```
+
+`generate: false` starts with an empty registry.

@@ -30,7 +30,14 @@ export interface RetainedSeed {
   secrets: GeneratedSecretRecord[];
 }
 export interface RunMetadata {
-  services: Array<{ name: string; url: string; port: number; source: string; inspectorUrl?: string }>;
+  services: Array<{
+    name: string;
+    url: string;
+    port: number;
+    source: string;
+    inspectorUrl?: string;
+    listenerUrls?: string[];
+  }>;
   dependencies: string[];
   directory: string;
   watch: string[];
@@ -119,6 +126,19 @@ export async function prepareProject(
           runtime.store.reset();
         });
         seedPreparedService(item, runtime.store, runtime.webhooks);
+        activations.push(async () => {
+          const listener = await item.loadedSvc.listen?.({
+            store: runtime.store,
+            webhooks: runtime.webhooks,
+            baseUrl,
+            config: item.svcSeedConfig,
+            hostname: options.host,
+          });
+          if (!listener) return;
+          cleanups.push(() => listener.close());
+          const entry = metadata.services.find((s) => s.name === service.name);
+          if (entry) entry.listenerUrls = listener.urls;
+        });
         const secrets = existing?.secrets ?? result.generatedSecrets;
         if (secrets.length)
           metadata.retained[service.name] = { emulator: service.emulator, input, config: item.svcSeedConfig!, secrets };

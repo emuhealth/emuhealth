@@ -106,7 +106,7 @@ Apple HealthKit and Android Health Connect are on-device APIs and out of scope.
 ## Later
 
 - [x] DICOMweb (QIDO-RS, WADO-RS, STOW-RS) ([#64](https://github.com/emuhealth/emuhealth/pull/64))
-- [ ] HL7v2 over MLLP (needs a TCP listener in core)
+- [x] HL7v2 over MLLP (needs a TCP listener in core) ([#65](https://github.com/emuhealth/emuhealth/pull/65))
 - [ ] Veeva Vault, Medidata Rave (APIs partly gated, check access first)
 - [ ] FHIR R4B and R5 support
 

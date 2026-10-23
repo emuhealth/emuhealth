@@ -294,6 +294,13 @@
       "ogTitle": "DICOMweb | emuhealth",
       "headings": ["Search (QIDO-RS)", "Retrieve (WADO-RS)", "Store (STOW-RS)", "Synthetic data", "Seed config"]
     },
+    "/docs/hl7v2": {
+      "title": "HL7 v2 over MLLP | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/hl7v2",
+      "ogTitle": "HL7 v2 over MLLP | emuhealth",
+      "headings": ["MLLP", "Acknowledgements", "Message handling", "HTTP API", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
