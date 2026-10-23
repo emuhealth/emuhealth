@@ -1,0 +1,8 @@
+# Official and widely used client libraries the emulators are tested against in CI (.github/workflows/clients.yml).
+dicomweb-client==0.61.2
+fhirclient==4.4.0
+hl7==0.4.5
+pydicom==3.0.2
+pytest==9.1.1
+requests==2.34.2
+rwslib==1.2.15

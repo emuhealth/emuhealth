@@ -54,7 +54,7 @@ const KEY = {
 };
 const SERVICE_LABEL = "Veeva Vault";
 const VAULT_ID = 1000;
-const VERSIONS = ["v24.1", "v24.2", "v24.3", "v25.1", "v25.2", "v25.3"];
+const VERSIONS = ["v24.1", "v24.2", "v24.3", "v25.1", "v25.2", "v25.3", "v26.1", "v26.2"];
 export const DEFAULT_USER: User = {
   username: "admin@synthetic-vault.example",
   password: "synthetic-password",

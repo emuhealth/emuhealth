@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Contract test for the Veeva Vault emulator through VAPIL, Veeva's Java client. Runs in CI only. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>dev.emuhealth</groupId>
+  <artifactId>veeva-vapil-contract</artifactId>
+  <version>0.0.0</version>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>vapil</id>
+      <url>https://veeva.github.io/vault-api-library/maven</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.veeva.vault</groupId>
+      <artifactId>vapil</artifactId>
+      <version>26.2.1</version>
+    </dependency>
+  </dependencies>
+</project>
