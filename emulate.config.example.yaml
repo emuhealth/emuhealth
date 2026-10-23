@@ -513,3 +513,13 @@ cerner:
       - client_id: my-system-account
         client_secret: synthetic-secret
         scope: system/Patient.read system/Observation.read
+
+athena:
+  # Practice ids the API accepts (195900 is athenahealth's preview practice)
+  practiceIds: ["195900"]
+  # Same keys as fhir for the shared synthetic records
+  generate:
+    patients: 5
+  # Open appointment slots on weekdays from startDate (default today)
+  scheduling:
+    days: 10

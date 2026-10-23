@@ -122,6 +122,24 @@ describe("createEmulator", () => {
     await cerner.close();
   });
 
+  it("starts the athenahealth emulator behind client credentials", async () => {
+    const athena = await createEmulator({ service: "athena", port: 14029 });
+    const token = await fetch(`${athena.url}/oauth2/v1/token`, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from("a:b").toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "grant_type=client_credentials",
+    });
+    const { access_token } = (await token.json()) as { access_token: string };
+    const res = await fetch(`${athena.url}/v1/195900/patients/1`, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+    expect(res.status).toBe(200);
+    await athena.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

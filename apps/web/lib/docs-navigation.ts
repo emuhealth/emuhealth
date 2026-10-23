@@ -33,6 +33,7 @@ export const docsSections: NavSection[] = [
       { name: "Benchling", href: "/docs/benchling" },
       { name: "REDCap", href: "/docs/redcap" },
       { name: "Oracle Health (Cerner)", href: "/docs/cerner" },
+      { name: "athenahealth", href: "/docs/athena" },
     ],
   },
   {

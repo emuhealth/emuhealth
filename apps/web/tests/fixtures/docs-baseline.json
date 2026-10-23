@@ -189,6 +189,13 @@
       "ogTitle": "Oracle Health (Cerner) | emuhealth",
       "headings": ["URLs", "OAuth and personas", "System accounts", "Required search parameters", "Seed config"]
     },
+    "/docs/athena": {
+      "title": "athenahealth | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/athena",
+      "ogTitle": "athenahealth | emuhealth",
+      "headings": ["Authentication", "Proprietary API", "Appointments", "FHIR R4", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

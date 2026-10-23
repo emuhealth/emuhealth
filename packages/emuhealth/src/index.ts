@@ -109,6 +109,14 @@ Oracle Health (Cerner):
   Configure it under cerner with the same keys as fhir (generate, resources, smart, terminology).
   Docs: https://www.emuhealth.dev/docs/cerner
 
+athenahealth:
+  'npx emuhealth --service athena' serves athenahealth APIs at http://localhost:4110 for practice 195900.
+  POST /oauth2/v1/token (client_credentials, Basic auth) gives a Bearer token for both APIs.
+  /v1/{practiceid}: departments, providers, patients (GET search and read, POST create), chart/{patientid}/problems,
+  allergies, medications, vitals (departmentid required), appointments/open, appointments/booked, PUT appointments/{id}, /cancel.
+  FHIR R4 at /fhir/r4; searches need ah-practice=Organization/a-1.Practice-195900.
+  Docs: https://www.emuhealth.dev/docs/athena
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

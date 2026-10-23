@@ -176,6 +176,14 @@ export function listSmartTokens(store: Store): SmartToken[] {
 }
 
 /** Look up a live access token. Expired tokens are removed. */
+/**
+ * Register an access token issued outside the SMART endpoints, for vendors whose own token endpoint also grants
+ * FHIR access (athenahealth). The FHIR API then holds requests that present it to its scopes.
+ */
+export function issueSmartToken(store: Store, token: Omit<SmartToken, "kind">): void {
+  map<SmartToken>(store, "tokens").set(token.token, { ...token, kind: "access" });
+}
+
 export function findAccessToken(store: Store, token: string): SmartToken | undefined {
   const found = map<SmartToken>(store, "tokens").get(token);
   if (!found || found.kind !== "access") return undefined;

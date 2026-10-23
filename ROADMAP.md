@@ -65,7 +65,7 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 
 - [x] Epic (FHIR R4, SMART, backend JWT auth, scheduling) ([ADR 0014](docs/decisions/0014-vendor-layers-over-fhir-core.md)) ([#39](https://github.com/emuhealth/emuhealth/pull/39))
 - [x] Oracle Health / Cerner (tenant URL shape, SMART) ([#48](https://github.com/emuhealth/emuhealth/pull/48))
-- [ ] athenahealth (proprietary REST plus FHIR)
+- [x] athenahealth (proprietary REST plus FHIR) ([#49](https://github.com/emuhealth/emuhealth/pull/49))
 - [ ] CMS Blue Button 2.0 (patient access OAuth, ExplanationOfBenefit, Coverage)
 - [ ] CDS Hooks (discovery, simulated EHR firing `patient-view` and `order-sign`)
 - [ ] Redox (JSON data models, signed webhooks via `core/src/webhooks.ts`)
