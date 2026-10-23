@@ -18,6 +18,7 @@ const services = [
   { name: "azurehealth", port: 4116, note: "Azure Health Data Services" },
   { name: "stedi", port: 4117, note: "Stedi" },
   { name: "availity", port: 4118, note: "Availity" },
+  { name: "dexcom", port: 4119, note: "Dexcom" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

@@ -22,6 +22,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "azurehealth",
   "stedi",
   "availity",
+  "dexcom",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -452,6 +453,29 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           seed: 1,
         },
         pollsUntilComplete: 1,
+      },
+    },
+  },
+  dexcom: {
+    label: "Dexcom API v3 emulator",
+    endpoints:
+      "OAuth 2.0 at /v2/oauth2/login (consent page with synthetic users) and /v2/oauth2/token; /v3/users/self/egvs (5 minute glucose, 30 day windows), events, devices, alerts, calibrations, dataRange; synthetic G7 users; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/dexcom");
+      return { plugin: mod.dexcomPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "dexcom-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      dexcom: {
+        clients: [
+          {
+            client_id: "my-dexcom-app",
+            client_secret: "synthetic-secret",
+            redirect_uris: ["http://localhost:3000/callback"],
+          },
+        ],
       },
     },
   },

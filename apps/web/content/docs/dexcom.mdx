@@ -1,0 +1,48 @@
+---
+title: "Dexcom"
+---
+
+An emulator of the [Dexcom API](https://developer.dexcom.com) v3 for apps that read continuous glucose monitoring data. It runs on `http://localhost:4119` by default with Dexcom's OAuth and data paths, and serves deterministic glucose for synthetic users wearing a G7 sensor. emuhealth is not affiliated with Dexcom.
+
+```bash
+npx emuhealth --service dexcom
+```
+
+Point your client at `http://localhost:4119` instead of `https://sandbox-api.dexcom.com` or `https://api.dexcom.com`.
+
+## OAuth
+
+1. Send the user to `GET /v2/oauth2/login?client_id=&redirect_uri=&response_type=code&scope=offline_access&state=`. The emulator shows a consent page with the synthetic users; picking one redirects back with `code` and `state`.
+2. `POST /v2/oauth2/token` (form encoded) with `grant_type=authorization_code`, `code`, `client_id`, `client_secret`, and `redirect_uri` returns `access_token` (2 hours), `refresh_token`, `token_type`, and `expires_in`. `grant_type=refresh_token` rotates the refresh token.
+
+Any client id and redirect URI work until you register apps under `dexcom.clients`. An invalid token gets `401` with Dexcom's gateway fault, `{ "fault": { "faultstring": "Invalid Access Token" } }`.
+
+## Data endpoints
+
+All take `Authorization: Bearer <access token>`. Times are UTC in Dexcom's `YYYY-MM-DDThh:mm:ss` form.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /v3/users/self/egvs?startDate=&endDate=` | Estimated glucose values every 5 minutes: `systemTime`, `displayTime`, `value` (mg/dL), `trend`, `trendRate`, `transmitterId`, `transmitterGeneration: g7` |
+| `GET /v3/users/self/events?startDate=&endDate=` | Carb entries at meal times |
+| `GET /v3/users/self/devices` | The G7 transmitter with alert schedules |
+| `GET /v3/users/self/alerts`, `/calibrations` | Empty record lists (G7 needs no calibrations) |
+| `GET /v3/users/self/dataRange` | The available range: the last 90 days |
+
+Responses have `recordType`, `recordVersion: "3.0"`, `userId`, and `records`. A window longer than 30 days, a missing date, or an end before the start is `400`.
+
+## Synthetic glucose
+
+Glucose follows a daily rhythm with meal peaks after 08:00, 13:00, and 19:00 UTC and small noise, and is the same every time for the same user and time, so tests can assert on it. Users come from the synthetic patient generator; the inspector at `/_inspector` lists them with their Dexcom `userId` and transmitter.
+
+## Seed config
+
+```yaml
+dexcom:
+  clients:
+    - client_id: my-dexcom-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5
+```

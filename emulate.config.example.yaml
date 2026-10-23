@@ -602,3 +602,13 @@ availity:
     patients: 5
   # Polls that answer In Progress (statusCode 0) before Complete (4)
   pollsUntilComplete: 1
+
+dexcom:
+  # Registered apps; with none, any client id and redirect URI is accepted
+  clients:
+    - client_id: my-dexcom-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  # Users from the synthetic patient generator
+  generate:
+    patients: 5

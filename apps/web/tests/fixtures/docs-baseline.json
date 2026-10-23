@@ -252,6 +252,13 @@
       "ogTitle": "Availity | emuhealth",
       "headings": ["Authentication", "Payers and configurations", "Coverages", "Claim statuses", "Service reviews", "Demo plan scenarios", "Seed config"]
     },
+    "/docs/dexcom": {
+      "title": "Dexcom | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/dexcom",
+      "ogTitle": "Dexcom | emuhealth",
+      "headings": ["OAuth", "Data endpoints", "Synthetic glucose", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
