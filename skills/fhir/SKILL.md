@@ -51,7 +51,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | bulk export | `GET /$export`, `/Patient/$export`, `/Group/:id/$export` with `Prefer: respond-async`: 202 + status URL, manifest with one NDJSON file per type; `_type`, `_since`, `_outputFormat`; `DELETE` status URL to remove |
 | $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |
 
-Not available yet: conditional create, update, and delete outside transactions. Requests without a token have full access unless `fhir.smart.required` is on.
+Conditional interactions: `POST` with `If-None-Exist` (one match returns it with 200), `PUT /:type?criteria` (updates the one match or creates), `DELETE /:type?criteria` (deletes the one match; none is a 204 no-op), and `If-Modified-Since` or `If-None-Match` on read (304). More than one match returns 412 `multiple-matches`. They also work as Bundle entries. Requests without a token have full access unless `fhir.smart.required` is on.
 
 ## Search
 

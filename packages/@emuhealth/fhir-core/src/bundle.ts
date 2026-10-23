@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { conditionalCreate, conditionalDelete, conditionalUpdate, criteria } from "./conditional.js";
 import { FhirError, operationOutcome } from "./outcome.js";
 import type { GuardedOperations } from "./operations.js";
 import type { FhirResource, WriteResult } from "./store.js";
@@ -119,10 +120,30 @@ function runEntry(entry: BundleEntry, deps: BundleDeps, assignedId?: string): En
       return { status: 200, resource: record.resource, etag, lastModified: record.last_updated };
     }
   }
-  if (params.length > 0 && method !== "POST")
-    throw new FhirError(400, "not-supported", `Conditional ${method} ("${url}") is not supported`);
-  if (method === "POST" && segments.length === 1)
-    return writeResult(type, fhir.create(type, entry.resource, assignedId), deps.base);
+  if (method === "POST" && segments.length === 1) {
+    if (!entry.request?.ifNoneExist) return writeResult(type, fhir.create(type, entry.resource, assignedId), deps.base);
+    const outcome = conditionalCreate(fhir, deps.search, type, entry.resource, entry.request.ifNoneExist, assignedId);
+    if ("created" in outcome) return writeResult(type, outcome.created, deps.base);
+    const { existing } = outcome;
+    return {
+      status: 200,
+      resource: existing.resource,
+      location: `${deps.base}/${type}/${existing.id}/_history/${existing.versionId}`,
+      etag: `W/"${existing.versionId}"`,
+      lastModified: existing.lastUpdated,
+    };
+  }
+  if (method === "PUT" && segments.length === 1)
+    return writeResult(
+      type,
+      conditionalUpdate(fhir, deps.search, type, params, entry.resource, entry.request?.ifMatch, assignedId),
+      deps.base,
+    );
+  if (method === "DELETE" && segments.length === 1) {
+    const { versionId: deletedVersion } = conditionalDelete(fhir, deps.search, type, params);
+    return { status: 204, ...(deletedVersion ? { etag: `W/"${deletedVersion}"` } : {}) };
+  }
+  if (params.length > 0) throw new FhirError(400, "not-supported", `Unsupported entry ${method} ${url}`);
   if (method === "PUT" && segments.length === 2)
     return writeResult(type, fhir.update(type, id, entry.resource, entry.request?.ifMatch), deps.base);
   if (method === "PATCH" && segments.length === 2)
@@ -209,7 +230,7 @@ function processTransaction(entries: BundleEntry[], deps: BundleDeps): FhirResou
     const [type, id] = segments;
     if (method === "POST" && segments.length === 1) {
       if (entry.request.ifNoneExist) {
-        const matches = deps.search(type, [...new URLSearchParams(entry.request.ifNoneExist)]);
+        const matches = deps.search(type, criteria(entry.request.ifNoneExist));
         const found = ((matches.entry ?? []) as Array<{ resource: FhirResource; search?: { mode?: string } }>).filter(
           (e) => e.search?.mode === "match",
         );
@@ -232,6 +253,16 @@ function processTransaction(entries: BundleEntry[], deps: BundleDeps): FhirResou
       const newId = randomUUID();
       assigned.set(index, newId);
       if (entry.fullUrl) ids.set(entry.fullUrl, `${type}/${newId}`);
+    } else if (method === "PUT" && segments.length === 1) {
+      // A conditional update resolves before any entry runs, so other entries can reference its fullUrl.
+      const matches = deps.search(type, params) as FhirResource & {
+        total?: number;
+        entry?: Array<{ resource: FhirResource }>;
+      };
+      const bodyId = entry.resource?.id;
+      const target = matches.total === 1 ? matches.entry![0].resource.id! : (bodyId ?? randomUUID());
+      if ((matches.total ?? 0) === 0 && bodyId === undefined) assigned.set(index, target);
+      if (entry.fullUrl) ids.set(entry.fullUrl, `${type}/${target}`);
     } else if (["PUT", "PATCH", "DELETE"].includes(method) && segments.length === 2 && params.length === 0) {
       if (written.has(`${type}/${id}`))
         throw new FhirError(400, "invalid", `entry[${index}] changes ${type}/${id}, which another entry also changes`);

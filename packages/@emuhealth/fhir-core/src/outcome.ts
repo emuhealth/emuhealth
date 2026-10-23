@@ -8,6 +8,7 @@ export type IssueCode =
   | "deleted"
   | "not-supported"
   | "conflict"
+  | "multiple-matches"
   | "processing"
   | "exception"
   | "forbidden"

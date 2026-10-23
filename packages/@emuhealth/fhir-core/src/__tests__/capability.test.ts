@@ -50,7 +50,7 @@ describe("fhir-core /metadata", () => {
       "create",
       "search-type",
     ]);
-    expect(observation).toMatchObject({ versioning: "versioned-update", updateCreate: true, conditionalCreate: false });
+    expect(observation).toMatchObject({ versioning: "versioned-update", updateCreate: true, conditionalCreate: true });
     const params = observation.searchParam.map((p: { name: string; type: string }) => `${p.name}:${p.type}`);
     expect(params).toEqual(
       expect.arrayContaining(["_id:token", "_lastUpdated:date", "patient:reference", "code:token", "date:date"]),
@@ -87,7 +87,7 @@ describe("fhir service OperationOutcome for unsupported paths", () => {
     const app = createApp();
     for (const [method, path] of [
       ["GET", "/patient"],
-      ["DELETE", "/Patient"],
+      ["PATCH", "/Patient"],
       ["PUT", "/metadata"],
     ]) {
       const res: JsonResponse = await app.request(`${base}${path}`, { method });
@@ -97,6 +97,10 @@ describe("fhir service OperationOutcome for unsupported paths", () => {
       expect(outcome.resourceType).toBe("OperationOutcome");
       expect(outcome.issue[0].code).toBe("not-supported");
     }
+    // A type level DELETE is a conditional delete, which needs search criteria.
+    const unconditional: JsonResponse = await app.request(`${base}/Patient`, { method: "DELETE" });
+    expect(unconditional.status).toBe(400);
+    expect((await unconditional.json()).issue[0].code).toBe("required");
   });
 
   it("leaves /_emulate paths to core routes", async () => {
