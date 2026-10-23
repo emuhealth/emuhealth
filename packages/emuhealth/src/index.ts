@@ -59,6 +59,13 @@ openFDA:
   openfda.generate sets seed and events, or false for none; openfda.records adds records per endpoint.
   Docs: https://www.emuhealth.dev/docs/openfda
 
+RxNav:
+  'npx emuhealth --service rxnav' serves the RxNorm REST API at http://localhost:4103/REST.
+  GET /REST/rxcui.json?name=, /REST/drugs.json?name=, /REST/rxcui/:rxcui/properties.json, /related.json?tty=,
+  /allrelated.json, /ndcs.json, /REST/approximateTerm.json?term=, /REST/spellingsuggestions.json?name=.
+  Starts with RxNorm ingredients and clinical drugs; rxnav.concepts adds concepts, rxnav.defaults: false drops the subset.
+  Docs: https://www.emuhealth.dev/docs/rxnav
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -26,6 +26,7 @@ export const docsSections: NavSection[] = [
       { name: "FHIR R4", href: "/docs/fhir" },
       { name: "Epic", href: "/docs/epic" },
       { name: "openFDA", href: "/docs/openfda" },
+      { name: "RxNav", href: "/docs/rxnav" },
     ],
   },
   {

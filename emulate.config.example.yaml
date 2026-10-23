@@ -431,3 +431,15 @@ openfda:
       - id: my-label-1
         openfda:
           generic_name: ["EXAMPLEMAB"]
+
+rxnav:
+  # RxNorm concepts to add; clinical drugs list their ingredient rxcuis
+  concepts:
+    - rxcui: "900001"
+      name: examplemab
+      tty: IN
+    - rxcui: "900002"
+      name: examplemab 10 MG Injection
+      tty: SCD
+      ingredients: ["900001"]
+  # defaults: false starts without the built-in RxNorm subset

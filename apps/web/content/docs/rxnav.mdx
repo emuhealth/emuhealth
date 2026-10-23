@@ -1,0 +1,48 @@
+---
+title: "RxNav"
+---
+
+An emulator of the NLM [RxNav](https://lhncbc.nlm.nih.gov/RxNav/) RxNorm REST API for apps that normalize drug names and look up RxNorm concepts. It runs on `http://localhost:4103` by default, under the same `/REST` paths and JSON shapes as `rxnav.nlm.nih.gov`.
+
+```bash
+npx emuhealth --service rxnav
+curl 'http://localhost:4103/REST/rxcui.json?name=lisinopril'
+```
+
+Point your client at `http://localhost:4103/REST` instead of `https://rxnav.nlm.nih.gov/REST`. Paths work with or without `.json`, and the emulator always answers in JSON.
+
+## Endpoints
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /REST/rxcui.json?name=` | `idGroup.rxnormId` for an exact (case-insensitive) name, or `{ "idGroup": {} }` |
+| `GET /REST/drugs.json?name=` | `drugGroup.conceptGroup` of clinical drugs for an ingredient or drug name |
+| `GET /REST/rxcui/:rxcui/properties.json` | `properties` (`rxcui`, `name`, `synonym`, `tty`, `language`, `suppress`, `umlscui`), or `{}` |
+| `GET /REST/rxcui/:rxcui/related.json?tty=IN+SCD` | `relatedGroup.conceptGroup` for the requested term types; a requested type with no concepts has no `conceptProperties` |
+| `GET /REST/rxcui/:rxcui/allrelated.json` | `allRelatedGroup.conceptGroup` for every term type |
+| `GET /REST/rxcui/:rxcui/ndcs.json` | An empty `ndcGroup.ndcList`: no NDCs are bundled |
+| `GET /REST/approximateTerm.json?term=&maxEntries=` | `approximateGroup.candidate` ranked by spelling distance |
+| `GET /REST/spellingsuggestions.json?name=` | `suggestionGroup.suggestionList.suggestion` |
+| `GET /REST/displaynames.json` | `displayTermsList.term` |
+| `GET /_inspector` | Browse the concepts |
+
+## Concepts
+
+The emulator starts with a small RxNorm subset, checked against RxNav: the ingredients (`IN`) and clinical drugs (`SCD`) the [FHIR patient generator](/docs/fhir#synthetic-patients) prescribes, such as lisinopril (`29046`) and lisinopril 10 MG Oral Tablet (`314076`). Clinical drugs are related to their ingredients, so `related`, `allrelated`, and `drugs` work in both directions. It is not the full RxNorm.
+
+## Seed config
+
+```yaml
+rxnav:
+  concepts:
+    - rxcui: "900001"
+      name: examplemab
+      tty: IN
+    - rxcui: "900002"
+      name: examplemab 10 MG Injection
+      tty: SCD
+      ingredients: ["900001"] # relates the drug to its ingredient
+  defaults: false # start without the built-in subset
+```
+
+A concept with an existing `rxcui` replaces it. `tty` is an RxNorm term type such as `IN`, `PIN`, `SCD`, `SBD`, or `BN`.

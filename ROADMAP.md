@@ -85,8 +85,8 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 
 Public reference APIs are read-heavy and quick to build, so they can be pulled forward as early wins.
 
-- [x] openFDA (drug labels, adverse events, recalls)
-- [ ] NLM RxNav / RxNorm
+- [x] openFDA (drug labels, adverse events, recalls) ([#40](https://github.com/emuhealth/emuhealth/pull/40))
+- [x] NLM RxNav / RxNorm ([#41](https://github.com/emuhealth/emuhealth/pull/41))
 - [ ] ClinicalTrials.gov API v2
 - [ ] NCBI E-utilities (PubMed, Gene)
 - [ ] NPPES NPI Registry
