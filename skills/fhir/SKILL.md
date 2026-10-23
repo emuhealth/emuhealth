@@ -19,6 +19,8 @@ npx emuhealth --service fhir
 # http://localhost:4100
 ```
 
+It starts with 5 generated synthetic patients (`Patient/syn-patient-001` and up) with encounters, vitals, conditions, medications, labs, allergies, and immunizations.
+
 Or programmatically:
 
 ```typescript
@@ -104,6 +106,10 @@ Errors are `OperationOutcome` resources: `400` invalid input, `404` unknown id, 
 
 ```yaml
 fhir:
+  generate:
+    patients: 25 # 0 to 1000, default 5; false starts empty
+    seed: 42 # same seed, same records
+    referenceDate: "2026-01-01"
   resources:
     - resourceType: Patient
       id: synthetic-patient-1
@@ -114,4 +120,4 @@ fhir:
       birthDate: "1980-01-01"
 ```
 
-Resources with an `id` keep it; others get a server-assigned id. Invalid resources stop startup with the failing index, for example `fhir.resources[0]`.
+Generated records are deterministic and tagged `urn:emuhealth:tag|synthetic`. Resources under `resources` load on top; those with an `id` keep it, others get a server-assigned id. Invalid resources stop startup with the failing index, for example `fhir.resources[0]`.

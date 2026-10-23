@@ -52,7 +52,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 pb-16 pt-4 sm:pb-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            The FHIR store and config seeding are available now. SMART on FHIR is in development.
+            The FHIR store and generated synthetic patients are available now. SMART on FHIR is in development.
           </p>
           <div className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
             <div>
@@ -72,8 +72,8 @@ export default function LandingPage() {
             <div>
               <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Synthetic patients</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Seed patients, encounters, labs, conditions, and medications from a config file. Realistic enough to
-                test against, never real PHI.
+                Start with generated patients, encounters, vitals, labs, conditions, and medications, or seed your own
+                from a config file. Deterministic, realistic enough to test against, never real PHI.
               </p>
             </div>
             <div>
