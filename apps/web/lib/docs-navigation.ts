@@ -50,6 +50,7 @@ export const docsSections: NavSection[] = [
       { name: "DICOMweb", href: "/docs/dicomweb" },
       { name: "HL7 v2 over MLLP", href: "/docs/hl7v2" },
       { name: "Veeva Vault", href: "/docs/veeva" },
+      { name: "Medidata Rave", href: "/docs/rave" },
     ],
   },
   {

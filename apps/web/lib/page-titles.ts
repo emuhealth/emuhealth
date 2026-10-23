@@ -4,6 +4,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",
+  rave: "Medidata Rave",
   veeva: "Veeva Vault",
   hl7v2: "HL7 v2 over MLLP",
   dicomweb: "DICOMweb",
