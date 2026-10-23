@@ -5,6 +5,7 @@ export const PAGE_TITLES: Record<string, string> = {
   configuration: "Configuration",
   fhir: "FHIR R4",
   epic: "Epic",
+  openfda: "openFDA",
   nextjs: "Next.js Integration",
   nuxt: "Nuxt Integration",
   vercel: "Vercel API",

@@ -1,6 +1,7 @@
 const services = [
   { name: "fhir", port: 4100, note: "FHIR R4" },
   { name: "epic", port: 4101, note: "Epic" },
+  { name: "openfda", port: 4102, note: "openFDA" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

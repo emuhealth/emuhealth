@@ -63,7 +63,7 @@ Package: `@emuhealth/fhir-core`
 
 Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks, error formats, and proprietary endpoints.
 
-- [x] Epic (FHIR R4, SMART, backend JWT auth, scheduling) ([ADR 0014](docs/decisions/0014-vendor-layers-over-fhir-core.md))
+- [x] Epic (FHIR R4, SMART, backend JWT auth, scheduling) ([ADR 0014](docs/decisions/0014-vendor-layers-over-fhir-core.md)) ([#39](https://github.com/emuhealth/emuhealth/pull/39))
 - [ ] Oracle Health / Cerner (tenant URL shape, SMART)
 - [ ] athenahealth (proprietary REST plus FHIR)
 - [ ] CMS Blue Button 2.0 (patient access OAuth, ExplanationOfBenefit, Coverage)
@@ -85,7 +85,7 @@ Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks
 
 Public reference APIs are read-heavy and quick to build, so they can be pulled forward as early wins.
 
-- [ ] openFDA (drug labels, adverse events, recalls)
+- [x] openFDA (drug labels, adverse events, recalls)
 - [ ] NLM RxNav / RxNorm
 - [ ] ClinicalTrials.gov API v2
 - [ ] NCBI E-utilities (PubMed, Gene)
