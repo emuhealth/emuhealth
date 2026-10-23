@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
+import { processBundle } from "./bundle.js";
 import { parseSearch, resolveIncludes, runSearch, type SearchContext } from "./search.js";
-import { getFhirStore, type FhirHistoryRecord, type WriteResult } from "./store.js";
+import { getFhirStore, type FhirHistoryRecord, type FhirResource, type WriteResult } from "./store.js";
 
 export const FHIR_JSON = "application/fhir+json; charset=utf-8";
 
@@ -67,7 +68,7 @@ function handle(handler: (c: AnyContext) => Promise<Response> | Response) {
   };
 }
 
-/** Mount the FHIR R4 REST API (create, read, vread, update, patch, delete, history). */
+/** Mount the FHIR R4 REST API (create, read, vread, update, patch, delete, history, search, batch, transaction). */
 export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRouteOptions): void {
   const basePath = (options.basePath ?? "").replace(/\/+$/, "");
   const base = `${options.baseUrl.replace(/\/+$/, "")}${basePath}`;
@@ -89,15 +90,27 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     return fhirJson(c, result.resource, status, headers);
   }
 
-  function historyBundle(c: AnyContext, total: number, entries: FhirHistoryRecord[]): Response {
-    return fhirJson(c, {
+  function historyBundle(params: Array<[string, string]>, type?: string, id?: string): FhirResource {
+    const query = new URLSearchParams(params);
+    const since = query.get("_since") ?? undefined;
+    const { total, entries } = fhir().listHistory({
+      type,
+      id,
+      since,
+      count: parseCount(query.get("_count") ?? undefined),
+    });
+    if (type && id && total === 0 && since === undefined)
+      throw new FhirError(404, "not-found", `${type}/${id} is not known`);
+    const path = [type, id, "_history"].filter(Boolean).join("/");
+    const qs = query.toString();
+    return {
       resourceType: "Bundle",
       id: randomUUID(),
       meta: { lastUpdated: new Date().toISOString() },
       type: "history",
       total,
-      link: [{ relation: "self", url: `${base}${c.req.path.slice(basePath.length)}${new URL(c.req.url).search}` }],
-      entry: entries.map((h) => ({
+      link: [{ relation: "self", url: `${base}/${path}${qs ? `?${qs}` : ""}` }],
+      entry: entries.map((h: FhirHistoryRecord) => ({
         fullUrl: `${base}/${h.resource_type}/${h.fhir_id}`,
         ...(h.resource ? { resource: h.resource } : {}),
         request: { method: h.method, url: h.method === "POST" ? h.resource_type : `${h.resource_type}/${h.fhir_id}` },
@@ -107,19 +120,11 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
           lastModified: h.last_updated,
         },
       })),
-    });
+    };
   }
 
   function history(c: AnyContext, type?: string, id?: string): Response {
-    const { total, entries } = fhir().listHistory({
-      type,
-      id,
-      since: c.req.query("_since"),
-      count: parseCount(c.req.query("_count")),
-    });
-    if (type && id && total === 0 && c.req.query("_since") === undefined)
-      throw new FhirError(404, "not-found", `${type}/${id} is not known`);
-    return historyBundle(c, total, entries);
+    return fhirJson(c, historyBundle([...new URL(c.req.url).searchParams], type, id));
   }
 
   async function search(c: AnyContext, type: string): Promise<Response> {
@@ -131,6 +136,10 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       params.push(...new URLSearchParams(await c.req.text()));
     }
     const strict = /handling=strict/.test(c.req.header("Prefer") ?? "");
+    return fhirJson(c, searchBundle(type, params, strict));
+  }
+
+  function searchBundle(type: string, params: Array<[string, string]>, strict = false): FhirResource {
     const parsed = parseSearch(type, params, { strict });
     const store = fhir();
     const ctx: SearchContext = {
@@ -152,7 +161,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     }
     const page = parsed.summaryCount ? [] : matches.slice(parsed.offset, parsed.offset + parsed.count);
     const included = resolveIncludes(page, parsed, ctx);
-    return fhirJson(c, {
+    return {
       resourceType: "Bundle",
       id: randomUUID(),
       meta: { lastUpdated: new Date().toISOString() },
@@ -171,8 +180,31 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
           search: { mode: "include" },
         })),
       ],
-    });
+    };
   }
+
+  async function bundle(c: AnyContext): Promise<Response> {
+    const body = await readJson(c, ["application/fhir+json", "application/json"]);
+    const prefer = c.req.header("Prefer");
+    return fhirJson(
+      c,
+      processBundle(body, {
+        fhir: fhir(),
+        base,
+        prefer,
+        search: (type, params) => searchBundle(type, params),
+        history: (params, type, id) => historyBundle(params, type, id),
+        snapshot: () => {
+          const saved = store.snapshot();
+          return () => store.restore(saved);
+        },
+      }),
+    );
+  }
+
+  // POST to the base URL processes batch and transaction Bundles.
+  app.post(`${basePath}/`, handle(bundle));
+  if (basePath) app.post(basePath, handle(bundle));
 
   app.get(
     `${basePath}/${TYPE}`,
