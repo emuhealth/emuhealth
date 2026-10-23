@@ -584,3 +584,14 @@ azurehealth:
   # Verify Entra ID tokens issued by the microsoft service (omit to accept any Bearer token)
   entra:
     issuer: http://localhost:4005/9188040d-6c67-4c5b-b112-36a304b66dad/v2.0
+
+stedi:
+  # API keys; with none, any key is accepted
+  apiKeys: [test_synthetic_key]
+  # Members from the synthetic patient generator
+  generate:
+    patients: 5
+    seed: 1
+  # Event destinations for transaction.processed.v2 (835 ready)
+  webhooks:
+    - url: http://localhost:3000/stedi/events

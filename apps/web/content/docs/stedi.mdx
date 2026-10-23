@@ -1,0 +1,50 @@
+---
+title: "Stedi"
+---
+
+An emulator of the [Stedi](https://www.stedi.com) healthcare clearinghouse APIs for apps that check eligibility, submit professional claims, follow claim status, and read remittances. It runs on `http://localhost:4117` by default with Stedi's `2024-04-01` JSON endpoints, against synthetic payers and members. emuhealth is not affiliated with Stedi.
+
+```bash
+npx emuhealth --service stedi
+curl -X POST http://localhost:4117/2024-04-01/change/medicalnetwork/eligibility/v3 \
+  -H 'Authorization: test_synthetic_key' -H 'Content-Type: application/json' \
+  -d '{"tradingPartnerServiceId":"SYN01","provider":{"organizationName":"Synthetic Health Clinic","npi":"0000000016"},"subscriber":{"memberId":"SYNM000001"},"encounter":{"serviceTypeCodes":["30"]}}'
+```
+
+Point your client at `http://localhost:4117` instead of `https://healthcare.us.stedi.com` (and `https://core.us.stedi.com` for transactions).
+
+## Authentication
+
+Send the API key in `Authorization`, with or without the legacy `Key ` prefix. Any key works until you list `stedi.apiKeys`; a missing or unknown key gets `401`.
+
+## Payers and members
+
+`GET /2024-04-01/payers` lists two synthetic payers, `SYN01` (Synthetic Health Plan) and `SYN02` (Synthetic Senior Care). Members come from the synthetic patient generator: `SYNM000001` and up, alternating between the payers, with the patients' names, dates of birth, and addresses. The inspector at `/_inspector` lists them.
+
+## Eligibility
+
+`POST /2024-04-01/change/medicalnetwork/eligibility/v3` takes Stedi's 270 JSON (`tradingPartnerServiceId`, `provider.npi`, `subscriber` by `memberId` or by `lastName` and `dateOfBirth`, `encounter.serviceTypeCodes`) and returns the 271 JSON: `subscriber`, `payer`, `planInformation`, `planDateInformation`, `planStatus`, and `benefitsInformation` with active coverage, deductible (calendar year and remaining), co-payment, co-insurance, and out-of-pocket entries for each service type. An unknown member returns `errors` with AAA code `75`, "Subscriber/Insured Not Found".
+
+## Claims
+
+`POST /2024-04-01/change/medicalnetwork/professionalclaims/v3/submission` takes Stedi's 837P JSON (`submitter`, `receiver`, `subscriber`, `billing`, and `claimInformation` with `serviceLines`). Missing required fields and a `claimChargeAmount` that does not equal the service lines are `400`. A valid claim returns `status: SUCCESS` and a `claimReference`, and the emulator adjudicates it at once: each line is paid at the payer's allowed share (80% for `SYN01`, 70% for `SYN02`), or denied when the member is unknown.
+
+## Claim status
+
+`POST /2024-04-01/change/medicalnetwork/claimstatus/v2` with the payer, subscriber, and an `encounter` date range (and optionally `trackingNumber`, the patient control number) returns `claims[].claimStatus` with category `F1` and status `65` (paid) or `F2` (denied), amounts, dates, and per-line `serviceDetails`. With no matching claim it returns category `A4`, "not found".
+
+## 835 ERAs and transactions
+
+Each adjudicated claim produces an 835. `GET /2023-08-01/transactions` lists them (newest first, with `pageToken` paging), and `GET /2024-04-01/change/medicalnetwork/reports/v2/{transactionId}/835` returns the 835 JSON: payment amount and EFT details, payer and payee, and per-claim and per-line payments with `CO 45` adjustments for the disallowed share. Event destinations under `stedi.webhooks` receive a `transaction.processed.v2` event for each.
+
+Claim examples in these docs use HCPCS Level II codes; emuhealth does not bundle CPT.
+
+## Seed config
+
+```yaml
+stedi:
+  apiKeys: [test_synthetic_key]
+  generate: { patients: 5, seed: 1 }
+  webhooks:
+    - url: http://localhost:3000/stedi/events
+```

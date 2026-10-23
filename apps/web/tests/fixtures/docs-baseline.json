@@ -238,6 +238,13 @@
       "ogTitle": "Azure Health Data Services | emuhealth",
       "headings": ["FHIR services", "Entra ID tokens", "Seed config"]
     },
+    "/docs/stedi": {
+      "title": "Stedi | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/stedi",
+      "ogTitle": "Stedi | emuhealth",
+      "headings": ["Authentication", "Payers and members", "Eligibility", "Claims", "Claim status", "835 ERAs and transactions", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

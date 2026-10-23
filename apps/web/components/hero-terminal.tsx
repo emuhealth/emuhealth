@@ -16,6 +16,7 @@ const services = [
   { name: "healthlake", port: 4114, note: "AWS HealthLake" },
   { name: "gcphealthcare", port: 4115, note: "Google Cloud Healthcare API" },
   { name: "azurehealth", port: 4116, note: "Azure Health Data Services" },
+  { name: "stedi", port: 4117, note: "Stedi" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

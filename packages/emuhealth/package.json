@@ -62,6 +62,7 @@
   "devDependencies": {
     "@emulators/core": "workspace:*",
     "@emuhealth/fhir-core": "workspace:*",
+    "@emuhealth/stedi": "workspace:*",
     "@emuhealth/azurehealth": "workspace:*",
     "@emuhealth/gcphealthcare": "workspace:*",
     "@emuhealth/healthlake": "workspace:*",
