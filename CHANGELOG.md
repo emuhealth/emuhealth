@@ -1,6 +1,29 @@
 # Changelog
 
 <!-- release:start -->
+## 0.8.0
+
+The rest of the roadmap ships: DICOMweb, HL7 v2 over MLLP, Veeva Vault, Medidata Rave, and FHIR R4B and R5. Synthetic data only.
+
+### New Features
+
+- **DICOMweb** (`--service dicomweb`, port 4124): QIDO-RS search, WADO-RS retrieve of Part 10 instances, metadata, frames, bulk data, and rendered PNGs, STOW-RS store with the standard response, over synthetic CT and MR phantoms (#64)
+- **HL7 v2** (`--service hl7v2`, port 4125, MLLP on 2575): original mode ACKs for any message; ADT, ORU, ORM, and OML applied to a synthetic patient registry; an HTTP API to post messages, get samples, and send to your own MLLP receiver (#65)
+- **Veeva Vault** (`--service veeva`, port 4126): sessions, object records with JSON and CSV create, upsert, update, and delete, documents with versions and files, metadata, and a VQL subset with relationships and paging (#66)
+- **Medidata Rave** (`--service rave`, port 4127): Rave Web Services with HTTP Basic auth, study and CRF metadata as ODM, subjects, clinical data datasets, ClinicalAuditRecords, and transactional `PostODMClinicalData` imports (#67)
+- **FHIR R4B and R5**: `fhir.fhirVersion` serves 4.3.0 or 5.0.0 with that version's resource types, CapabilityStatement, `$versions`, `fhirVersion` media type negotiation, and R5 shaped synthetic data (#68)
+
+### Changes
+
+- Services can open listeners beyond HTTP through an optional `listen` hook in the CLI registry, started and closed with the service and shown in the start banner (decision 0015, #65)
+- fhir-core: `fhirVersion` options on `registerFhirRoutes` and `createFhirInstance`, R4B and R5 resource type sets, and search paths that cover renamed R5 elements (decision 0016, #68)
+
+### Documentation
+
+- Docs pages and agent skills for every new emulator, and a FHIR versions section in the FHIR docs
+
+<!-- release:end -->
+
 ## 0.7.0
 
 Fifteen new emulators finish the EHR, cloud, payer, and wearable phases of the roadmap: Oracle Health, athenahealth, CMS Blue Button 2.0, CDS Hooks, Redox, AWS HealthLake, Google Cloud Healthcare, Azure Health Data Services, Stedi, Availity, Dexcom, Fitbit, Oura, Withings, and Terra. Synthetic data only.
@@ -33,8 +56,6 @@ Fifteen new emulators finish the EHR, cloud, payer, and wearable phases of the r
 ### Documentation
 
 - Docs pages and agent skills for every new emulator
-
-<!-- release:end -->
 
 ## 0.6.0
 

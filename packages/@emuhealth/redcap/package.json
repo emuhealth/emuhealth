@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/redcap",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "REDCap API emulator for emuhealth: project, metadata, instruments, and record export, import, and delete in json, csv, or xml for a synthetic project.",
   "license": "Apache-2.0",

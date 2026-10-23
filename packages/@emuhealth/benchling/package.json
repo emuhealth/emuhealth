@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/benchling",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Benchling API v2 emulator for emuhealth: DNA and AA sequences, notebook entries, registry, assay results, events, and signed webhooks over a synthetic tenant.",
   "license": "Apache-2.0",
