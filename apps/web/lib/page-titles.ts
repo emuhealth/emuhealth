@@ -4,6 +4,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",
+  cerner: "Oracle Health (Cerner)",
   redcap: "REDCap",
   benchling: "Benchling",
   nppes: "NPPES NPI Registry",

@@ -8,6 +8,7 @@ const services = [
   { name: "nppes", port: 4106, note: "NPPES NPI Registry" },
   { name: "benchling", port: 4107, note: "Benchling" },
   { name: "redcap", port: 4108, note: "REDCap" },
+  { name: "cerner", port: 4109, note: "Oracle Health (Cerner)" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

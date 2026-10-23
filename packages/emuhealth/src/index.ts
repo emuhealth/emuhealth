@@ -101,6 +101,14 @@ REDCap:
   Exports take records[], fields[], forms[], filterLogic, rawOrLabel, type=eav. Imports validate against the dictionary.
   Docs: https://www.emuhealth.dev/docs/redcap
 
+Oracle Health (Cerner):
+  'npx emuhealth --service cerner' serves FHIR R4 the way Oracle Health Millennium does, at
+  http://localhost:4109/r4/5e7e0000-0000-4000-8000-000000000001 (a synthetic tenant).
+  OAuth under /tenants/{tenant}/protocols/oauth2/profiles/smart-v1 (personas/provider/authorize, personas/patient/authorize, token).
+  System accounts: client_credentials with a client secret. Searches need Millennium's required parameters (patient, _id, ...).
+  Configure it under cerner with the same keys as fhir (generate, resources, smart, terminology).
+  Docs: https://www.emuhealth.dev/docs/cerner
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

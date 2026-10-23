@@ -12,6 +12,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "nppes",
   "benchling",
   "redcap",
+  "cerner",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -200,6 +201,34 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         generate: {
           records: 20,
           seed: 1,
+        },
+      },
+    },
+  },
+  cerner: {
+    label: "Oracle Health (Cerner) Millennium FHIR R4 emulator",
+    endpoints:
+      "Millennium tenant URL shape (/r4/{tenant}) over the full FHIR server, persona OAuth endpoints under /tenants/{tenant}/protocols/oauth2/profiles/smart-v1, system accounts with client_credentials and a client secret, tenant and username in token responses, Millennium's required search parameters, generated synthetic patients, inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/cerner");
+      return { plugin: mod.cernerPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "cerner-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      cerner: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
+        smart: {
+          clients: [
+            {
+              client_id: "my-millennium-app",
+              redirect_uris: ["http://localhost:3000/callback"],
+            },
+          ],
         },
       },
     },

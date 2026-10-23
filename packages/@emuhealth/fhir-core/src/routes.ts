@@ -32,7 +32,11 @@ export interface FhirRouteOptions {
   /** Implementation description reported in the CapabilityStatement, for example the vendor being emulated. */
   description?: string;
   /** SMART App Launch endpoint paths for vendors that use their own (absolute paths on this server), and vendor fields for token responses. */
-  smart?: { paths?: Partial<SmartPaths>; tokenExtras?: SmartRouteOptions["tokenExtras"] };
+  smart?: {
+    paths?: Partial<SmartPaths>;
+    tokenExtras?: SmartRouteOptions["tokenExtras"];
+    clientCredentialsWithSecret?: boolean;
+  };
   /** Adjust every search result Bundle, for vendor quirks such as an OperationOutcome entry on empty results. */
   searchBundle?: (bundle: FhirResource, type: string) => FhirResource;
   /** Path of the HTML inspector (default /_inspector), or false to leave it out. */
@@ -257,6 +261,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     basePath,
     paths: options.smart?.paths,
     tokenExtras: options.smart?.tokenExtras,
+    clientCredentialsWithSecret: options.smart?.clientCredentialsWithSecret,
   });
   if (options.inspectorPath !== false)
     registerFhirInspector(app, store, { path: options.inspectorPath ?? "/_inspector", base });

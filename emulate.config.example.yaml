@@ -502,3 +502,14 @@ redcap:
     - record_id: "100"
       sex: "1"
       sbp: "128"
+
+cerner:
+  # Same keys as fhir, served under /r4/5e7e0000-0000-4000-8000-000000000001
+  smart:
+    clients:
+      - client_id: my-millennium-app
+        redirect_uris: ["http://localhost:3000/callback"]
+      # A system account: client_credentials with Basic auth
+      - client_id: my-system-account
+        client_secret: synthetic-secret
+        scope: system/Patient.read system/Observation.read
