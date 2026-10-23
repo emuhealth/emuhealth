@@ -1,1 +1,3 @@
-{}
+{
+  "No definition could be found for URL value 'http://hl7.org/fhir/NamingSystem/gs1-di'": "Device.udiCarrier.issuer uses the GS1 issuer URL the R5 spec lists; the core package has no NamingSystem resource for it"
+}
