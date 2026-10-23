@@ -51,7 +51,8 @@ describe("authentication", () => {
     const { raw, req } = await startService();
     expect(((await (await raw("/api")).json()) as any).values["v24.3"]).toBe(`${base}/api/v24.3`);
     const missing = await req(`${V}/nothing/here`);
-    expect(missing.status).toBe(404);
+    expect(missing.status).toBe(200);
+    expect(missing.body.responseStatus).toBe("FAILURE");
     expect(missing.body.errors[0].type).toBe("MALFORMED_URL");
   });
 });

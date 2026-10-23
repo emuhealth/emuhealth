@@ -116,7 +116,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 - [x] Validate generated and served FHIR R4, R4B, and R5 resources with the HL7 FHIR Validator in CI ([#72](https://github.com/emuhealth/emuhealth/pull/72))
 - [x] Contract tests with official clients in CI: rwslib (Rave), fhirclient (FHIR), dicomweb-client (DICOMweb), python-hl7 (HL7 v2), VAPIL, the Vault API Java library (Veeva) ([#73](https://github.com/emuhealth/emuhealth/pull/73))
-- [ ] Settle flagged assumptions: Vault error HTTP status codes and Rave import reason codes, from authoritative sources or clearly labeled in docs
+- [x] Settle flagged assumptions: Vault error HTTP status codes and Rave import reason codes, from authoritative sources or clearly labeled in docs ([#74](https://github.com/emuhealth/emuhealth/pull/74))
 - [ ] End-to-end examples in `examples/`: SMART on FHIR app against Epic, HL7 v2 feed into FHIR, EDC sync from Rave
 
 ## Suggested order

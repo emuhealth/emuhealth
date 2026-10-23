@@ -35,7 +35,7 @@ HTTP Basic auth is required everywhere except `version`, `diagnostics`, and `two
 Values are type-checked. The import is all or nothing.
 
 - Success returns `<Response IsTransactionSuccessful="1" SuccessStatistics="Rave objects touched: ..."/>`.
-- Failure returns 409 with `ErrorClientResponseMessage`, `ErrorOriginLocation` and an emulator `ReasonCode` (`EMU001` to `EMU011`).
+- Failure returns 400 with `ErrorClientResponseMessage`, `ErrorOriginLocation` and a `ReasonCode`: `RWS00024` for a subject that already exists, otherwise an emulator code (`EMU001` to `EMU011`).
 
 ## Seed config
 

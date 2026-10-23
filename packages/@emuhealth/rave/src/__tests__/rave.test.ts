@@ -72,7 +72,12 @@ describe("RWS", () => {
     const meta = await req(`${R}/metadata/studies/EMU-101/versions/1001`);
     expect(find(meta.xml, "FormDef").map((f) => f.attrs.OID)).toEqual(["DM", "VS", "AE"]);
     expect(find(meta.xml, "ItemDef").find((i) => i.attrs.OID === "VS.PULSE").attrs.DataType).toBe("integer");
-    expect((await req(`${R}/metadata/studies/EMU-101/versions/9`)).status).toBe(404);
+    const missing = await req(`${R}/metadata/studies/EMU-101/versions/9`);
+    expect(missing.status).toBe(404);
+    expect(missing.xml!.attrs).toMatchObject({
+      ReasonCode: "RWS00092",
+      ErrorClientResponseMessage: "CRF version not found",
+    });
   });
 
   it("lists subjects with status, links, and UUID keys", async () => {
@@ -143,9 +148,20 @@ describe("RWS", () => {
           </ItemGroupData></FormData></StudyEventData>
         </SubjectData>`),
     });
-    expect(bad.status).toBe(409);
+    expect(bad.status).toBe(400);
     expect(bad.xml!.attrs).toMatchObject({ IsTransactionSuccessful: "0", ReasonCode: "EMU010" });
     expect(bad.text.startsWith("<Response")).toBe(true);
+    const duplicate = await req(`${R}/webservice.aspx?PostODMClinicalData`, {
+      method: "POST",
+      body: post(
+        `<SubjectData SubjectKey="101-900" TransactionType="Insert"><SiteRef LocationOID="SYN-SITE-101" /></SubjectData>`,
+      ),
+    });
+    expect(duplicate.xml!.attrs).toMatchObject({
+      ReasonCode: "RWS00024",
+      ErrorOriginLocation: "/ODM/ClinicalData[1]/SubjectData[1]",
+      ErrorClientResponseMessage: "Subject already exists.",
+    });
     expect(bad.xml!.attrs.ErrorOriginLocation).toBe(
       "/ODM/ClinicalData[1]/SubjectData[2]/StudyEventData[1]/FormData[1]/ItemGroupData[1]/ItemData[1]",
     );

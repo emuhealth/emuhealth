@@ -398,8 +398,9 @@ export const veevaPlugin: ServicePlugin = {
   register(app: Hono<AppEnv>, store: Store, _webhooks: WebhookDispatcher, baseUrl: string, _tokenMap?: TokenMap): void {
     const base = baseUrl.replace(/\/$/, "");
     const ok = (c: Context<AppEnv>, body: Record<string, unknown>) => c.json({ responseStatus: "SUCCESS", ...body });
-    const fail = (c: Context<AppEnv>, type: string, message: string, status: 200 | 404 = 200) =>
-      c.json({ responseStatus: "FAILURE", errors: [{ type, message }] }, status);
+    // Vault answers every request it processes with HTTP 200 and reports failures in responseStatus.
+    const fail = (c: Context<AppEnv>, type: string, message: string) =>
+      c.json({ responseStatus: "FAILURE", errors: [{ type, message }] });
     const userOf = (c: Context<AppEnv>) => c.get("veevaUser" as never) as unknown as number;
 
     app.get("/api", (c) => ok(c, { values: Object.fromEntries(VERSIONS.map((v) => [v, `${base}/api/${v}`])) }));
@@ -471,7 +472,7 @@ export const veevaPlugin: ServicePlugin = {
     );
     app.get(`/api/${VERSION}/metadata/vobjects/:object`, (c) => {
       const def = objectDef(c.req.param("object"));
-      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.", 404);
+      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.");
       return ok(c, {
         object: { ...objectSummary(c.req.param("version"), def), fields: def.fields.map(describeField) },
       });
@@ -484,7 +485,7 @@ export const veevaPlugin: ServicePlugin = {
     const withDef = (c: Context<AppEnv>) => objectDef(c.req.param("object"));
     app.get(`/api/${VERSION}/vobjects/:object`, (c) => {
       const def = withDef(c);
-      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.", 404);
+      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.");
       const version = c.req.param("version");
       const p = new URL(c.req.url).searchParams;
       const fields = (p.get("fields") ?? "id,name__v")
@@ -522,7 +523,7 @@ export const veevaPlugin: ServicePlugin = {
     app.get(`/api/${VERSION}/vobjects/:object/:id`, (c) => {
       const def = withDef(c);
       const rec = def && records(store)[def.name]?.find((r) => r.id === c.req.param("id"));
-      if (!def || !rec) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.", 404);
+      if (!def || !rec) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.");
       const version = c.req.param("version");
       const full = Object.fromEntries(def.fields.map((f) => [f.name, rec[f.name] ?? null]));
       return ok(c, {
@@ -549,7 +550,7 @@ export const veevaPlugin: ServicePlugin = {
       apply: (def: ObjectDef, input: Record<string, unknown>, version: string) => Outcome,
     ) => {
       const def = withDef(c);
-      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.", 404);
+      if (!def) return fail(c, "MALFORMED_URL", "The specified resource cannot be found.");
       const input = await readBatch(c);
       if (typeof input === "string") return fail(c, "INVALID_DATA", input);
       if (!input.length) return fail(c, "PARAMETER_REQUIRED", "The request has no records");
@@ -796,7 +797,7 @@ export const veevaPlugin: ServicePlugin = {
     });
 
     for (const method of ["GET", "POST", "PUT", "DELETE"])
-      app.on(method, "/api/:rest{.*}", (c) => fail(c, "MALFORMED_URL", "The specified resource cannot be found.", 404));
+      app.on(method, "/api/:rest{.*}", (c) => fail(c, "MALFORMED_URL", "The specified resource cannot be found."));
     app.get("/_inspector", (c) => c.html(inspector(store, new URL(c.req.url).searchParams.get("tab") ?? "")));
   },
   seed(store: Store): void {

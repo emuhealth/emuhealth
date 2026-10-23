@@ -74,6 +74,13 @@ def test_post_clinical_data_and_audit(rave):
     assert response.subjects_touched == 1
     assert response.fields_touched >= 1
 
+    duplicate = ODM("emuhealth-contract")(
+        ClinicalData("EMU-101", "Prod")(SubjectData("SYN-SITE-101", "101-950", transaction_type="Insert"))
+    )
+    with pytest.raises(RWSException) as error:
+        rave.send_request(PostDataRequest(str(duplicate)))
+    assert error.value.rws_error.reason_code == "RWS00024"
+
     bad = ODM("emuhealth-contract")(
         ClinicalData("EMU-101", "Prod")(
             SubjectData("SYN-SITE-101", "101-950", transaction_type="Update")(
