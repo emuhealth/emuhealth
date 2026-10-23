@@ -147,6 +147,13 @@
       "ogTitle": "RxNav | emuhealth",
       "headings": ["Endpoints", "Concepts", "Seed config"]
     },
+    "/docs/clinicaltrials": {
+      "title": "ClinicalTrials.gov | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/clinicaltrials",
+      "ogTitle": "ClinicalTrials.gov | emuhealth",
+      "headings": ["Endpoints", "Search parameters", "Responses and errors", "Synthetic data", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

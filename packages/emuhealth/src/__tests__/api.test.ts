@@ -73,6 +73,13 @@ describe("createEmulator", () => {
     await rxnav.close();
   });
 
+  it("starts the ClinicalTrials.gov emulator with synthetic studies", async () => {
+    const ct = await createEmulator({ service: "clinicaltrials", port: 14023 });
+    const res = await fetch(`${ct.url}/api/v2/studies/NCT99000001`);
+    expect(res.status).toBe(200);
+    await ct.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

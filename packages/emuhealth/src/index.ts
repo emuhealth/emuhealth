@@ -66,6 +66,13 @@ RxNav:
   Starts with RxNorm ingredients and clinical drugs; rxnav.concepts adds concepts, rxnav.defaults: false drops the subset.
   Docs: https://www.emuhealth.dev/docs/rxnav
 
+ClinicalTrials.gov:
+  'npx emuhealth --service clinicaltrials' serves ClinicalTrials.gov API v2 at http://localhost:4104/api/v2.
+  GET /api/v2/studies with query.cond, query.term, query.intr, query.locn, filter.overallStatus, filter.ids,
+  filter.advanced (AREA[Piece]value), sort, fields, pageSize (max 1000), pageToken, countTotal; GET /api/v2/studies/:nctId.
+  Synthetic studies use NCT99 ids; clinicaltrials.generate sets studies and seed, clinicaltrials.studies adds your own.
+  Docs: https://www.emuhealth.dev/docs/clinicaltrials
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt
