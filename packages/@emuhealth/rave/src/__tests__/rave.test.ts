@@ -185,3 +185,19 @@ describe("RWS", () => {
     expect((await req(`${R}/studies`)).status).toBe(401);
   });
 });
+
+describe("shared population", () => {
+  it("makes EMU-101 Prod subjects the people of the FHIR population", async () => {
+    const { syntheticPeople } = await import("@emuhealth/fhir-core");
+    const { generateStudies } = await import("../index.js");
+    const prod = generateStudies({ subjects: 3, population: { seed: 4 } }).find(
+      (s) => s.project === "EMU-101" && s.env === "Prod",
+    )!;
+    const people = syntheticPeople({ patients: 3, seed: 4 });
+    prod.subjects.forEach((subject, i) => {
+      const dm = subject.events[0].forms.find((f) => f.formOid === "DM")!.groups[0].items;
+      expect(dm["DM.BRTHDAT"]).toBe(people[i].birthDate);
+      expect(dm["DM.SEX"]).toBe(people[i].gender === "male" ? "M" : people[i].gender === "female" ? "F" : "U");
+    });
+  });
+});

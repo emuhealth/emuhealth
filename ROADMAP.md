@@ -131,7 +131,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 ## Phase 9: Linked scenarios
 
-- [ ] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators
+- [x] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators (PR pending)
 - [ ] Load Synthea FHIR bundles as seed data (`fhir.import`)
 - [ ] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event`
 

@@ -381,6 +381,11 @@ twilio:
       - friendly_name: Local Conversations
 
 # FHIR R4 server (health service, default port 4100). Synthetic data only.
+# One synthetic population for every patient-centric service (FHIR, EHRs, payers, devices, HL7 v2, Rave)
+# population:
+#   patients: 25
+#   seed: 42
+
 fhir:
   # FHIR version: 4.0.1 (R4, default), 4.3.0 (R4B), or 5.0.0 (R5)
   fhirVersion: R4

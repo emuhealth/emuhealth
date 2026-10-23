@@ -5,6 +5,7 @@ import { ProjectLoader } from "./project-loader.js";
 import { assertEmulatorDefinition, type EmulatorDefinition, type PersistenceAdapter } from "@emulators/core";
 import { SERVICE_NAMES, SERVICE_REGISTRY, type ServiceName } from "./registry.js";
 import type { EmulateConfig, ServiceConfig } from "./config.js";
+import { applyPopulation, validatePopulation } from "./population.js";
 
 export const CONFIG_FILES = [
   "emuhealth.config.ts",
@@ -78,7 +79,10 @@ export async function loadConfig(
       } else raw = (await loader.load(path)) as typeof raw;
       if (!isRecord(raw)) throw new Error(`${path} must export a configuration object`);
     }
-    const unknown = Object.keys(raw).filter((key) => ![...SERVICE_NAMES, "services", "tokens", "watch"].includes(key));
+    const unknown = Object.keys(raw).filter(
+      (key) => ![...SERVICE_NAMES, "services", "tokens", "watch", "population"].includes(key),
+    );
+    const population = validatePopulation(raw.population);
     if (unknown.length)
       throw new Error(`Unknown config key: ${unknown.join(", ")}. Register custom APIs under services.`);
     if (raw.services !== undefined && !isRecord(raw.services))
@@ -157,6 +161,9 @@ export async function loadConfig(
         );
       services.push({
         ...entry,
+        ...(typeof emulator === "string"
+          ? { seed: applyPopulation(emulator, entry.seed as Record<string, unknown> | undefined, population) }
+          : {}),
         name,
         emulator: emulator as ServiceName | EmulatorDefinition,
         source,

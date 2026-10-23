@@ -78,6 +78,7 @@ export {
   releaseName,
 } from "./version.js";
 export { toR5, recordsForVersion } from "./r5.js";
+export { syntheticPeople, type SyntheticPerson } from "./people.js";
 export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,

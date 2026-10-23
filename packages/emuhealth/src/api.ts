@@ -18,14 +18,18 @@ export {
   type PersistenceAdapter,
 } from "@emulators/core";
 export { defineConfig, type EmulateConfig, type ServiceConfig } from "./config.js";
+export type { PopulationConfig } from "./population.js";
 import { SERVICE_REGISTRY } from "./registry.js";
 export type { ServiceName } from "./registry.js";
 import type { ServiceListener, ServiceName } from "./registry.js";
 import { resolveBaseUrl } from "./base-url.js";
 import { defaultServicePort } from "./registry-health.js";
+import { applyPopulation, validatePopulation, type PopulationConfig } from "./population.js";
 
 export interface SeedConfig {
   tokens?: Record<string, { login: string; scopes?: string[] }>;
+  /** The shared synthetic population for every patient-centric service (decision 0018). */
+  population?: PopulationConfig;
   [service: string]: unknown;
 }
 
@@ -173,7 +177,11 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
       tokens["test_token_admin"] = { login: "admin", id: 2, scopes: ["repo", "user", "admin:org", "admin:repo_hook"] };
     }
 
-    const inputSvcSeedConfig = seedConfig?.[service] as Record<string, unknown> | undefined;
+    const inputSvcSeedConfig = applyPopulation(
+      service,
+      seedConfig?.[service] as Record<string, unknown> | undefined,
+      validatePopulation(seedConfig?.population),
+    );
     const preparedSeed =
       inputSvcSeedConfig && loaded.prepareSeed ? await loaded.prepareSeed(inputSvcSeedConfig) : undefined;
     const svcSeedConfig = preparedSeed?.config ?? inputSvcSeedConfig;

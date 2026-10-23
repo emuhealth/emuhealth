@@ -5,5 +5,5 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   sourcemap: true,
-  noExternal: [/^@emulators\/core/],
+  noExternal: [/^@emulators\/core/, /^@emuhealth\/fhir-core/],
 });

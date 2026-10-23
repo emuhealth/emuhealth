@@ -27,3 +27,4 @@ Rules:
 | [0015](0015-non-http-listeners.md) | Non-HTTP listeners | Accepted |
 | [0016](0016-fhir-r4b-and-r5.md) | FHIR R4B and R5 | Accepted |
 | [0017](0017-r5-write-conversion.md) | R4 shaped writes on an R5 server | Accepted |
+| [0018](0018-shared-synthetic-population.md) | Shared synthetic population | Accepted |

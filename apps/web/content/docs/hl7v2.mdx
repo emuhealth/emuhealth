@@ -60,7 +60,7 @@ Any other message type, such as `SIU^S12` or `MDM^T02`, is recorded and acknowle
 
 ## Synthetic data
 
-The registry starts with the [synthetic patients](/docs/fhir#synthetic-patients) `syn-patient-001` to `syn-patient-005` (names such as `SYNTHETIC^AVERY`) with fictional addresses. Samples use LOINC codes for results and orders, fictional `555-01xx` phone numbers, and placeholder provider IDs that start with `0`.
+The registry starts with the [synthetic patients](/docs/fhir#synthetic-patients) `syn-patient-001` to `syn-patient-005`, the same people the FHIR emulators generate, with the FHIR MRN as a second PID-3 identifier. `hl7v2.generate` takes the generator options (`patients`, `seed`, `referenceDate`), and the top-level [`population`](/docs/configuration#shared-population) key sets them for every service. Samples use LOINC codes for results and orders, fictional `555-01xx` phone numbers, and placeholder provider IDs that start with `0`.
 
 ## Seed config
 
