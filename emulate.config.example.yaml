@@ -478,3 +478,14 @@ nppes:
         first_name: JAMIE
         last_name: EXAMPLE
         credential: M.D.
+
+benchling:
+  # Synthetic tenant: sequences, entries, schemas, registry, assay results
+  generate:
+    seed: 1
+    dnaSequences: 10 # 0 to 500
+  # Webhooks signed like Benchling (Svix): webhook-id, webhook-timestamp, webhook-signature
+  webhooks:
+    - url: http://localhost:3000/benchling/webhook
+      events: [v2.entry.created, v2.entity.registered]
+      secret: whsec_c3ludGhldGljLXNlY3JldA==

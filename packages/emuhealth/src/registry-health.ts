@@ -2,7 +2,16 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials", "ncbi", "nppes"] as const;
+const HEALTH_SERVICE_NAME_LIST = [
+  "fhir",
+  "epic",
+  "openfda",
+  "rxnav",
+  "clinicaltrials",
+  "ncbi",
+  "nppes",
+  "benchling",
+] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -150,6 +159,27 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           organizations: 15,
           seed: 1,
         },
+      },
+    },
+  },
+  benchling: {
+    label: "Benchling API v2 emulator",
+    endpoints:
+      "Benchling API v2 under /api/v2 with API key (Basic) or client credentials (Bearer) auth: dna-sequences and aa-sequences (list, filter, page, create, update, archive), entries, registries and register-entities with tasks, assay-results and schemas, projects, folders, events, Svix-signed webhooks; synthetic tenant; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/benchling");
+      return { plugin: mod.benchlingPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "benchling-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      benchling: {
+        generate: {
+          seed: 1,
+          dnaSequences: 10,
+        },
+        webhooks: [],
       },
     },
   },

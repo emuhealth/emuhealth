@@ -90,7 +90,7 @@ Public reference APIs are read-heavy and quick to build, so they can be pulled f
 - [x] ClinicalTrials.gov API v2 ([#42](https://github.com/emuhealth/emuhealth/pull/42))
 - [x] NCBI E-utilities (PubMed, Gene) ([#43](https://github.com/emuhealth/emuhealth/pull/43))
 - [x] NPPES NPI Registry ([#44](https://github.com/emuhealth/emuhealth/pull/44))
-- [ ] Benchling (entries, sequences, registry, results, webhooks)
+- [x] Benchling (entries, sequences, registry, results, webhooks) ([#45](https://github.com/emuhealth/emuhealth/pull/45))
 - [ ] REDCap (records, metadata, export and import)
 
 ## Phase 6: Devices and wearables

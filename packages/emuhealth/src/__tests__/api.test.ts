@@ -94,6 +94,16 @@ describe("createEmulator", () => {
     await nppes.close();
   });
 
+  it("starts the Benchling emulator behind API key auth", async () => {
+    const benchling = await createEmulator({ service: "benchling", port: 14026 });
+    expect((await fetch(`${benchling.url}/api/v2/dna-sequences`)).status).toBe(401);
+    const res = await fetch(`${benchling.url}/api/v2/dna-sequences`, {
+      headers: { Authorization: `Basic ${Buffer.from("sk_test:").toString("base64")}` },
+    });
+    expect(res.status).toBe(200);
+    await benchling.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

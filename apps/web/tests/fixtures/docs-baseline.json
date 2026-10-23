@@ -168,6 +168,13 @@
       "ogTitle": "NPPES NPI Registry | emuhealth",
       "headings": ["Search parameters", "Responses and errors", "Synthetic data", "Seed config"]
     },
+    "/docs/benchling": {
+      "title": "Benchling | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/benchling",
+      "ogTitle": "Benchling | emuhealth",
+      "headings": ["Authentication", "Endpoints", "Registration", "Webhooks and events", "Synthetic tenant", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

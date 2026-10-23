@@ -87,6 +87,13 @@ NPPES NPI Registry:
   Synthetic providers: NPIs start with 0; nppes.generate sets individuals, organizations, seed; nppes.providers adds your own.
   Docs: https://www.emuhealth.dev/docs/nppes
 
+Benchling:
+  'npx emuhealth --service benchling' serves Benchling API v2 at http://localhost:4107/api/v2 (any API key as Basic auth).
+  dna-sequences and aa-sequences (GET list with filters and nextToken, POST, PATCH, :archive, :unarchive),
+  entries, registries/:id:register-entities and tasks/:id, assay-results, entity-schemas, projects, folders, events.
+  benchling.webhooks sends Svix-signed events (v2.entry.created, v2.entity.registered) to your URLs.
+  Docs: https://www.emuhealth.dev/docs/benchling
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

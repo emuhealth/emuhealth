@@ -30,6 +30,7 @@ export const docsSections: NavSection[] = [
       { name: "ClinicalTrials.gov", href: "/docs/clinicaltrials" },
       { name: "NCBI E-utilities", href: "/docs/ncbi" },
       { name: "NPPES NPI Registry", href: "/docs/nppes" },
+      { name: "Benchling", href: "/docs/benchling" },
     ],
   },
   {
