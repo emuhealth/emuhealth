@@ -4,6 +4,8 @@ import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
 import { registerSmartRoutes, type SmartPaths } from "./smart.js";
+import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
+import { guardedOperations } from "./operations.js";
 import { parseTypes, patientEverything } from "./everything.js";
 import {
   DEFAULT_PAGE_SIZE,
@@ -77,7 +79,7 @@ function handle(handler: (c: AnyContext) => Promise<Response> | Response) {
     try {
       return await handler(c);
     } catch (err) {
-      if (err instanceof FhirError) return fhirJson(c, err.toOutcome(), err.status);
+      if (err instanceof FhirError) return fhirJson(c, err.toOutcome(), err.status, err.headers);
       const message = err instanceof Error ? err.message : "Internal server error";
       return fhirJson(c, operationOutcome("exception", message, "fatal"), 500);
     }
@@ -89,6 +91,13 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   const basePath = (options.basePath ?? "").replace(/\/+$/, "");
   const base = `${options.baseUrl.replace(/\/+$/, "")}${basePath}`;
   const fhir = () => getFhirStore(store);
+  const searchContext = (): SearchContext => {
+    const current = fhir();
+    return { resolve: (t, id) => current.find(t, id), listCurrent: (t) => current.listCurrent(t) };
+  };
+  /** SMART access for this request (decision 0010): unrestricted without a token unless fhir.smart.required. */
+  const access = (c: AnyContext): AccessGuard => resolveAccess(store, c.req.header("Authorization"), searchContext());
+  const ops = (c: AnyContext) => guardedOperations(fhir(), access(c));
 
   function writeResponse(c: AnyContext, result: WriteResult, type: string): Response {
     const status = result.created ? 201 : 200;
@@ -106,17 +115,30 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     return fhirJson(c, result.resource, status, headers);
   }
 
-  function historyBundle(params: Array<[string, string]>, type?: string, id?: string): FhirResource {
+  function historyBundle(
+    params: Array<[string, string]>,
+    type?: string,
+    id?: string,
+    guard: AccessGuard = UNRESTRICTED,
+  ): FhirResource {
+    const instance = Boolean(type && id);
+    guard.require(type ?? "*", instance ? "r" : "s");
     const query = new URLSearchParams(params);
     const since = query.get("_since") ?? undefined;
-    const { total, entries } = fhir().listHistory({
-      type,
-      id,
-      since,
-      count: parseCount(query.get("_count") ?? undefined),
-    });
-    if (type && id && total === 0 && since === undefined)
+    const count = parseCount(query.get("_count") ?? undefined);
+    const all = fhir().listHistory({ type, id, since }).entries;
+    if (type && id && all.length === 0 && since === undefined)
       throw new FhirError(404, "not-found", `${type}/${id} is not known`);
+    let visible = all;
+    if (guard !== UNRESTRICTED) {
+      // Deleted versions have no resource; they stay visible only in the history of a resource the token can see.
+      const canSeeInstance = instance && all.some((h) => h.resource && guard.allows(h.resource, "r"));
+      if (instance && !canSeeInstance && all.length > 0)
+        throw new FhirError(404, "not-found", `${type}/${id} is not known`);
+      visible = all.filter((h) => (h.resource ? guard.allows(h.resource, instance ? "r" : "s") : canSeeInstance));
+    }
+    const total = visible.length;
+    const entries = count === undefined ? visible : visible.slice(0, count);
     const path = [type, id, "_history"].filter(Boolean).join("/");
     const qs = query.toString();
     return {
@@ -140,7 +162,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   }
 
   function history(c: AnyContext, type?: string, id?: string): Response {
-    return fhirJson(c, historyBundle([...new URL(c.req.url).searchParams], type, id));
+    return fhirJson(c, historyBundle([...new URL(c.req.url).searchParams], type, id, access(c)));
   }
 
   async function search(c: AnyContext, type: string): Promise<Response> {
@@ -152,17 +174,20 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       params.push(...new URLSearchParams(await c.req.text()));
     }
     const strict = /handling=strict/.test(c.req.header("Prefer") ?? "");
-    return fhirJson(c, searchBundle(type, params, strict));
+    return fhirJson(c, searchBundle(type, params, strict, access(c)));
   }
 
-  function searchBundle(type: string, params: Array<[string, string]>, strict = false): FhirResource {
+  function searchBundle(
+    type: string,
+    params: Array<[string, string]>,
+    strict = false,
+    guard: AccessGuard = UNRESTRICTED,
+  ): FhirResource {
+    guard.require(type, "s");
     const parsed = parseSearch(type, params, { strict });
-    const store = fhir();
-    const ctx: SearchContext = {
-      resolve: (t, id) => store.find(t, id),
-      listCurrent: (t) => store.listCurrent(t),
-    };
-    const { total, matches } = runSearch(store.listCurrent(type), parsed, ctx);
+    const ctx = searchContext();
+    const matches = runSearch(fhir().listCurrent(type), parsed, ctx).matches.filter((r) => guard.allows(r, "s"));
+    const total = matches.length;
     const link = (offset: number) => {
       const query = new URLSearchParams(parsed.applied);
       if (offset > 0) query.set("_getpagesoffset", String(offset));
@@ -176,7 +201,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       if (parsed.offset > 0) links.push({ relation: "previous", url: link(Math.max(0, parsed.offset - parsed.count)) });
     }
     const page = parsed.summaryCount ? [] : matches.slice(parsed.offset, parsed.offset + parsed.count);
-    const included = resolveIncludes(page, parsed, ctx);
+    const included = resolveIncludes(page, parsed, ctx).filter((r) => guard.allows(r, "r"));
     return {
       resourceType: "Bundle",
       id: randomUUID(),
@@ -202,14 +227,15 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   async function bundle(c: AnyContext): Promise<Response> {
     const body = await readJson(c, ["application/fhir+json", "application/json"]);
     const prefer = c.req.header("Prefer");
+    const guard = access(c);
     return fhirJson(
       c,
       processBundle(body, {
-        fhir: fhir(),
+        ops: guardedOperations(fhir(), guard),
         base,
         prefer,
-        search: (type, params) => searchBundle(type, params),
-        history: (params, type, id) => historyBundle(params, type, id),
+        search: (type, params) => searchBundle(type, params, false, guard),
+        history: (params, type, id) => historyBundle(params, type, id, guard),
         snapshot: () => {
           const saved = store.snapshot();
           return () => store.restore(saved);
@@ -218,26 +244,47 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     );
   }
 
-  registerSmartRoutes(app, store, { base, basePath, paths: options.smart?.paths });
+  const smartPaths = registerSmartRoutes(app, store, { base, basePath, paths: options.smart?.paths });
+  const origin = new URL(base).origin;
 
   app.get(
     `${basePath}/metadata`,
     handle((c) =>
-      fhirJson(c, buildCapabilityStatement({ base, software: options.software, description: options.description })),
+      fhirJson(
+        c,
+        buildCapabilityStatement({
+          base,
+          software: options.software,
+          description: options.description,
+          oauth: {
+            authorize: `${origin}${smartPaths.authorize}`,
+            token: `${origin}${smartPaths.token}`,
+            introspect: `${origin}${smartPaths.introspect}`,
+            revoke: `${origin}${smartPaths.revoke}`,
+          },
+        }),
+      ),
     ),
   );
 
   function everything(c: AnyContext, id?: string): Response {
     const store = fhir();
-    // Instance level: 404 or 410 when the patient is unknown or deleted.
-    const ids = id ? [store.read("Patient", id).resource.id!] : store.listCurrent("Patient").map((p) => p.id!);
+    const guard = access(c);
+    guard.require("Patient", "r");
+    // Instance level: 404 or 410 when the patient is unknown, deleted, or outside the token's patient.
+    const ids = id
+      ? [guardedOperations(store, guard).read("Patient", id).resource.id!]
+      : store
+          .listCurrent("Patient")
+          .filter((p) => guard.allows(p, "r"))
+          .map((p) => p.id!);
     const query = new URL(c.req.url).searchParams;
     const count = Math.min(parseCount(query.get("_count") ?? undefined) ?? DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const offset = parseCount(query.get("_getpagesoffset") ?? undefined) ?? 0;
     const records = patientEverything(store, ids, {
       since: query.get("_since") ?? undefined,
       types: parseTypes(query.get("_type") ?? undefined),
-    });
+    }).filter((r) => guard.allows(r, "r"));
     const path = `${base}/Patient${id ? `/${id}` : ""}/$everything`;
     const link = (pageOffset: number) => {
       const params = new URLSearchParams([...query].filter(([k]) => ["_since", "_type", "_count"].includes(k)));
@@ -302,7 +349,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   app.get(
     `${basePath}/${TYPE}/${ID}/_history/:vid`,
     handle((c) => {
-      const version = fhir().vread(c.req.param("type"), c.req.param("id"), c.req.param("vid"));
+      const version = ops(c).vread(c.req.param("type"), c.req.param("id"), c.req.param("vid"));
       return fhirJson(c, version.resource, 200, versionHeaders(version.version_id, version.last_updated));
     }),
   );
@@ -311,7 +358,8 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     `${basePath}/${TYPE}`,
     handle(async (c) => {
       const type = c.req.param("type");
-      const result = fhir().create(type, await readJson(c, ["application/fhir+json", "application/json"]));
+      const operations = ops(c);
+      const result = operations.create(type, await readJson(c, ["application/fhir+json", "application/json"]));
       return writeResponse(c, result, type);
     }),
   );
@@ -319,7 +367,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   app.get(
     `${basePath}/${TYPE}/${ID}`,
     handle((c) => {
-      const record = fhir().read(c.req.param("type"), c.req.param("id"));
+      const record = ops(c).read(c.req.param("type"), c.req.param("id"));
       const headers = versionHeaders(record.version_id, record.last_updated);
       const ifNoneMatch = c.req.header("If-None-Match");
       if (ifNoneMatch && ifNoneMatch.replace(/^W\//, "") === `"${record.version_id}"`)
@@ -332,8 +380,9 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     `${basePath}/${TYPE}/${ID}`,
     handle(async (c) => {
       const type = c.req.param("type");
+      const operations = ops(c);
       const body = await readJson(c, ["application/fhir+json", "application/json"]);
-      const result = fhir().update(type, c.req.param("id"), body, c.req.header("If-Match"));
+      const result = operations.update(type, c.req.param("id"), body, c.req.header("If-Match"));
       return writeResponse(c, result, type);
     }),
   );
@@ -342,8 +391,9 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     `${basePath}/${TYPE}/${ID}`,
     handle(async (c) => {
       const type = c.req.param("type");
+      const guarded = ops(c);
       const operations = await readJson(c, ["application/json-patch+json"]);
-      const result = fhir().patch(type, c.req.param("id"), operations, c.req.header("If-Match"));
+      const result = guarded.patch(type, c.req.param("id"), operations, c.req.header("If-Match"));
       return writeResponse(c, result, type);
     }),
   );
@@ -351,7 +401,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   app.delete(
     `${basePath}/${TYPE}/${ID}`,
     handle((c) => {
-      const { versionId } = fhir().delete(c.req.param("type"), c.req.param("id"), c.req.header("If-Match"));
+      const { versionId } = ops(c).delete(c.req.param("type"), c.req.param("id"), c.req.header("If-Match"));
       return c.body(null, 204, versionId ? { ETag: `W/"${versionId}"` } : {});
     }),
   );

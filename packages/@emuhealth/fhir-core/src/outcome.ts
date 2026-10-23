@@ -9,7 +9,9 @@ export type IssueCode =
   | "not-supported"
   | "conflict"
   | "processing"
-  | "exception";
+  | "exception"
+  | "forbidden"
+  | "login";
 
 export interface OperationOutcome {
   resourceType: "OperationOutcome";
@@ -21,6 +23,8 @@ export class FhirError extends Error {
     public readonly status: number,
     public readonly code: IssueCode,
     message: string,
+    /** Extra response headers, for example WWW-Authenticate on 401. */
+    public readonly headers: Record<string, string> = {},
   ) {
     super(message);
     this.name = "FhirError";

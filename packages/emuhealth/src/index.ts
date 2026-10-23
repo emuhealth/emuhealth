@@ -36,6 +36,7 @@ FHIR R4:
   Load extra synthetic resources under fhir.resources.
   SMART App Launch: /.well-known/smart-configuration, /auth/authorize (patient and practitioner pickers),
   /auth/token (PKCE S256), /auth/launch (EHR launch simulator). Register clients under fhir.smart.clients.
+  Presented tokens are enforced (scopes, patient compartment); fhir.smart.required: true requires a token everywhere.
   Docs: https://www.emuhealth.dev/docs/fhir
 
 Framework adapters:
