@@ -3,6 +3,7 @@ import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
+import { registerSmartRoutes, type SmartPaths } from "./smart.js";
 import { parseTypes, patientEverything } from "./everything.js";
 import {
   DEFAULT_PAGE_SIZE,
@@ -25,6 +26,8 @@ export interface FhirRouteOptions {
   software?: { name: string; version?: string };
   /** Implementation description reported in the CapabilityStatement, for example the vendor being emulated. */
   description?: string;
+  /** SMART App Launch endpoint paths, for vendors that use their own (absolute paths on this server). */
+  smart?: { paths?: Partial<SmartPaths> };
 }
 
 const TYPE = ":type{[A-Z][A-Za-z]+}";
@@ -214,6 +217,8 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       }),
     );
   }
+
+  registerSmartRoutes(app, store, { base, basePath, paths: options.smart?.paths });
 
   app.get(
     `${basePath}/metadata`,

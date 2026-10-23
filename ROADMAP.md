@@ -52,7 +52,7 @@ Package: `@emuhealth/fhir-core`
 - [x] `OperationOutcome` errors and `CapabilityStatement` at `/metadata` ([#24](https://github.com/emuhealth/emuhealth/pull/24))
 - [x] `Patient/$everything` ([#27](https://github.com/emuhealth/emuhealth/pull/27))
 - [ ] Bulk Data `$export` with NDJSON output
-- [ ] SMART App Launch: EHR and standalone launch, PKCE, v1 and v2 scopes, `.well-known/smart-configuration`, patient and practitioner picker built on `renderUserButton`
+- [~] SMART App Launch: EHR and standalone launch, PKCE, v1 and v2 scopes, `.well-known/smart-configuration`, patient and practitioner picker built on `renderUserButton` ([ADR 0010](docs/decisions/0010-smart-app-launch.md); launch and tokens [#29](https://github.com/emuhealth/emuhealth/pull/29), scope enforcement next)
 - [ ] SMART Backend Services: `client_credentials` with JWT client assertion
 - [x] Synthetic patient generator seeded from config (Patient, Encounter, Observation, Condition, MedicationRequest, AllergyIntolerance, Immunization) ([ADR 0009](docs/decisions/0009-synthetic-patient-generator.md)) ([#26](https://github.com/emuhealth/emuhealth/pull/26))
 - [ ] License-free terminology fixtures (RxNorm subset, ICD-10-CM, CVX, UCUM); LOINC and SNOMED only within their license terms
