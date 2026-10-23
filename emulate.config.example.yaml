@@ -621,3 +621,12 @@ fitbit:
       redirect_uris: ["http://localhost:3000/callback"]
   generate:
     patients: 5
+
+oura:
+  # Registered apps; with none, any client id and redirect URI is accepted
+  clients:
+    - client_id: my-oura-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5

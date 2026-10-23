@@ -230,6 +230,13 @@ describe("createEmulator", () => {
     await fitbit.close();
   });
 
+  it("starts the Oura emulator", async () => {
+    const oura = await createEmulator({ service: "oura", port: 14040 });
+    const res = await fetch(`${oura.url}/v2/usercollection/daily_sleep`);
+    expect(await res.json()).toEqual({ detail: "Unauthorized" });
+    await oura.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",
