@@ -37,6 +37,7 @@ FHIR R4:
   SMART App Launch: /.well-known/smart-configuration, /auth/authorize (patient and practitioner pickers),
   /auth/token (PKCE S256), /auth/launch (EHR launch simulator). Register clients under fhir.smart.clients.
   Presented tokens are enforced (scopes, patient compartment); fhir.smart.required: true requires a token everywhere.
+  Backend Services: client_credentials with a private_key_jwt assertion for clients registered with jwks or jwks_uri.
   Docs: https://www.emuhealth.dev/docs/fhir
 
 Framework adapters:

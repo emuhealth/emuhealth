@@ -1,5 +1,14 @@
 import { createHash, randomBytes } from "node:crypto";
-import { SignJWT, exportJWK, generateKeyPair } from "jose";
+import {
+  SignJWT,
+  createLocalJWKSet,
+  createRemoteJWKSet,
+  decodeJwt,
+  exportJWK,
+  generateKeyPair,
+  jwtVerify,
+  type JSONWebKeySet,
+} from "jose";
 import type { Context, Hono, Store } from "@emulators/core";
 import {
   bodyStr,
@@ -18,9 +27,14 @@ type AnyContext = Context<any, any>;
 
 export interface SmartClient {
   client_id: string;
-  /** Present for confidential clients. */
+  /** Present for confidential clients that authenticate with a shared secret. */
   client_secret?: string;
-  redirect_uris: string[];
+  /** Public keys for private_key_jwt client authentication (SMART Backend Services and asymmetric apps). */
+  jwks?: JSONWebKeySet;
+  /** URL of the client's JWKS, as an alternative to an inline jwks. */
+  jwks_uri?: string;
+  /** Required for apps that use the authorization code flow; optional for backend-only clients. */
+  redirect_uris?: string[];
   /** Space separated scopes the client may be granted. Requested scopes outside it are dropped. */
   scope?: string;
 }
@@ -93,6 +107,10 @@ const CODE_TTL_MS = 5 * 60_000;
 const REQUEST_TTL_MS = 30 * 60_000;
 const ACCESS_TTL_S = 3600;
 const KID = "emuhealth-smart-1";
+const BACKEND_TTL_S = 300;
+const ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+const ASSERTION_ALGORITHMS = ["RS384", "ES384"];
+const remoteKeySets = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 const SERVICE_LABEL = "FHIR";
 
 const keyPairPromise = generateKeyPair("RS256");
@@ -119,8 +137,15 @@ export function setSmartConfig(store: Store, config: SmartConfig): void {
   for (const [i, client] of (config.clients ?? []).entries()) {
     if (typeof client?.client_id !== "string" || !client.client_id)
       throw new Error(`fhir.smart.clients[${i}].client_id is required`);
-    if (!Array.isArray(client.redirect_uris) || client.redirect_uris.length === 0)
-      throw new Error(`fhir.smart.clients[${i}].redirect_uris needs at least one URI`);
+    const backend = client.jwks !== undefined || client.jwks_uri !== undefined;
+    if (client.jwks !== undefined && !Array.isArray(client.jwks?.keys))
+      throw new Error(`fhir.smart.clients[${i}].jwks must be a JWKS object with a keys array`);
+    if (client.jwks_uri !== undefined && !/^https?:\/\//.test(client.jwks_uri))
+      throw new Error(`fhir.smart.clients[${i}].jwks_uri must be an http(s) URL`);
+    if (client.redirect_uris !== undefined && !Array.isArray(client.redirect_uris))
+      throw new Error(`fhir.smart.clients[${i}].redirect_uris must be an array`);
+    if (!backend && (client.redirect_uris ?? []).length === 0)
+      throw new Error(`fhir.smart.clients[${i}].redirect_uris needs at least one URI (or jwks for a backend client)`);
   }
   store.setData("fhir.smart.config", config);
 }
@@ -191,8 +216,9 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
       token_endpoint: url(paths.token),
       introspection_endpoint: url(paths.introspect),
       revocation_endpoint: url(paths.revoke),
-      grant_types_supported: ["authorization_code", "refresh_token"],
-      token_endpoint_auth_methods_supported: ["client_secret_basic", "client_secret_post"],
+      grant_types_supported: ["authorization_code", "refresh_token", "client_credentials"],
+      token_endpoint_auth_methods_supported: ["client_secret_basic", "client_secret_post", "private_key_jwt"],
+      token_endpoint_auth_signing_alg_values_supported: ASSERTION_ALGORITHMS,
       response_types_supported: ["code"],
       code_challenge_methods_supported: ["S256"],
       scopes_supported: [
@@ -207,6 +233,8 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
         "user/*.rs",
         "patient/*.read",
         "user/*.read",
+        "system/*.rs",
+        "system/*.read",
       ],
       capabilities: [
         "launch-ehr",
@@ -214,6 +242,7 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
         "authorize-post",
         "client-public",
         "client-confidential-symmetric",
+        "client-confidential-asymmetric",
         "context-ehr-patient",
         "context-ehr-encounter",
         "context-standalone-patient",
@@ -317,7 +346,7 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
       return c.html(renderErrorPage("Missing redirect URI", "A valid redirect_uri is required.", SERVICE_LABEL), 400);
     const { client, error } = findClient(clientId);
     if (error) return c.html(renderErrorPage("Unknown application", error, SERVICE_LABEL), 400);
-    if (client && !matchesRedirectUri(redirectUri, client.redirect_uris))
+    if (client && !matchesRedirectUri(redirectUri, client.redirect_uris ?? []))
       return c.html(
         renderErrorPage("Redirect URI mismatch", "The redirect_uri is not registered for this client.", SERVICE_LABEL),
         400,
@@ -332,7 +361,7 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
     const method = params.code_challenge_method ?? "";
     if (params.code_challenge && method !== "S256")
       return fail("invalid_request", "Only code_challenge_method=S256 is supported.");
-    const confidential = Boolean(client?.client_secret);
+    const confidential = Boolean(client?.client_secret || client?.jwks || client?.jwks_uri);
     if (!params.code_challenge && !confidential && getSmartConfig(store).requirePkce !== false)
       return fail("invalid_request", "PKCE is required: send code_challenge with code_challenge_method=S256.");
 
@@ -461,13 +490,68 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
     return { params, clientId: params.client_id ?? "", secret: params.client_secret };
   }
 
-  /** Confidential clients must authenticate; public clients only identify themselves. */
-  function authenticateClient(clientId: string, secret: string | undefined): string | undefined {
+  /** Verify a private_key_jwt client assertion (SMART Backend Services). Returns the client id or an error. */
+  async function verifyAssertion(assertion: string): Promise<{ clientId?: string; error?: string }> {
+    let issuer: string | undefined;
+    try {
+      issuer = decodeJwt(assertion).iss;
+    } catch {
+      return { error: "client_assertion is not a JWT." };
+    }
+    const client = (getSmartConfig(store).clients ?? []).find((c) => c.client_id === issuer);
+    if (!client || (!client.jwks && !client.jwks_uri))
+      return { error: `No registered client "${issuer ?? ""}" with a jwks or jwks_uri.` };
+    let keys: ReturnType<typeof createRemoteJWKSet> | ReturnType<typeof createLocalJWKSet>;
+    if (client.jwks) keys = createLocalJWKSet(client.jwks);
+    else {
+      keys = remoteKeySets.get(client.jwks_uri!) ?? createRemoteJWKSet(new URL(client.jwks_uri!));
+      remoteKeySets.set(client.jwks_uri!, keys as ReturnType<typeof createRemoteJWKSet>);
+    }
+    try {
+      const { payload } = await jwtVerify(assertion, keys, {
+        algorithms: ASSERTION_ALGORITHMS,
+        issuer: client.client_id,
+        subject: client.client_id,
+        audience: url(paths.token),
+        requiredClaims: ["exp", "jti"],
+      });
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp! > now + 300 + 60) return { error: "client_assertion exp is more than 5 minutes ahead." };
+      const jtis = map<number>(store, "jtis");
+      for (const [jti, exp] of jtis) if (exp < now) jtis.delete(jti);
+      const key = `${client.client_id}:${payload.jti}`;
+      if (jtis.has(key)) return { error: "client_assertion jti was already used." };
+      jtis.set(key, payload.exp!);
+      return { clientId: client.client_id };
+    } catch (err) {
+      return { error: `client_assertion is invalid: ${err instanceof Error ? err.message : String(err)}` };
+    }
+  }
+
+  /**
+   * Authenticate the client of a token, introspect, or revoke request. Asymmetric and secret clients must prove
+   * who they are; public clients only identify themselves.
+   */
+  async function authenticate(
+    c: AnyContext,
+  ): Promise<{ params: Record<string, string>; clientId: string; asymmetric: boolean; error?: string }> {
+    const { params, clientId, secret } = await tokenRequest(c);
+    if (params.client_assertion_type !== undefined || params.client_assertion !== undefined) {
+      if (params.client_assertion_type !== ASSERTION_TYPE)
+        return { params, clientId, asymmetric: false, error: `client_assertion_type must be ${ASSERTION_TYPE}.` };
+      const verified = await verifyAssertion(params.client_assertion ?? "");
+      if (verified.error) return { params, clientId, asymmetric: false, error: verified.error };
+      if (params.client_id && params.client_id !== verified.clientId)
+        return { params, clientId, asymmetric: false, error: "client_id does not match the client_assertion." };
+      return { params, clientId: verified.clientId!, asymmetric: true };
+    }
     const { client, error } = findClient(clientId);
-    if (error) return error;
+    if (error) return { params, clientId, asymmetric: false, error };
+    if (client?.jwks || client?.jwks_uri)
+      return { params, clientId, asymmetric: false, error: "This client must authenticate with private_key_jwt." };
     if (client?.client_secret && !(secret && constantTimeSecretEqual(secret, client.client_secret)))
-      return "Client authentication failed.";
-    return undefined;
+      return { params, clientId, asymmetric: false, error: "Client authentication failed." };
+    return { params, clientId, asymmetric: false };
   }
 
   async function idToken(clientId: string, fhirUser: string, nonce: string): Promise<string> {
@@ -531,9 +615,28 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
   }
 
   app.post(paths.token, async (c) => {
-    const { params, clientId, secret } = await tokenRequest(c);
-    const authError = authenticateClient(clientId, secret);
+    const { params, clientId, asymmetric, error: authError } = await authenticate(c);
     if (authError) return oauthError(c, "invalid_client", authError, 401);
+
+    if (params.grant_type === "client_credentials") {
+      // SMART Backend Services: asymmetric clients only, system scopes only, short-lived tokens, no refresh.
+      if (!asymmetric)
+        return oauthError(c, "invalid_client", "client_credentials needs private_key_jwt client authentication.", 401);
+      const client = findClient(clientId).client;
+      const scope = [...scopes(filterScope(params.scope ?? "", client))]
+        .filter((s) => s.startsWith("system/"))
+        .join(" ");
+      if (!scope) return oauthError(c, "invalid_scope", "Request at least one system/ scope this client may use.");
+      const accessToken = randomId();
+      map<SmartToken>(store, "tokens").set(accessToken, {
+        token: accessToken,
+        kind: "access",
+        clientId,
+        scope,
+        expiresAt: Date.now() + BACKEND_TTL_S * 1000,
+      });
+      return oauthJson(c, { access_token: accessToken, token_type: "Bearer", expires_in: BACKEND_TTL_S, scope });
+    }
 
     if (params.grant_type === "authorization_code") {
       const codes = map<IssuedCode>(store, "codes");
@@ -568,13 +671,16 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
       return issueTokens(c, { ...stored, scope }, stored.token);
     }
 
-    return oauthError(c, "unsupported_grant_type", "Supported grants: authorization_code, refresh_token.");
+    return oauthError(
+      c,
+      "unsupported_grant_type",
+      "Supported grants: authorization_code, refresh_token, client_credentials.",
+    );
   });
 
   app.post(paths.introspect, async (c) => {
-    const { params, clientId, secret } = await tokenRequest(c);
-    const authError = clientId ? authenticateClient(clientId, secret) : undefined;
-    if (authError) return oauthError(c, "invalid_client", authError, 401);
+    const { params, clientId, error: authError } = await authenticate(c);
+    if (authError && (clientId || params.client_assertion)) return oauthError(c, "invalid_client", authError, 401);
     const found = findAccessToken(store, params.token ?? "");
     if (!found) return oauthJson(c, { active: false });
     return oauthJson(c, {
@@ -590,9 +696,8 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
   });
 
   app.post(paths.revoke, async (c) => {
-    const { params, clientId, secret } = await tokenRequest(c);
-    const authError = clientId ? authenticateClient(clientId, secret) : undefined;
-    if (authError) return oauthError(c, "invalid_client", authError, 401);
+    const { params, clientId, error: authError } = await authenticate(c);
+    if (authError && (clientId || params.client_assertion)) return oauthError(c, "invalid_client", authError, 401);
     const tokens = map<SmartToken>(store, "tokens");
     const target = tokens.get(params.token ?? "");
     if (target) {
