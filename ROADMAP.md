@@ -88,7 +88,7 @@ Public reference APIs are read-heavy and quick to build, so they can be pulled f
 - [x] openFDA (drug labels, adverse events, recalls) ([#40](https://github.com/emuhealth/emuhealth/pull/40))
 - [x] NLM RxNav / RxNorm ([#41](https://github.com/emuhealth/emuhealth/pull/41))
 - [x] ClinicalTrials.gov API v2 ([#42](https://github.com/emuhealth/emuhealth/pull/42))
-- [ ] NCBI E-utilities (PubMed, Gene)
+- [x] NCBI E-utilities (PubMed, Gene) ([#43](https://github.com/emuhealth/emuhealth/pull/43))
 - [ ] NPPES NPI Registry
 - [ ] Benchling (entries, sequences, registry, results, webhooks)
 - [ ] REDCap (records, metadata, export and import)

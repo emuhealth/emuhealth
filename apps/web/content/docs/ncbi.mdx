@@ -1,0 +1,51 @@
+---
+title: "NCBI E-utilities"
+---
+
+An emulator of the NCBI [E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25501/) for apps that search PubMed and look up genes. It runs on `http://localhost:4105` by default, under the same `/entrez/eutils` paths and parameters, for `db=pubmed` and `db=gene`.
+
+```bash
+npx emuhealth --service ncbi
+curl 'http://localhost:4105/entrez/eutils/esearch.fcgi?db=pubmed&term=metformin[ti]&retmode=json'
+```
+
+Point your client at `http://localhost:4105/entrez/eutils` instead of `https://eutils.ncbi.nlm.nih.gov/entrez/eutils`. Every utility accepts GET or POST (form encoded), and `api_key`, `tool`, and `email` are accepted and ignored.
+
+## Endpoints
+
+| Utility | Returns |
+|---------|---------|
+| `einfo.fcgi` | The database list, or `dbinfo` for `db=` |
+| `esearch.fcgi` | `esearchresult` with `count`, `retmax`, `retstart`, `idlist`; `usehistory=y` adds `webenv` and `querykey` |
+| `esummary.fcgi` | `result` with `uids` and a summary per id (PubMed: title, authors, journal, dates, `articleids`; Gene: symbol, name, chromosome, location, `genomicinfo`) |
+| `efetch.fcgi` | PubMed XML (`PubmedArticleSet`), or plain text with `rettype=abstract&retmode=text`; Gene as text |
+| `elink.fcgi` | `linksets` from `dbfrom=gene` to `db=pubmed` and back |
+| `GET /_inspector` | Browse articles and genes |
+
+Add `retmode=json` for JSON from `einfo`, `esearch`, `esummary`, and `elink`; without it they answer in XML, as E-utilities does. `esummary` and `efetch` take `id=` (comma separated) or the `WebEnv` and `query_key` from an `esearch` with `usehistory=y`. `retstart` and `retmax` page through results (`retmax` defaults to 20 for `esearch`).
+
+## Search terms
+
+`term` takes words and `"quoted phrases"` joined by `AND`, `OR`, and `NOT`, with parentheses. Field tags narrow a term: `[ti]` title, `[tiab]` title and abstract, `[ab]`, `[au]` author, `[1au]` first author, `[ta]` journal, `[mh]` or `[kw]` keywords, `[pt]` publication type, `[gene]`, and `2020:2023[dp]` for publication years. For genes: `[sym]`, `[orgn]`, and `[chr]`. A trailing `*` matches a prefix. PubMed results come newest first; `sort=first_author` sorts by first author.
+
+```bash
+curl 'http://localhost:4105/entrez/eutils/esearch.fcgi?db=pubmed&term=cancer+NOT+breast+AND+2019:2024[dp]&retmode=json'
+curl 'http://localhost:4105/entrez/eutils/esummary.fcgi?db=gene&id=672,7157&retmode=json'
+curl 'http://localhost:4105/entrez/eutils/efetch.fcgi?db=pubmed&id=99000001&rettype=abstract&retmode=text'
+```
+
+An unknown `db` returns an `ERROR` field, and a search with no matches returns `count: "0"` with `No items found.`, as E-utilities does.
+
+## Data
+
+- **PubMed:** 80 synthetic articles generated from a seed about the conditions and drugs the [FHIR patient generator](/docs/fhir#synthetic-patients) uses and a few genes. PMIDs start at `99000001`, which PubMed has not assigned, DOIs use the `10.5555` test prefix, and the journals, authors, and abstracts are invented.
+- **Gene:** ten real human genes (BRCA1, TP53, EGFR, KRAS, CFTR, INS, TNF, CYP2D6, MTHFR, APOE) with their NCBI Gene ids, names, and GRCh38 locations, which are public domain. The summaries are written for emuhealth.
+
+## Seed config
+
+```yaml
+ncbi:
+  generate:
+    articles: 80 # 0 to 5000; or generate: false for no articles
+    seed: 1
+```

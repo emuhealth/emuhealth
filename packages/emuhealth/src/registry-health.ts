@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav", "clinicaltrials", "ncbi"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -107,6 +107,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
       clinicaltrials: {
         generate: {
           studies: 60,
+          seed: 1,
+        },
+      },
+    },
+  },
+  ncbi: {
+    label: "NCBI E-utilities emulator (PubMed and Gene)",
+    endpoints:
+      "E-utilities under /entrez/eutils: einfo, esearch (field tags, AND/OR/NOT, [dp] ranges, retstart/retmax, usehistory WebEnv), esummary, efetch (PubMed XML and abstract text), elink (gene and pubmed), GET or POST, JSON or XML; synthetic PubMed articles and real human genes; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/ncbi");
+      return { plugin: mod.ncbiPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "ncbi-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      ncbi: {
+        generate: {
+          articles: 80,
           seed: 1,
         },
       },

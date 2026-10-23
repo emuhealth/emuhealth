@@ -80,6 +80,13 @@ describe("createEmulator", () => {
     await ct.close();
   });
 
+  it("starts the NCBI E-utilities emulator", async () => {
+    const ncbi = await createEmulator({ service: "ncbi", port: 14024 });
+    const res = await fetch(`${ncbi.url}/entrez/eutils/esearch.fcgi?db=gene&term=BRCA1[sym]&retmode=json`);
+    expect(((await res.json()) as { esearchresult: { idlist: string[] } }).esearchresult.idlist).toEqual(["672"]);
+    await ncbi.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",
