@@ -3,7 +3,6 @@ import { GeistPixelSquare } from "geist/font/pixel";
 import { HeroTerminal } from "@/components/hero-terminal";
 
 const repoUrl = "https://github.com/emuhealth/emuhealth";
-const roadmapUrl = `${repoUrl}/blob/main/ROADMAP.md`;
 
 export default function LandingPage() {
   return (
@@ -18,19 +17,17 @@ export default function LandingPage() {
           sandbox accounts, no network. Synthetic data only.
         </p>
         <p className="mb-8 max-w-xl text-sm text-neutral-500">
-          The FHIR R4 server with SMART App Launch and a growing set of EHR and life science emulators are available
-          now. The roadmap shows what is next.
+          A FHIR server for R4, R4B, and R5 with SMART App Launch, plus EHR, payer, imaging, HL7 v2, device, and life
+          science emulators, all available now.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <a
-            href={roadmapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/docs"
             className="inline-flex h-9 items-center rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            View the roadmap
-          </a>
+            Read the docs
+          </Link>
           <a
             href={repoUrl}
             target="_blank"
@@ -61,7 +58,7 @@ export default function LandingPage() {
               <h3 className="mb-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">Stateful FHIR store</h3>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
                 Create a Patient, record Observations, search with includes and chained parameters. Versions, history,
-                and ETags behave like a real FHIR R4 server.
+                and ETags behave like a real FHIR server, in R4, R4B, or R5.
               </p>
             </div>
             <div>
@@ -133,7 +130,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Use it your way</h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            Run the FHIR R4 server from the CLI or start it from your tests.
+            Run the FHIR server from the CLI or start it from your tests.
           </p>
           <div className="space-y-4">
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
