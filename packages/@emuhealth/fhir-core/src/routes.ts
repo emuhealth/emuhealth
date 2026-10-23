@@ -3,7 +3,15 @@ import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
-import { parseSearch, resolveIncludes, runSearch, type SearchContext } from "./search.js";
+import { parseTypes, patientEverything } from "./everything.js";
+import {
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  parseSearch,
+  resolveIncludes,
+  runSearch,
+  type SearchContext,
+} from "./search.js";
 import { getFhirStore, type FhirHistoryRecord, type FhirResource, type WriteResult } from "./store.js";
 
 export const FHIR_JSON = "application/fhir+json; charset=utf-8";
@@ -212,6 +220,51 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     handle((c) =>
       fhirJson(c, buildCapabilityStatement({ base, software: options.software, description: options.description })),
     ),
+  );
+
+  function everything(c: AnyContext, id?: string): Response {
+    const store = fhir();
+    // Instance level: 404 or 410 when the patient is unknown or deleted.
+    const ids = id ? [store.read("Patient", id).resource.id!] : store.listCurrent("Patient").map((p) => p.id!);
+    const query = new URL(c.req.url).searchParams;
+    const count = Math.min(parseCount(query.get("_count") ?? undefined) ?? DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
+    const offset = parseCount(query.get("_getpagesoffset") ?? undefined) ?? 0;
+    const records = patientEverything(store, ids, {
+      since: query.get("_since") ?? undefined,
+      types: parseTypes(query.get("_type") ?? undefined),
+    });
+    const path = `${base}/Patient${id ? `/${id}` : ""}/$everything`;
+    const link = (pageOffset: number) => {
+      const params = new URLSearchParams([...query].filter(([k]) => ["_since", "_type", "_count"].includes(k)));
+      if (pageOffset > 0) params.set("_getpagesoffset", String(pageOffset));
+      const qs = params.toString();
+      return `${path}${qs ? `?${qs}` : ""}`;
+    };
+    const links = [{ relation: "self", url: link(offset) }];
+    if (count > 0 && offset + count < records.length) links.push({ relation: "next", url: link(offset + count) });
+    if (offset > 0) links.push({ relation: "previous", url: link(Math.max(0, offset - count)) });
+    return fhirJson(c, {
+      resourceType: "Bundle",
+      id: randomUUID(),
+      meta: { lastUpdated: new Date().toISOString() },
+      type: "searchset",
+      total: records.length,
+      link: links,
+      entry: records.slice(offset, offset + count).map((resource) => ({
+        fullUrl: `${base}/${resource.resourceType}/${resource.id}`,
+        resource,
+        search: { mode: "match" },
+      })),
+    });
+  }
+
+  app.get(
+    `${basePath}/Patient/$everything`,
+    handle((c) => everything(c)),
+  );
+  app.get(
+    `${basePath}/Patient/${ID}/$everything`,
+    handle((c) => everything(c, c.req.param("id"))),
   );
 
   // POST to the base URL processes batch and transaction Bundles.

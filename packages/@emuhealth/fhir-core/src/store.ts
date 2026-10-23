@@ -134,6 +134,15 @@ export class FhirStore {
     return record?.resource ? structuredClone(record.resource) : undefined;
   }
 
+  /** Every current, non-deleted resource, oldest first. */
+  listAllCurrent(): FhirResource[] {
+    return this.resources
+      .all()
+      .filter((r): r is FhirResourceRecord & { resource: FhirResource } => r.resource !== null)
+      .sort((a, b) => a.id - b.id)
+      .map((r) => structuredClone(r.resource));
+  }
+
   /** Current, non-deleted resources of a type, oldest first. */
   listCurrent(type: string): FhirResource[] {
     assertResourceType(type);

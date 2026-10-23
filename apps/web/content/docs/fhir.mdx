@@ -84,6 +84,17 @@ curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observat
 }
 ```
 
+## Patient $everything
+
+`GET /Patient/:id/$everything` returns a `searchset` Bundle with the patient, every resource that references it (Encounters, Observations, Conditions, MedicationRequests, AllergyIntolerances, Immunizations, and so on), and the Practitioners, Organizations, and other resources those point to. Other patients are never included, even when a record mentions them. `GET /Patient/$everything` does the same for every patient.
+
+- `_type=Observation,Condition` limits the resource types, `_since` limits to resources updated at or after an instant, and `_count` pages the result with `next` and `previous` links.
+- An unknown patient returns `404` and a deleted one `410`.
+
+```bash
+curl 'http://localhost:4100/Patient/syn-patient-001/$everything?_type=Patient,Condition,MedicationRequest'
+```
+
 ## Versioning
 
 Every write increments `meta.versionId` and sets `meta.lastUpdated`.

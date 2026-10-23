@@ -50,7 +50,7 @@ Package: `@emuhealth/fhir-core`
 - [x] Search: `_id`, `_lastUpdated`, `_count`, `_sort`, `_include`, `_revinclude`, common token, reference, date, and string parameters, chained search ([#20](https://github.com/emuhealth/emuhealth/pull/20), [#21](https://github.com/emuhealth/emuhealth/pull/21))
 - [x] `batch` and `transaction` Bundles ([#22](https://github.com/emuhealth/emuhealth/pull/22))
 - [x] `OperationOutcome` errors and `CapabilityStatement` at `/metadata` ([#24](https://github.com/emuhealth/emuhealth/pull/24))
-- [ ] `Patient/$everything`
+- [x] `Patient/$everything` ([#27](https://github.com/emuhealth/emuhealth/pull/27))
 - [ ] Bulk Data `$export` with NDJSON output
 - [ ] SMART App Launch: EHR and standalone launch, PKCE, v1 and v2 scopes, `.well-known/smart-configuration`, patient and practitioner picker built on `renderUserButton`
 - [ ] SMART Backend Services: `client_credentials` with JWT client assertion

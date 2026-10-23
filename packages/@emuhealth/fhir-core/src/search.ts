@@ -341,7 +341,12 @@ function matchReference(
 /** "Patient/123", "http://host/Patient/123" -> ["Patient", "123"]. Contained (#id) references are skipped. */
 function referenceTarget(reference: unknown): [string, string] | undefined {
   const ref = reference && typeof reference === "object" ? (reference as { reference?: unknown }).reference : undefined;
-  if (typeof ref !== "string" || ref.startsWith("#")) return undefined;
+  return typeof ref === "string" ? parseReference(ref) : undefined;
+}
+
+/** "Patient/123", "http://host/Patient/123/_history/2" -> ["Patient", "123"]. Contained (#id) references give undefined. */
+export function parseReference(ref: string): [string, string] | undefined {
+  if (ref.startsWith("#")) return undefined;
   const parts = ref.split("/").filter(Boolean);
   const historyAt = parts.indexOf("_history");
   const trimmed = historyAt > 0 ? parts.slice(0, historyAt) : parts;

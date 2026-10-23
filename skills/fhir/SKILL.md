@@ -46,6 +46,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
 | batch, transaction | `POST /` with a `batch` or `transaction` Bundle |
 | capabilities | `GET /metadata` returns the CapabilityStatement |
+| $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |
 
 Not available yet: SMART on FHIR, conditional create, update, and delete outside transactions. Requests are not authenticated until SMART support lands.
 
