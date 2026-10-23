@@ -196,6 +196,13 @@
       "ogTitle": "athenahealth | emuhealth",
       "headings": ["Authentication", "Proprietary API", "Appointments", "FHIR R4", "Seed config"]
     },
+    "/docs/bluebutton": {
+      "title": "CMS Blue Button 2.0 | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/bluebutton",
+      "ogTitle": "CMS Blue Button 2.0 | emuhealth",
+      "headings": ["OAuth", "FHIR API", "Synthetic beneficiaries", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

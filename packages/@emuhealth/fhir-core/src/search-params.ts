@@ -174,6 +174,15 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
   ],
   Device: [p("patient", "reference", ["patient"], ["Patient"]), p("type", "token", ["type"])],
   Medication: [p("code", "token", ["code"])],
+  ExplanationOfBenefit: [
+    p("patient", "reference", ["patient"], ["Patient"]),
+    p("type", "token", ["type"]),
+    p("status", "token", ["status"]),
+    p("service-date", "date", ["billablePeriod"]),
+    p("created", "date", ["created"]),
+    p("provider", "reference", ["provider"]),
+    p("coverage", "reference", ["insurance.coverage"], ["Coverage"]),
+  ],
   Provenance: [
     p("target", "reference", ["target"]),
     p("patient", "reference", ["target"], ["Patient"]),

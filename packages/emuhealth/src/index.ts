@@ -117,6 +117,13 @@ athenahealth:
   FHIR R4 at /fhir/r4; searches need ah-practice=Organization/a-1.Practice-195900.
   Docs: https://www.emuhealth.dev/docs/athena
 
+CMS Blue Button 2.0:
+  'npx emuhealth --service bluebutton' serves CMS Blue Button 2.0 at http://localhost:4111.
+  OAuth: /v2/o/authorize/ (beneficiary picker), /v2/o/token/ (PKCE), /v2/connect/userinfo.
+  FHIR R4 at /v2/fhir, token required, read-only: Patient, Coverage (beneficiary=), ExplanationOfBenefit
+  (patient=, type=CARRIER or PDE, service-date=). Beneficiaries are synthetic with MBIs that contain S.
+  Docs: https://www.emuhealth.dev/docs/bluebutton
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

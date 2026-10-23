@@ -1,0 +1,50 @@
+---
+title: "CMS Blue Button 2.0"
+---
+
+An emulator of the CMS [Blue Button 2.0](https://bluebutton.cms.gov) API for apps that let Medicare beneficiaries share their claims. It runs on `http://localhost:4111` by default with Blue Button's OAuth and FHIR paths, over synthetic beneficiaries. emuhealth is not affiliated with CMS.
+
+```bash
+npx emuhealth --service bluebutton
+```
+
+## OAuth
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /v2/o/authorize/` | Beneficiary sign-in: a picker of synthetic beneficiaries |
+| `POST /v2/o/token/` | `authorization_code` (PKCE `S256` for public clients) and `refresh_token` |
+| `POST /v2/o/introspect/`, `POST /v2/o/revoke_token/` | Introspection and revocation |
+| `GET /v2/connect/userinfo` | `sub`, `patient`, and the beneficiary's name |
+| `GET /v2/fhir/.well-known/smart-configuration` | Discovery |
+
+Every authorization signs in a beneficiary, so the token response always carries `patient`, and there is no practitioner picker. Request scopes such as `patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read profile`. Register your app under `bluebutton.smart.clients`, or use any client id until you do.
+
+## FHIR API
+
+`http://localhost:4111/v2/fhir` serves read-only FHIR R4, and every request needs a token (only `/metadata` and discovery are public). As on Blue Button, it has only three resource types, and a token only sees its own beneficiary:
+
+| Resource | Search |
+|----------|--------|
+| `Patient` | `_id`; the beneficiary, with a synthetic Medicare Beneficiary Identifier (`http://hl7.org/fhir/sid/us-mbi`) |
+| `Coverage` | `beneficiary`; Medicare Parts A, B, and D |
+| `ExplanationOfBenefit` | `patient`, `type` (`https://bluebutton.cms.gov/resources/codesystem/eob-type\|CARRIER` or `\|PDE`), `service-date`, `created` |
+
+Other resource types return `404`, and writes return `405`.
+
+## Synthetic beneficiaries
+
+The emulator starts with the same 5 generated people as the [FHIR R4](/docs/fhir) server, as Medicare beneficiaries. Each has Part A, B, and D Coverage, a carrier claim for every encounter, with ICD-10-CM diagnoses and HCPCS Level II line items (public domain, CMS; CPT is not bundled), and a Part D event for every prescription, with RxNorm codes. MBIs follow the MBI layout but contain the letter `S`, which real MBIs never use.
+
+## Seed config
+
+```yaml
+bluebutton:
+  generate:
+    patients: 5
+    seed: 1
+  smart:
+    clients:
+      - client_id: my-blue-button-app
+        redirect_uris: ["http://localhost:3000/callback"]
+```

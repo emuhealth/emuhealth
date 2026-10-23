@@ -14,6 +14,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "redcap",
   "cerner",
   "athena",
+  "bluebutton",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -254,6 +255,34 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         },
         scheduling: {
           days: 10,
+        },
+      },
+    },
+  },
+  bluebutton: {
+    label: "CMS Blue Button 2.0 emulator",
+    endpoints:
+      "Patient access OAuth at /v2/o/authorize/ and /v2/o/token/ with a beneficiary picker, /v2/connect/userinfo, FHIR R4 at /v2/fhir with Patient (synthetic MBIs), Coverage (Parts A, B, D), and ExplanationOfBenefit (carrier and Part D claims), read-only and token-only; synthetic beneficiaries",
+    async load() {
+      const mod = await import("@emuhealth/bluebutton");
+      return { plugin: mod.bluebuttonPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "bluebutton-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      bluebutton: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
+        smart: {
+          clients: [
+            {
+              client_id: "my-blue-button-app",
+              redirect_uris: ["http://localhost:3000/callback"],
+            },
+          ],
         },
       },
     },

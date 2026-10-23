@@ -140,6 +140,13 @@ describe("createEmulator", () => {
     await athena.close();
   });
 
+  it("starts the Blue Button emulator with token-only FHIR", async () => {
+    const bb = await createEmulator({ service: "bluebutton", port: 14030 });
+    expect((await fetch(`${bb.url}/v2/fhir/metadata`)).status).toBe(200);
+    expect((await fetch(`${bb.url}/v2/fhir/Patient/syn-patient-001`)).status).toBe(401);
+    await bb.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

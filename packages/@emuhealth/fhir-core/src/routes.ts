@@ -36,6 +36,7 @@ export interface FhirRouteOptions {
     paths?: Partial<SmartPaths>;
     tokenExtras?: SmartRouteOptions["tokenExtras"];
     clientCredentialsWithSecret?: boolean;
+    patientAccess?: boolean;
   };
   /** Adjust every search result Bundle, for vendor quirks such as an OperationOutcome entry on empty results. */
   searchBundle?: (bundle: FhirResource, type: string) => FhirResource;
@@ -262,6 +263,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     paths: options.smart?.paths,
     tokenExtras: options.smart?.tokenExtras,
     clientCredentialsWithSecret: options.smart?.clientCredentialsWithSecret,
+    patientAccess: options.smart?.patientAccess,
   });
   if (options.inspectorPath !== false)
     registerFhirInspector(app, store, { path: options.inspectorPath ?? "/_inspector", base });

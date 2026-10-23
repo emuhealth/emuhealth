@@ -523,3 +523,13 @@ athena:
   # Open appointment slots on weekdays from startDate (default today)
   scheduling:
     days: 10
+
+bluebutton:
+  # Synthetic beneficiaries with Coverage and ExplanationOfBenefit claims
+  generate:
+    patients: 5
+    seed: 1
+  smart:
+    clients:
+      - client_id: my-blue-button-app
+        redirect_uris: ["http://localhost:3000/callback"]
