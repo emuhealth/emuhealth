@@ -11,6 +11,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "ncbi",
   "nppes",
   "benchling",
+  "redcap",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -180,6 +181,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           dnaSequences: 10,
         },
         webhooks: [],
+      },
+    },
+  },
+  redcap: {
+    label: "REDCap API emulator",
+    endpoints:
+      "REDCap API at POST /api/ with token and content: version, project, metadata, instrument, exportFieldNames, record export (records, fields, forms, filterLogic, rawOrLabel, flat or eav), record import (json or csv, overwriteBehavior, forceAutoNumber, returnContent), record delete, generateNextRecordName; json, csv, or xml; synthetic classic project; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/redcap");
+      return { plugin: mod.redcapPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "redcap-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      redcap: {
+        generate: {
+          records: 20,
+          seed: 1,
+        },
       },
     },
   },

@@ -104,6 +104,17 @@ describe("createEmulator", () => {
     await benchling.close();
   });
 
+  it("starts the REDCap emulator", async () => {
+    const redcap = await createEmulator({ service: "redcap", port: 14027 });
+    const res = await fetch(`${redcap.url}/api/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "token=5E7E0000000000000000000000000001&content=record&format=json",
+    });
+    expect(((await res.json()) as unknown[]).length).toBe(20);
+    await redcap.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

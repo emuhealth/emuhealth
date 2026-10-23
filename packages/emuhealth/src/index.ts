@@ -94,6 +94,13 @@ Benchling:
   benchling.webhooks sends Svix-signed events (v2.entry.created, v2.entity.registered) to your URLs.
   Docs: https://www.emuhealth.dev/docs/benchling
 
+REDCap:
+  'npx emuhealth --service redcap' serves the REDCap API at http://localhost:4108/api/ (POST, form encoded).
+  token=5E7E0000000000000000000000000001 unless redcap.tokens is set; content=version, project, metadata,
+  instrument, exportFieldNames, record (action=export, import, delete), generateNextRecordName; format=json, csv, xml.
+  Exports take records[], fields[], forms[], filterLogic, rawOrLabel, type=eav. Imports validate against the dictionary.
+  Docs: https://www.emuhealth.dev/docs/redcap
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt
