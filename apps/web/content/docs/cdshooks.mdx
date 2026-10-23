@@ -1,0 +1,60 @@
+---
+title: "CDS Hooks"
+---
+
+A [CDS Hooks](https://cds-hooks.org) emulator for building and testing clinical decision support services. It runs on `http://localhost:4112` by default and plays the EHR: it reads your service's discovery document, fires hooks with everything a real EHR sends, and checks the cards you return. It also serves two sample CDS services, for EHR-side code that needs a service to call.
+
+```bash
+npx emuhealth --service cdshooks
+curl -X POST http://localhost:4112/ehr/fire -H 'Content-Type: application/json' \
+  -d '{"discoveryUrl":"http://localhost:3000/cds-services","hook":"patient-view","patientId":"syn-patient-002"}'
+```
+
+Or open `http://localhost:4112/_inspector`, pick a service, hook, and patient, and press Fire hook.
+
+## Firing hooks
+
+`POST /ehr/fire` takes JSON:
+
+| Field | Meaning |
+|-------|---------|
+| `discoveryUrl` | Your service's discovery endpoint, for example `http://localhost:3000/cds-services` |
+| `hook` | `patient-view`, `order-sign`, `order-select`, or `encounter-start` |
+| `patientId` | A patient on the EHR's FHIR server (default `syn-patient-001`) |
+| `serviceId` | Which service to call; by default, the first service for the hook |
+| `medication` | Text of the draft MedicationRequest for `order-sign` and `order-select` |
+| `context` | Extra context fields, merged over the generated ones |
+
+The response is the invocation: the request sent, the HTTP status, your response, and any `issues`. `GET /ehr/invocations` lists the last 100.
+
+## What your service receives
+
+`POST {discoveryUrl}/{service id}` with:
+
+- `Authorization: Bearer <JWT>` signed RS384 by the EHR, with `iss` the EHR (`http://localhost:4112`), `aud` your service URL, `exp`, `iat`, `jti`, and a `jku` header pointing at `http://localhost:4112/.well-known/jwks.json`.
+- `hook`, `hookInstance`, and `fhirServer` (`http://localhost:4112/fhir`, a full synthetic [FHIR R4](/docs/fhir) server).
+- `fhirAuthorization` with a Bearer token for `patient/*.read` on that server, limited to the patient and valid for 5 minutes.
+- `context`: `userId` (a Practitioner), `patientId`, `encounterId` when the patient has one, and for order hooks `draftOrders` (a Bundle with the draft MedicationRequest) and `selections`.
+- `prefetch`: every template in your discovery document, filled from `{{context.patientId}}`, `{{context.encounterId}}`, and `{{userPractitionerId}}` and fetched from the FHIR server.
+
+## Card checks
+
+Responses are checked against the CDS Hooks 2.0 card rules, and each problem becomes an issue: `cards` must be an array; every card needs a `summary` of 140 characters or fewer, an `indicator` of `info`, `warning`, or `critical`, and a `source.label`; links need `label`, `url`, and a `type` of `absolute` or `smart`; suggestion actions must be `create`, `update`, or `delete`; and `selectionBehavior` must be `at-most-one` or `any`. Non-2xx statuses and responses that are not JSON are issues too.
+
+## Sample CDS services
+
+`GET /cds-services` lists two services, with prefetch templates:
+
+- `patient-greeting` (`patient-view`): an info card with the patient's name and problem count.
+- `allergy-check` (`order-sign`): a warning card with a delete suggestion when a draft medication matches a recorded allergy (a penicillin allergy matches any `-cillin`).
+
+`POST /cds-services/{id}/feedback` accepts feedback and returns `200`.
+
+## Seed config
+
+```yaml
+cdshooks:
+  services:
+    - http://localhost:3000/cds-services # offered in the inspector
+  # Same keys as fhir for the EHR's records: generate, resources
+```

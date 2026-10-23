@@ -15,6 +15,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "cerner",
   "athena",
   "bluebutton",
+  "cdshooks",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -284,6 +285,23 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             },
           ],
         },
+      },
+    },
+  },
+  cdshooks: {
+    label: "CDS Hooks emulator (simulated EHR and sample services)",
+    endpoints:
+      "Simulated EHR: POST /ehr/fire reads your CDS service discovery and fires patient-view, order-sign, order-select, or encounter-start with a signed JWT (JWKS at /.well-known/jwks.json), context, prefetch, and fhirAuthorization from its FHIR server at /fhir, then validates the cards; GET /ehr/invocations; sample CDS services at /cds-services (patient-greeting, allergy-check) with feedback; inspector form at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/cdshooks");
+      return { plugin: mod.cdshooksPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "cdshooks-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      cdshooks: {
+        services: ["http://localhost:3000/cds-services"],
       },
     },
   },

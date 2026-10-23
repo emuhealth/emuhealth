@@ -203,6 +203,13 @@
       "ogTitle": "CMS Blue Button 2.0 | emuhealth",
       "headings": ["OAuth", "FHIR API", "Synthetic beneficiaries", "Seed config"]
     },
+    "/docs/cdshooks": {
+      "title": "CDS Hooks | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/cdshooks",
+      "ogTitle": "CDS Hooks | emuhealth",
+      "headings": ["Firing hooks", "What your service receives", "Card checks", "Sample CDS services", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

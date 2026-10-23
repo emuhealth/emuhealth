@@ -124,6 +124,13 @@ CMS Blue Button 2.0:
   (patient=, type=CARRIER or PDE, service-date=). Beneficiaries are synthetic with MBIs that contain S.
   Docs: https://www.emuhealth.dev/docs/bluebutton
 
+CDS Hooks:
+  'npx emuhealth --service cdshooks' runs a simulated EHR at http://localhost:4112.
+  POST /ehr/fire {discoveryUrl, hook, patientId, medication?} fires a hook at your CDS service with a signed JWT
+  (JWKS at /.well-known/jwks.json), prefetch and fhirAuthorization from the FHIR server at /fhir, and validates cards.
+  Sample CDS services at /cds-services (patient-greeting, allergy-check). Fire hooks from the form at /_inspector.
+  Docs: https://www.emuhealth.dev/docs/cdshooks
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -12,6 +12,8 @@ const CSS = `
 .inspector-detail summary{cursor:pointer;overflow-wrap:anywhere}
 .inspector-action{display:inline-block;margin-top:12px;padding:8px 12px;border:1px solid #0a3300;border-radius:6px;background:#001a00;color:#33ff00;font:inherit;font-size:.8125rem;cursor:pointer}
 .inspector-action:hover{background:#0a3300}
+.inspector-field{display:block;margin-top:12px;font-size:.8125rem;color:#1a8c00}
+.inspector-field input,.inspector-field select{display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid #0a3300;border-radius:6px;background:#000;color:#33ff00;font:inherit;font-size:.8125rem}
 .inspector-scroll{overflow-x:auto}
 @font-face{
   font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;

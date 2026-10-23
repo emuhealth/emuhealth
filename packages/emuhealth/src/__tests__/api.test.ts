@@ -147,6 +147,13 @@ describe("createEmulator", () => {
     await bb.close();
   });
 
+  it("starts the CDS Hooks emulator with sample services", async () => {
+    const cds = await createEmulator({ service: "cdshooks", port: 14031 });
+    const res = await fetch(`${cds.url}/cds-services`);
+    expect(((await res.json()) as { services: unknown[] }).services).toHaveLength(2);
+    await cds.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",
