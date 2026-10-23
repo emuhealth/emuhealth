@@ -14,6 +14,7 @@ const services = [
   { name: "cdshooks", port: 4112, note: "CDS Hooks" },
   { name: "redox", port: 4113, note: "Redox" },
   { name: "healthlake", port: 4114, note: "AWS HealthLake" },
+  { name: "gcphealthcare", port: 4115, note: "Google Cloud Healthcare API" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

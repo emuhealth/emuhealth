@@ -18,6 +18,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "cdshooks",
   "redox",
   "healthlake",
+  "gcphealthcare",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -348,6 +349,36 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             id: "5e7e0000000000000000000000000001",
             name: "synthetic",
             preload: true,
+          },
+        ],
+      },
+    },
+  },
+  gcphealthcare: {
+    label: "Google Cloud Healthcare API emulator (FHIR stores)",
+    endpoints:
+      "Cloud Healthcare API v1 under /v1/projects/{project}/locations/{location}: datasets (create as operations, get, list, delete, operations), FHIR stores (create, get, list, patch with updateMask, delete, :export and :import operations), and a FHIR R4 API per store at .../fhirStores/{store}/fhir honoring enableUpdateCreate; any Bearer token; Google JSON errors; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/gcphealthcare");
+      return { plugin: mod.gcphealthcarePlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "gcphealthcare-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      gcphealthcare: {
+        datasets: [
+          {
+            project: "synthetic-project",
+            location: "us-central1",
+            id: "synthetic-dataset",
+            fhirStores: [
+              {
+                id: "synthetic-fhir-store",
+                enableUpdateCreate: true,
+                preload: true,
+              },
+            ],
           },
         ],
       },

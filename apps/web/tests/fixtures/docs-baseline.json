@@ -224,6 +224,13 @@
       "ogTitle": "AWS HealthLake | emuhealth",
       "headings": ["Credentials and signing", "Control plane", "Data plane", "Seed config"]
     },
+    "/docs/gcphealthcare": {
+      "title": "Google Cloud Healthcare API | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/gcphealthcare",
+      "ogTitle": "Google Cloud Healthcare API | emuhealth",
+      "headings": ["Authentication", "Datasets and FHIR stores", "FHIR API", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

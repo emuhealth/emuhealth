@@ -38,6 +38,7 @@ export const docsSections: NavSection[] = [
       { name: "CDS Hooks", href: "/docs/cdshooks" },
       { name: "Redox", href: "/docs/redox" },
       { name: "AWS HealthLake", href: "/docs/healthlake" },
+      { name: "Google Cloud Healthcare API", href: "/docs/gcphealthcare" },
     ],
   },
   {

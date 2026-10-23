@@ -562,3 +562,14 @@ healthlake:
   datastores:
     - name: synthetic
       preload: true
+
+gcphealthcare:
+  # Datasets and FHIR stores at startup (replaces the default)
+  datasets:
+    - project: synthetic-project
+      location: us-central1
+      id: synthetic-dataset
+      fhirStores:
+        - id: synthetic-fhir-store
+          enableUpdateCreate: true
+          preload: true

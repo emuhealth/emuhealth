@@ -12,7 +12,7 @@ import { getFhirStore } from "./store.js";
 export interface FhirInstance {
   app: Hono;
   store: Store;
-  /** Pass a request on to this instance. */
+  /** Pass a request on to this instance, without its Authorization header. */
   forward(c: Context<any, any>): Promise<Response>;
 }
 
@@ -34,6 +34,14 @@ export function createFhirInstance(options: FhirInstanceOptions): FhirInstance {
   return {
     app,
     store,
-    forward: (c) => app.fetch(c.req.raw),
+    // The host authenticates the request with its own scheme (SigV4, Google or Entra tokens), so the instance
+    // sees it without the Authorization header and does not mistake it for a SMART token.
+    forward: async (c) => {
+      const raw = c.req.raw;
+      const headers = new Headers(raw.headers);
+      headers.delete("authorization");
+      const body = raw.method === "GET" || raw.method === "HEAD" ? undefined : await raw.arrayBuffer();
+      return app.fetch(new Request(raw.url, { method: raw.method, headers, body }));
+    },
   };
 }

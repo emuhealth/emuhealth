@@ -145,6 +145,13 @@ AWS HealthLake:
   Data plane: FHIR R4 at /datastore/{id}/r4; datastore 5e7e0000000000000000000000000001 is preloaded with synthetic patients.
   Docs: https://www.emuhealth.dev/docs/healthlake
 
+Google Cloud Healthcare API:
+  'npx emuhealth --service gcphealthcare' serves the Cloud Healthcare API at http://localhost:4115/v1 (any Bearer token).
+  Datasets: POST .../datasets?datasetId= (operation), GET, list, DELETE. FHIR stores: POST .../fhirStores?fhirStoreId=,
+  GET, list, PATCH ?updateMask=, DELETE, :export, :import. FHIR R4 at .../fhirStores/{store}/fhir.
+  Default store: projects/synthetic-project/locations/us-central1/datasets/synthetic-dataset/fhirStores/synthetic-fhir-store.
+  Docs: https://www.emuhealth.dev/docs/gcphealthcare
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

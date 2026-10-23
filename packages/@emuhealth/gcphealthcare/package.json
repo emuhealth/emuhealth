@@ -1,0 +1,47 @@
+{
+  "name": "@emuhealth/gcphealthcare",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Google Cloud Healthcare API emulator for emuhealth: datasets, FHIR stores, and a FHIR R4 API per store over synthetic data.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://www.emuhealth.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emuhealth/emuhealth.git",
+    "directory": "packages/@emuhealth/gcphealthcare"
+  },
+  "bugs": {
+    "url": "https://github.com/emuhealth/emuhealth/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "tsup --clean",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src",
+    "prepack": "node ../../../scripts/prepare-package.mjs"
+  },
+  "devDependencies": {
+    "@emulators/core": "workspace:*",
+    "@emuhealth/fhir-core": "workspace:*",
+    "tsup": "^8",
+    "typescript": "^5.7",
+    "vitest": "^4.1.0"
+  }
+}
