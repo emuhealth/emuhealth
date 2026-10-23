@@ -122,6 +122,13 @@ export class FhirStore {
     return this.write(type, id, body, "POST");
   }
 
+  /** Remove a resource and all of its versions without leaving a deleted version (fixture housekeeping). */
+  purge(type: string, id: string): void {
+    const key = `${type}/${id}`;
+    for (const r of this.resources.findBy("key", key)) this.resources.delete(r.id);
+    for (const h of this.history.findBy("key", key)) this.history.delete(h.id);
+  }
+
   /** Remove every resource and version. */
   clear(): void {
     this.resources.clear();

@@ -211,7 +211,20 @@ fhir:
     referenceDate: "2026-01-01" # ages and dates are relative to this, default 2026-01-01
 ```
 
-Set `generate: false` to start with an empty server. Resetting the emulator restores the configured population.
+Set `generate: false` to start without generated patients, and add `terminology: false` for a completely empty server. Resetting the emulator restores the configured population.
+
+## Terminology
+
+The server starts with five small CodeSystem fixtures (`content: fragment`) holding exactly the codes the generator uses: ICD-10-CM conditions, RxNorm medications and drug allergens, CVX vaccines, LOINC vital signs and labs, and UCUM units. They are not the full code systems. Each is tagged `urn:emuhealth:tag|terminology-fixture`, and LOINC and RxNorm attribution is in `THIRD_PARTY_NOTICES.md`.
+
+- `GET /CodeSystem/$lookup?system=<url>&code=<code>` returns a `Parameters` resource with the display.
+- `GET /CodeSystem/$validate-code?url=<url>&code=<code>[&display=<text>]` returns `result`, the display, and a `message` when the code is unknown or the display does not match.
+- Both work on any CodeSystem in the store, so you can load your own (including nested concepts) under `fhir.resources`. Search CodeSystems by `url`, `name`, `status`, or `version`.
+- Set `fhir.terminology: false` to leave the fixtures out.
+
+```bash
+curl 'http://localhost:4100/CodeSystem/$validate-code?url=http://loinc.org&code=8867-4'
+```
 
 ## Seed config
 

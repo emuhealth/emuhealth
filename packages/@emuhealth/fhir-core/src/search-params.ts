@@ -171,6 +171,19 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
   ],
   Device: [p("patient", "reference", ["patient"], ["Patient"]), p("type", "token", ["type"])],
   Medication: [p("code", "token", ["code"])],
+  CodeSystem: [
+    p("url", "token", ["url"]),
+    p("system", "token", ["url"]),
+    p("name", "string", ["name", "title"]),
+    p("status", "token", ["status"]),
+    p("version", "token", ["version"]),
+  ],
+  ValueSet: [
+    p("url", "token", ["url"]),
+    p("name", "string", ["name", "title"]),
+    p("status", "token", ["status"]),
+    p("version", "token", ["version"]),
+  ],
 };
 
 export function searchParamsFor(type: string): Map<string, SearchParamDefinition> {

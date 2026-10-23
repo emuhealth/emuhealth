@@ -20,3 +20,4 @@ Rules:
 | [0008](0008-fhir-core-design.md) | fhir-core package design | Accepted |
 | [0009](0009-synthetic-patient-generator.md) | Synthetic patient generator | Accepted |
 | [0010](0010-smart-app-launch.md) | SMART App Launch | Accepted |
+| [0011](0011-terminology-fixtures.md) | Terminology fixtures | Accepted |

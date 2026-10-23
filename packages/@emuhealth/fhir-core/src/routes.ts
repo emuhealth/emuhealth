@@ -5,6 +5,7 @@ import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
 import { registerSmartRoutes, type SmartPaths } from "./smart.js";
 import { registerFhirInspector } from "./inspector.js";
+import { lookupCode, validateCode } from "./terminology.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
 import { guardedOperations } from "./operations.js";
 import { NDJSON, deleteExportJob, exportManifest, getExportJob, startExport, type ExportJob } from "./bulk.js";
@@ -392,6 +393,25 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       const text = job.files[type];
       if (text === undefined) throw new FhirError(404, "not-found", `No ${type} file in this export`);
       return c.body(text, 200, { "Content-Type": NDJSON });
+    }),
+  );
+
+  // Terminology operations on the CodeSystems in the store (fixtures and any you add).
+  app.get(
+    `${basePath}/CodeSystem/$lookup`,
+    handle((c) => {
+      access(c).require("CodeSystem", "r");
+      return fhirJson(c, lookupCode(fhir(), c.req.query("system"), c.req.query("code")));
+    }),
+  );
+  app.get(
+    `${basePath}/CodeSystem/$validate-code`,
+    handle((c) => {
+      access(c).require("CodeSystem", "r");
+      return fhirJson(
+        c,
+        validateCode(fhir(), c.req.query("url") ?? c.req.query("system"), c.req.query("code"), c.req.query("display")),
+      );
     }),
   );
 

@@ -30,7 +30,7 @@ function createApp(smart?: FhirSeedConfig["smart"]) {
   const app = new Hono();
   const store = new Store();
   fhirPlugin.register(app as never, store, new WebhookDispatcher(), base);
-  seedFromConfig(store, base, { generate: false, resources, ...(smart ? { smart } : {}) });
+  seedFromConfig(store, base, { generate: false, terminology: false, resources, ...(smart ? { smart } : {}) });
   return app;
 }
 
