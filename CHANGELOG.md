@@ -1,6 +1,28 @@
 # Changelog
 
 <!-- release:start -->
+## 0.5.0
+
+Server-to-server access and bulk export, a browsable inspector, and terminology for the FHIR server. Synthetic data only.
+
+### New Features
+
+- **SMART Backend Services**: clients registered with `jwks` or `jwks_uri` authenticate with a signed JWT client assertion (`private_key_jwt`, RS384 or ES384) and use `client_credentials` for 5 minute tokens with `system/` scopes. Asymmetric clients can also use `private_key_jwt` for the authorization code flow (#32)
+- **Bulk Data `$export`**: `/$export`, `/Patient/$export`, and `/Group/:id/$export` with `Prefer: respond-async` return a status URL and a manifest of NDJSON files, one per resource type, with `_type`, `_since`, and `_outputFormat`. Exports respect SMART scopes, and exports started with a token need the same client's token to download (#33)
+- **FHIR inspector**: open `/_inspector` to browse resources by type with every version, recent changes, SMART clients and live tokens, and Bulk Data exports (#34)
+- **Terminology fixtures**: small ICD-10-CM, RxNorm, CVX, LOINC, and UCUM CodeSystems with exactly the codes the generator uses, plus `CodeSystem/$lookup` and `CodeSystem/$validate-code`, which also work on CodeSystems you load (#35)
+
+### Changes
+
+- `fhir.generate: false` now means "no generated patients"; the terminology fixtures stay. For a completely empty server, also set `fhir.terminology: false` (#35)
+- CodeSystem and ValueSet can be searched by `url`, `name`, `status`, and `version` (#35)
+
+### Documentation
+
+- Terminology fixtures in [ADR 0011](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0011-terminology-fixtures.md) (#35)
+
+<!-- release:end -->
+
 ## 0.4.0
 
 The FHIR server now starts with synthetic patients and supports SMART App Launch, so SMART apps can launch, pick a patient, and get scoped tokens against `npx emuhealth --service fhir`. Synthetic data only.
@@ -21,8 +43,6 @@ The FHIR server now starts with synthetic patients and supports SMART App Launch
 
 - SMART App Launch design in [ADR 0010](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0010-smart-app-launch.md) and the synthetic generator in [ADR 0009](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0009-synthetic-patient-generator.md) (#26, #28)
 - LOINC, RxNorm, ICD-10-CM, and CVX attribution in `THIRD_PARTY_NOTICES.md` (#26)
-
-<!-- release:end -->
 
 ## 0.3.0
 
