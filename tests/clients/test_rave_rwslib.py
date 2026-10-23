@@ -48,7 +48,8 @@ def test_subjects(rave):
     assert subjects[0].subjectkey == "101-001"
     assert subjects[0].locationoid
     uuids = rave.send_request(StudySubjectsRequest("EMU-101", "Prod", subject_key_type="SubjectUUID"))
-    assert uuids[0].subjectkeytype == "SubjectUUID"
+    # rwslib lowercases the mdsol status attributes it reads, SubjectKeyType included.
+    assert uuids[0].subjectkeytype == "subjectuuid"
 
 
 def test_datasets(rave):
@@ -84,7 +85,10 @@ def test_post_clinical_data_and_audit(rave):
     )
     with pytest.raises(RWSException) as error:
         rave.send_request(PostDataRequest(str(bad)))
-    assert error.value.rws_error.istransactionsuccessful is False
+    rejected = error.value.rws_error
+    assert type(rejected).__name__ == "RWSPostErrorResponse"
+    assert rejected.istransactionsuccessful is False
+    assert rejected.reason_code and rejected.error_origin_location
 
     audits = rave.send_request(AuditRecordsRequest("EMU-101", "Prod", startid=1, per_page=1000))
     assert "AuditRecord" in audits and 'Value="64"' in audits

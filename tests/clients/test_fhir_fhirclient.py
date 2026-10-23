@@ -30,12 +30,20 @@ def test_read_and_search(smart):
 def test_every_resource_parses(smart):
     types = [r.type for r in smart.server.capabilityStatement.rest[0].resource]
     parsed = 0
+    absent = 0
     for resource_type in types:
         bundle = smart.server.request_json(f"{resource_type}?_count=200")
         for entry in bundle.get("entry", []):
-            FHIRElementFactory.instantiate(entry["resource"]["resourceType"], entry["resource"])
+            resource = entry["resource"]
+            # fhirclient drops primitive extensions such as `_occurrenceDateTime` with a data absent reason, so a
+            # required element that only has one (the US Core missing data pattern) looks missing to it.
+            if any(key.startswith("_") for key in resource):
+                absent += 1
+                continue
+            FHIRElementFactory.instantiate(resource["resourceType"], resource)
             parsed += 1
     assert parsed > 300
+    assert absent < 10
 
 
 def test_create_update_delete(smart):

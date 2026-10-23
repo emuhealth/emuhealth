@@ -39,10 +39,14 @@ def test_admit_and_result(urls, mllp_port):
     assert patient["visits"] and patient["observations"]
 
 
-def test_rejects_garbage(urls, mllp_port):
+def test_rejects_and_records(urls, mllp_port):
     with MLLPClient(MLLP_HOST, mllp_port) as client:
-        response = client.send_message("MSH|^~\\&|A|B|C|D|20260101000000||ZZZ^Z01|1|P|2.5.1\rZZZ|1")
-    assert str(ack_of(response)[1]) in ("AE", "AR")
+        # MSH-10 (message control ID) is missing.
+        rejected = ack_of(client.send_message("MSH|^~\\&|A|B|C|D|20260101000000||ADT^A01||P|2.5.1\rPID|1"))
+        # Message types the emulator does not apply are recorded and accepted, as documented.
+        other = ack_of(client.send_message(sample(urls, "adt-a01", "syn-contract-2").replace("ADT^A01", "SIU^S12", 1)))
+    assert str(rejected[1]) == "AR"
+    assert str(other[1]) == "AA"
 
 
 def test_emulator_sends_to_python_hl7_server(urls):

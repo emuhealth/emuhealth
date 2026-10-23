@@ -202,9 +202,10 @@ function rwsError(c: Context<AppEnv>, status: 400 | 401 | 404 | 405, message: st
   return c.body(odm({ "mdsol:ErrorDescription": message }), status, { "Content-Type": "text/xml; charset=utf-8" });
 }
 
+// RWS sends Response documents without an XML declaration, and rwslib relies on that to recognize them.
 function postError(c: Context<AppEnv>, fileOid: string, location: string, code: string, message: string) {
   return c.body(
-    `<?xml version="1.0" encoding="utf-8"?>\n${el("Response", {
+    `${el("Response", {
       ReferenceNumber: randomUUID(),
       InboundODMFileOID: fileOid,
       IsTransactionSuccessful: "0",
@@ -699,7 +700,7 @@ export const ravePlugin: ServicePlugin = {
         const { stats, subjectNumbers } = applyImport(store, root, c.get("raveUser" as never) as unknown as string);
         return xml(
           c,
-          `<?xml version="1.0" encoding="utf-8"?>\n${el("Response", {
+          `${el("Response", {
             ReferenceNumber: randomUUID(),
             InboundODMFileOID: fileOid,
             IsTransactionSuccessful: "1",
@@ -718,7 +719,7 @@ export const ravePlugin: ServicePlugin = {
       if (!new URL(c.req.url).search.includes("CacheFlush")) return rwsError(c, 405, "Unsupported request");
       return xml(
         c,
-        `<?xml version="1.0" encoding="utf-8"?>\n${el("Response", { ReferenceNumber: randomUUID(), IsTransactionSuccessful: "1", SuccessStatistics: "" })}`,
+        `${el("Response", { ReferenceNumber: randomUUID(), IsTransactionSuccessful: "1", SuccessStatistics: "" })}`,
       );
     });
 
