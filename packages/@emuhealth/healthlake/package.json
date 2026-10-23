@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/healthlake",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "AWS HealthLake emulator for emuhealth: the HealthLake control plane (datastores, import and export jobs) and per-datastore FHIR R4 data planes, with SigV4 request verification.",
   "license": "Apache-2.0",

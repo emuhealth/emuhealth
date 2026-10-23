@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/athena",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "athenahealth emulator for emuhealth: the proprietary REST API (patients, chart, appointments) and FHIR R4 over synthetic records, with OAuth client credentials.",
   "license": "Apache-2.0",
