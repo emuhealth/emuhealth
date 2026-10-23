@@ -36,6 +36,7 @@ export const docsSections: NavSection[] = [
       { name: "athenahealth", href: "/docs/athena" },
       { name: "CMS Blue Button 2.0", href: "/docs/bluebutton" },
       { name: "CDS Hooks", href: "/docs/cdshooks" },
+      { name: "Redox", href: "/docs/redox" },
     ],
   },
   {

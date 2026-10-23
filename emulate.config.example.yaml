@@ -539,3 +539,14 @@ cdshooks:
   services:
     - http://localhost:3000/cds-services
   # Same keys as fhir for the EHR's synthetic records (generate, resources)
+
+redox:
+  # API keys and secrets; with none, any pair authenticates
+  sources:
+    - apiKey: synthetic-api-key
+      secret: synthetic-secret
+  # Your destination endpoints, sent EHR events with the verification-token header
+  destinations:
+    - url: http://localhost:3000/redox
+      verificationToken: synthetic-verification-token
+      dataModels: [PatientAdmin, Results, Scheduling]

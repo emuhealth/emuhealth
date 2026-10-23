@@ -12,6 +12,7 @@ const services = [
   { name: "athena", port: 4110, note: "athenahealth" },
   { name: "bluebutton", port: 4111, note: "CMS Blue Button 2.0" },
   { name: "cdshooks", port: 4112, note: "CDS Hooks" },
+  { name: "redox", port: 4113, note: "Redox" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
