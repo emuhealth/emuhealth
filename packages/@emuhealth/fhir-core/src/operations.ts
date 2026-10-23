@@ -1,6 +1,7 @@
 import type { AccessGuard } from "./access.js";
 import { applyJsonPatch } from "./json-patch.js";
 import { FhirError } from "./outcome.js";
+import { r5Write } from "./r5.js";
 import type { FhirHistoryRecord, FhirResource, FhirResourceRecord, FhirStore, WriteResult } from "./store.js";
 
 /** Store operations with SMART access checks applied. HTTP routes and Bundle entries both go through these. */
@@ -23,6 +24,9 @@ function hidden(type: string, id: string): FhirError {
 }
 
 export function guardedOperations(fhir: FhirStore, guard: AccessGuard): GuardedOperations {
+  // On an R5 server, writes in R4 shapes are converted or rejected before they reach the store.
+  const prepare = (body: unknown, type: string): unknown =>
+    fhir.version === "5.0.0" && isResource(body, type) ? r5Write(body) : body;
   return {
     guard,
     read(type, id) {
@@ -39,12 +43,14 @@ export function guardedOperations(fhir: FhirStore, guard: AccessGuard): GuardedO
       if (version.resource && !guard.allows(version.resource, "r")) throw hidden(type, id);
       return version;
     },
-    create(type, body, id) {
+    create(type, input, id) {
       guard.require(type, "c");
+      const body = prepare(input, type);
       if (isResource(body, type)) guard.requireWritable(body, "c");
       return fhir.create(type, body, id);
     },
-    update(type, id, body, ifMatch) {
+    update(type, id, input, ifMatch) {
+      const body = prepare(input, type);
       const existing = fhir.find(type, id);
       if (existing) {
         guard.require(type, "u");

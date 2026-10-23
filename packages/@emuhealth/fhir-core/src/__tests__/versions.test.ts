@@ -159,3 +159,31 @@ describe("FHIR versions", () => {
     expect((await req("/Encounter")).body.entry[0].resource.actualPeriod).toBeDefined();
   });
 });
+
+describe("writes to an R5 server", () => {
+  it("converts known R4 shapes and rejects R4 elements R5 removed", async () => {
+    const { req } = startService({ fhirVersion: "R5" });
+    const post = (body: unknown) =>
+      req("/Encounter", {
+        method: "POST",
+        headers: { "Content-Type": "application/fhir+json; fhirVersion=5.0" },
+        body: JSON.stringify(body),
+      });
+    const created = await post({
+      resourceType: "Encounter",
+      status: "finished",
+      class: { system: "http://terminology.hl7.org/CodeSystem/v3-ActCode", code: "AMB" },
+      period: { start: "2026-01-01T10:00:00Z" },
+    });
+    expect(created.status).toBe(201);
+    expect(created.body.status).toBe("completed");
+    expect(created.body.class[0].coding[0].code).toBe("AMB");
+    expect(created.body.actualPeriod.start).toBe("2026-01-01T10:00:00Z");
+    // R5 input passes through unchanged.
+    const r5 = await post({ resourceType: "Encounter", status: "completed", class: [{ coding: [{ code: "AMB" }] }] });
+    expect(r5.body.class).toEqual([{ coding: [{ code: "AMB" }] }]);
+    const removed = await post({ resourceType: "Encounter", status: "completed", statusHistory: [] });
+    expect(removed.status).toBe(400);
+    expect(removed.body.issue[0].diagnostics).toContain("EncounterHistory");
+  });
+});
