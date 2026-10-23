@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/oura",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Oura API v2 emulator for emuhealth: OAuth 2.0 and daily sleep, activity, readiness, SpO2, sleep periods, and heart rate for synthetic users.",
   "license": "Apache-2.0",

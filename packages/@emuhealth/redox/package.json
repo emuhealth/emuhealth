@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/redox",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Redox emulator for emuhealth: authentication, the /endpoint API for Redox JSON data models, and destination webhooks with verification tokens, over synthetic records.",
   "license": "Apache-2.0",

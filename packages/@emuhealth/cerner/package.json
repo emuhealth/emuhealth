@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/cerner",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Oracle Health (Cerner) Millennium FHIR R4 emulator for emuhealth: tenant URL shape, persona OAuth endpoints, system accounts, and required search parameters.",
   "license": "Apache-2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/clinicaltrials",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "ClinicalTrials.gov API v2 emulator for emuhealth: study search with query, filter, sort, fields, and page tokens over synthetic studies.",
   "license": "Apache-2.0",

@@ -1,6 +1,41 @@
 # Changelog
 
 <!-- release:start -->
+## 0.7.0
+
+Fifteen new emulators finish the EHR, cloud, payer, and wearable phases of the roadmap: Oracle Health, athenahealth, CMS Blue Button 2.0, CDS Hooks, Redox, AWS HealthLake, Google Cloud Healthcare, Azure Health Data Services, Stedi, Availity, Dexcom, Fitbit, Oura, Withings, and Terra. Synthetic data only.
+
+### New Features
+
+- **Oracle Health (Cerner)** (`--service cerner`, port 4109): FHIR R4 under the Millennium tenant path, provider and patient persona OAuth, system accounts with client secrets, and Millennium's required search parameters (#48)
+- **athenahealth** (`--service athena`, port 4110): the proprietary `/v1/{practiceid}` API for patients, chart data, and appointments, and FHIR R4 with `ah-practice`, behind client credentials (#49)
+- **CMS Blue Button 2.0** (`--service bluebutton`, port 4111): beneficiary OAuth and read-only Patient, Coverage, and ExplanationOfBenefit for synthetic Medicare beneficiaries (#50)
+- **CDS Hooks** (`--service cdshooks`, port 4112): a simulated EHR that fires `patient-view` and `order-sign` at your CDS service with signed JWTs and prefetch and checks the cards, plus sample services (#51)
+- **Redox** (`--service redox`, port 4113): Redox JSON data models at `/endpoint` and EHR events to your destinations with verification tokens (#52)
+- **AWS HealthLake** (`--service healthlake`, port 4114): the control plane and per-datastore FHIR R4 with real SigV4 verification (#53)
+- **Google Cloud Healthcare API** (`--service gcphealthcare`, port 4115): datasets, FHIR stores, and FHIR R4 per store (#54)
+- **Azure Health Data Services** (`--service azurehealth`, port 4116): FHIR services per workspace with Entra ID token verification against the Microsoft emulator (#55)
+- **Stedi** (`--service stedi`, port 4117): eligibility (270/271), professional claims (837P), claim status (276/277), and 835 ERAs (#56)
+- **Availity** (`--service availity`, port 4118): asynchronous coverages and claim statuses, service reviews (278), and Demo plan mock scenarios (#57)
+- **Dexcom** (`--service dexcom`, port 4119): OAuth and API v3 glucose (EGVs), events, devices, and data range (#58)
+- **Fitbit** (`--service fitbit`, port 4120): OAuth and profile, activity, heart rate with intraday data, sleep stages, and weight (#59)
+- **Oura** (`--service oura`, port 4121): OAuth and API v2 daily sleep, activity, readiness, SpO2, sleep periods, and heart rate (#60)
+- **Withings** (`--service withings`, port 4122): OAuth, measures, activity, sleep, devices, and notify callbacks (#61)
+- **Terra** (`--service terra`, port 4123): widget connections, normalized daily, sleep, activity, and body data, and signed webhooks (#62)
+
+### Changes
+
+- fhir-core: `clientCredentialsWithSecret`, `patientAccess`, `issueSmartToken`, and `createFhirInstance` for vendor and cloud emulators; ExplanationOfBenefit search parameters; picker paths work with authorize paths that end in a slash (#48, #49, #50, #53)
+- The Microsoft emulator issues signed JWT access tokens for non-Graph resources (`<resource>/.default`), as Entra ID does; Graph tokens are unchanged (#55)
+- The shared UI gains an `inspector-field` style for form fields (#51)
+- A private `@emuhealth/device-core` package holds the synthetic sensor data and OAuth flow the wearable emulators share (#58)
+
+### Documentation
+
+- Docs pages and agent skills for every new emulator
+
+<!-- release:end -->
+
 ## 0.6.0
 
 The FHIR server now passes the ONC Inferno US Core and SMART App Launch tests in CI, and eight new emulators cover Epic and the life science APIs: openFDA, RxNav, ClinicalTrials.gov, NCBI E-utilities, the NPPES NPI Registry, Benchling, and REDCap. Synthetic data only.
@@ -28,8 +63,6 @@ The FHIR server now passes the ONC Inferno US Core and SMART App Launch tests in
 
 - [ADR 0013](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0013-inferno-acceptance-gate.md) on the Inferno gate and [ADR 0014](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0014-vendor-layers-over-fhir-core.md) on vendor layers over fhir-core (#38, #39)
 - Docs pages and agent skills for every new emulator
-
-<!-- release:end -->
 
 ## 0.5.0
 
