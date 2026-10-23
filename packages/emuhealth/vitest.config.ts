@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       "@emuhealth/fhir-core": source("../@emuhealth/fhir-core/src/index.ts"),
       "@emuhealth/epic": source("../@emuhealth/epic/src/index.ts"),
+      "@emuhealth/openfda": source("../@emuhealth/openfda/src/index.ts"),
     },
   },
   test: {

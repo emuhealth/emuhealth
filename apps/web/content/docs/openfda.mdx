@@ -1,0 +1,76 @@
+---
+title: "openFDA"
+---
+
+An emulator of the [openFDA](https://open.fda.gov) API for apps that look up drug labels, adverse event reports, and recalls. It runs on `http://localhost:4102` by default with the same endpoints and query language as `api.fda.gov`, served from synthetic datasets. Nothing in it is FDA data, so never use it for clinical decisions.
+
+```bash
+npx emuhealth --service openfda
+curl 'http://localhost:4102/drug/label.json?search=openfda.generic_name:metformin'
+```
+
+Point your client at `http://localhost:4102` instead of `https://api.fda.gov`. An `api_key` parameter is accepted and ignored.
+
+## Endpoints
+
+| Endpoint | Records |
+|----------|---------|
+| `GET /drug/label.json` | Drug labels (SPL) with an `openfda` section: generic name, manufacturer, route, RxCUI, pharmacologic class |
+| `GET /drug/event.json` | Adverse event reports: `safetyreportid`, `receivedate`, `serious`, and `patient` with `reaction` and `drug` |
+| `GET /drug/enforcement.json` | Drug recalls: `recall_number`, `classification`, `status`, `reason_for_recall`, `report_date` |
+| `GET /device/enforcement.json` | Device recalls |
+| `GET /food/enforcement.json` | Food recalls |
+| `GET /_inspector` | Browse the datasets |
+
+## Query language
+
+| Parameter | Meaning |
+|-----------|---------|
+| `search` | `field:term` clauses. Words match case-insensitively; `"quoted phrases"` match in order; `field.exact:"Value"` matches the whole value; `term*` matches a prefix; `field:[20240101 TO 20241231]` is an inclusive range; `_exists_:field` and `_missing_:field` test presence. Join clauses with `AND`, `OR`, or `NOT` and group them with parentheses. A space (`+` in a URL) between clauses means `OR`, as in openFDA. `field:(a b)` matches either term. |
+| `sort` | `field:asc` or `field:desc` |
+| `count` | Count values of a field instead of returning records. `.exact` fields count whole values; other fields count words. |
+| `limit` | Records to return, default `1`, at most `1000` (`count` defaults to `100`) |
+| `skip` | Records to skip, at most `25000` |
+
+Nested fields use dots, through arrays: `patient.drug.openfda.generic_name`, `patient.reaction.reactionmeddrapt.exact`.
+
+```bash
+# Serious lisinopril reports, newest first
+curl 'http://localhost:4102/drug/event.json?search=patient.drug.openfda.generic_name:lisinopril+AND+serious:1&sort=receivedate:desc&limit=5'
+
+# Most reported reactions
+curl 'http://localhost:4102/drug/event.json?count=patient.reaction.reactionmeddrapt.exact'
+
+# Class II drug recalls in 2024
+curl 'http://localhost:4102/drug/enforcement.json?search=classification:"Class+II"+AND+report_date:[20240101+TO+20241231]&limit=100'
+```
+
+## Responses and errors
+
+Searches return `meta` (a synthetic data disclaimer, `last_updated`, and `results` with `skip`, `limit`, and `total`) and `results`. Counts return `results` as `{ "term", "count" }` pairs, most frequent first.
+
+Errors use openFDA's shape: no matches is `404` with `{ "error": { "code": "NOT_FOUND", "message": "No matches found!" } }`, and invalid queries or a `limit` above 1000 are `400` with code `BAD_REQUEST`.
+
+## Synthetic data
+
+The default datasets are generated from a seed, so the same seed always gives the same records:
+
+- 8 drug labels for the generic drugs the [FHIR patient generator](/docs/fhir#synthetic-patients) prescribes, with matching RxNorm codes. Label text, manufacturers, and ids are invented.
+- 300 adverse event reports with `SYN` report ids, received from 2023 through 2025.
+- 12 drug recalls and 3 each for devices and food, with `-SYN` recall numbers.
+
+## Seed config
+
+```yaml
+openfda:
+  generate:
+    seed: 1
+    events: 300 # 0 to 5000; or generate: false for empty datasets
+  records:
+    drug/label:
+      - id: my-label-1
+        openfda:
+          generic_name: ["EXAMPLEMAB"]
+```
+
+`records` adds your own synthetic records to any endpoint (`drug/label`, `drug/event`, `drug/enforcement`, `device/enforcement`, `food/enforcement`).

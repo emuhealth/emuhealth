@@ -63,6 +63,7 @@
     "@emulators/core": "workspace:*",
     "@emuhealth/fhir-core": "workspace:*",
     "@emuhealth/epic": "workspace:*",
+    "@emuhealth/openfda": "workspace:*",
     "@emulators/github": "workspace:*",
     "@emulators/apple": "workspace:*",
     "@emulators/microsoft": "workspace:*",

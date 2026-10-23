@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -49,6 +49,23 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         generate: { patients: 5, seed: 1 },
         scheduling: { days: 10 },
         smart: { clients: [{ client_id: "my-epic-app", redirect_uris: ["http://localhost:3000/callback"] }] },
+      },
+    },
+  },
+  openfda: {
+    label: "openFDA API emulator",
+    endpoints:
+      "drug labels (/drug/label.json), adverse event reports (/drug/event.json), and recalls (/drug/enforcement.json, /device/enforcement.json, /food/enforcement.json) with the openFDA query language (search, sort, count, limit, skip), synthetic datasets, inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/openfda");
+      return { plugin: mod.openfdaPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "openfda-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      openfda: {
+        generate: { seed: 1, events: 300 },
       },
     },
   },

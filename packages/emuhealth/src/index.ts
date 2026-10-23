@@ -51,6 +51,14 @@ Epic:
   Configure it under epic with the same keys as fhir (generate, resources, smart, terminology).
   Docs: https://www.emuhealth.dev/docs/epic
 
+openFDA:
+  'npx emuhealth --service openfda' serves openFDA endpoints at http://localhost:4102 with synthetic data.
+  GET /drug/label.json, /drug/event.json, /drug/enforcement.json, /device/enforcement.json, /food/enforcement.json.
+  search=field:term with "phrases", .exact, [a TO b] ranges, AND, OR, NOT, _exists_; sort=field:desc; count=field.
+  limit defaults to 1 (max 1000); skip pages. No matches return 404 {"error":{"code":"NOT_FOUND"}}.
+  openfda.generate sets seed and events, or false for none; openfda.records adds records per endpoint.
+  Docs: https://www.emuhealth.dev/docs/openfda
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

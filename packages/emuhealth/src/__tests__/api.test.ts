@@ -57,6 +57,15 @@ describe("createEmulator", () => {
     await epic.close();
   });
 
+  it("starts the openFDA emulator with synthetic labels", async () => {
+    const openfda = await createEmulator({ service: "openfda", port: 14021 });
+    const res = await fetch(`${openfda.url}/drug/label.json?search=openfda.generic_name:metformin`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { meta: { results: { total: number } } };
+    expect(body.meta.results.total).toBe(1);
+    await openfda.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

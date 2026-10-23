@@ -419,3 +419,15 @@ epic:
   scheduling:
     startDate: "2026-11-02"
     days: 10
+
+openfda:
+  # Synthetic labels, adverse event reports, and recalls; false starts empty
+  generate:
+    seed: 1
+    events: 300 # adverse event reports, 0 to 5000
+  # Extra synthetic records per endpoint
+  records:
+    drug/label:
+      - id: my-label-1
+        openfda:
+          generic_name: ["EXAMPLEMAB"]
