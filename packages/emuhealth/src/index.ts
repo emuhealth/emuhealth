@@ -33,7 +33,9 @@ FHIR R4:
   POST / with a batch or transaction Bundle; transactions roll back on failure and resolve urn:uuid references.
   GET /metadata returns the CapabilityStatement. GET /Patient/:id/$everything returns a patient's full record.
   Starts with 5 generated synthetic patients; fhir.generate sets patients, seed, and referenceDate, or false for empty.
-  Load extra synthetic resources under fhir.resources. SMART on FHIR is not available yet.
+  Load extra synthetic resources under fhir.resources.
+  SMART App Launch: /.well-known/smart-configuration, /auth/authorize (patient and practitioner pickers),
+  /auth/token (PKCE S256), /auth/launch (EHR launch simulator). Register clients under fhir.smart.clients.
   Docs: https://www.emuhealth.dev/docs/fhir
 
 Framework adapters:

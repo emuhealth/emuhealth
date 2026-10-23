@@ -3,6 +3,7 @@ import { FHIR_JSON, registerFhirRoutes } from "./routes.js";
 import { operationOutcome } from "./outcome.js";
 import { getFhirStore, type FhirResource } from "./store.js";
 import { generateSyntheticRecords, type GenerateOptions } from "./generator.js";
+import { setSmartConfig, type SmartConfig } from "./smart.js";
 
 export { registerFhirRoutes, FHIR_JSON, type FhirRouteOptions } from "./routes.js";
 export {
@@ -20,6 +21,17 @@ export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
 export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { patientEverything, type EverythingOptions } from "./everything.js";
+export {
+  registerSmartRoutes,
+  findAccessToken,
+  getSmartConfig,
+  setSmartConfig,
+  type SmartClient,
+  type SmartConfig,
+  type SmartPaths,
+  type SmartRouteOptions,
+  type SmartToken,
+} from "./smart.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
 export {
   generateSyntheticRecords,
@@ -58,6 +70,8 @@ export interface FhirSeedConfig {
   generate?: GenerateOptions | false;
   /** Synthetic resources to load at startup. Resources with an id keep it; others get a server-assigned id. */
   resources?: FhirResource[];
+  /** SMART App Launch clients and options. */
+  smart?: SmartConfig;
 }
 
 /** Write generated records into the store, keeping their ids. */
@@ -70,6 +84,7 @@ export function seedSyntheticRecords(store: Store, options: GenerateOptions = {}
 
 export function seedFromConfig(store: Store, _baseUrl: string, config: FhirSeedConfig): void {
   const fhir = getFhirStore(store);
+  if (config.smart !== undefined) setSmartConfig(store, config.smart);
   if (config.generate !== undefined) {
     if (config.generate !== false && (typeof config.generate !== "object" || config.generate === null))
       throw new Error("fhir.generate must be an object of generator options or false");

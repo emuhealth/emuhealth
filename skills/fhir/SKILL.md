@@ -48,7 +48,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | capabilities | `GET /metadata` returns the CapabilityStatement |
 | $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |
 
-Not available yet: SMART on FHIR, conditional create, update, and delete outside transactions. Requests are not authenticated until SMART support lands.
+Not available yet: SMART scope enforcement on FHIR requests, conditional create, update, and delete outside transactions. Requests without a token have full access until enforcement lands.
 
 ## Search
 
@@ -77,6 +77,16 @@ curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://
 - transaction: all or nothing, run as deletes, creates, updates/patches, reads; any failure rolls everything back and returns that entry's `OperationOutcome`
 - references to an entry `fullUrl` like `urn:uuid:...` are rewritten to the new `Type/id`; `request.ifNoneExist` makes a create conditional
 - PATCH entries use a `Binary` with `contentType: application/json-patch+json` and base64 `data`
+
+## SMART App Launch
+
+Discovery: `GET /.well-known/smart-configuration`. Endpoints: `/auth/authorize` (GET or POST), `/auth/token`, `/auth/introspect`, `/auth/revoke`, `/auth/launch` (EHR launch simulator), `/.well-known/jwks.json`.
+
+- Standalone: `launch/patient` shows a patient picker; `openid fhirUser` or `user/` scopes show a practitioner picker. Token response has `patient`; `openid fhirUser` adds an RS256 `id_token` with `fhirUser`.
+- EHR launch: `/auth/launch?launch_uri=<app>&patient=<id>&encounter=<id>&practitioner=<id>` redirects to the app with `iss` and `launch`; authorize with `launch` and the `launch` scope skips the pickers.
+- PKCE S256 required for public clients (`fhir.smart.requirePkce: false` to relax). Refresh tokens with `offline_access`/`online_access`.
+- Any client is accepted until `fhir.smart.clients` lists `client_id`, `redirect_uris`, optional `client_secret` and `scope`.
+- Tokens are issued but not yet enforced on FHIR requests.
 
 ## Versioning
 

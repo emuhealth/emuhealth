@@ -382,6 +382,11 @@ twilio:
 
 # FHIR R4 server (health service, default port 4100). Synthetic data only.
 fhir:
+  # SMART App Launch clients; with none, any client_id and redirect_uri is accepted
+  smart:
+    clients:
+      - client_id: my-smart-app
+        redirect_uris: ["http://localhost:3000/callback"]
   # Generated synthetic population (default 5 patients); false starts empty
   generate:
     patients: 5

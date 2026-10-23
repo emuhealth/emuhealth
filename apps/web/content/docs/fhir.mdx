@@ -20,7 +20,7 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 - `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
 - `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
 
-SMART on FHIR authorization is on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+SMART App Launch is available (see below), but tokens are not enforced on FHIR requests yet: requests without a token have full access. Scope enforcement is on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md).
 
 ## Search
 
@@ -93,6 +93,36 @@ curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observat
 
 ```bash
 curl 'http://localhost:4100/Patient/syn-patient-001/$everything?_type=Patient,Condition,MedicationRequest'
+```
+
+## SMART App Launch
+
+The server is also a SMART on FHIR authorization server, so SMART apps can launch against it locally. Discovery is at `GET /.well-known/smart-configuration`.
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET` or `POST /auth/authorize` | Authorization code flow with patient and practitioner pickers |
+| `POST /auth/token` | `authorization_code` and `refresh_token` grants |
+| `POST /auth/introspect`, `POST /auth/revoke` | Token introspection and revocation |
+| `GET /auth/launch` | EHR launch simulator |
+| `GET /.well-known/jwks.json` | Key for verifying `id_token` signatures |
+
+- **Standalone launch:** `launch/patient` in the scope shows a patient picker; `openid fhirUser` or any `user/` scope shows a practitioner picker first. The token response carries `patient`, and `openid fhirUser` adds a signed `id_token` with the `fhirUser` claim.
+- **EHR launch:** open `/auth/launch?launch_uri=<your app launch URL>` and pick a patient (or pass `patient`, `encounter`, and `practitioner` ids). The app receives `iss` and `launch`, and sending `launch` with the `launch` scope to `/auth/authorize` skips the pickers; the token carries `patient` and `encounter`.
+- **PKCE:** `S256` is required for public clients (`plain` is rejected). Set `fhir.smart.requirePkce: false` to allow public clients without it.
+- **Tokens:** access tokens last one hour. `offline_access` or `online_access` adds a refresh token; a refresh can narrow but not widen scopes. Tokens are cleared on reset.
+- **Clients:** any `client_id` and `redirect_uri` is accepted until you register clients. Registered clients are checked, confidential clients must send their secret (Basic auth or `client_secret`), and an optional `scope` limits what a client can be granted:
+
+```yaml
+fhir:
+  smart:
+    clients:
+      - client_id: my-smart-app
+        redirect_uris: ["http://localhost:3000/callback"]
+        scope: "launch/patient openid fhirUser patient/*.rs offline_access"
+      - client_id: my-confidential-app
+        client_secret: dev-secret
+        redirect_uris: ["http://localhost:3001/callback"]
 ```
 
 ## Versioning
