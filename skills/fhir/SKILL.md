@@ -48,7 +48,7 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | capabilities | `GET /metadata` returns the CapabilityStatement |
 | $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |
 
-Not available yet: SMART Backend Services, conditional create, update, and delete outside transactions. Requests without a token have full access unless `fhir.smart.required` is on.
+Not available yet: conditional create, update, and delete outside transactions. Requests without a token have full access unless `fhir.smart.required` is on.
 
 ## Search
 
@@ -86,6 +86,7 @@ Discovery: `GET /.well-known/smart-configuration`. Endpoints: `/auth/authorize` 
 - EHR launch: `/auth/launch?launch_uri=<app>&patient=<id>&encounter=<id>&practitioner=<id>` redirects to the app with `iss` and `launch`; authorize with `launch` and the `launch` scope skips the pickers.
 - PKCE S256 required for public clients (`fhir.smart.requirePkce: false` to relax). Refresh tokens with `offline_access`/`online_access`.
 - Any client is accepted until `fhir.smart.clients` lists `client_id`, `redirect_uris`, optional `client_secret` and `scope`.
+- Backend Services: register `jwks` (or `jwks_uri`) for a client, then `POST /auth/token` with `grant_type=client_credentials`, `scope=system/*.rs`, `client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer`, and a `client_assertion` JWT (RS384 or ES384; `iss`=`sub`=client id, `aud`=token endpoint, `exp` within 5 minutes, unique `jti`). Tokens last 5 minutes and carry only `system/` scopes.
 - Enforcement: a presented token is held to its scopes (`403` outside them) and, for `patient/` scopes, to its patient's compartment (other patients look like `404`, writes outside get `403`) across reads, search, history, `$everything`, includes, and Bundles. v2 `?category=...` constraints filter results. Bad tokens get `401`.
 - No token means full access unless `fhir.smart.required: true`, which requires a token on every FHIR request (`/metadata` and discovery stay public).
 

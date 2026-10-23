@@ -53,8 +53,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 pb-16 pt-4 sm:pb-20">
           <h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">What this gives you</h2>
           <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-            The FHIR store, generated synthetic patients, and SMART App Launch are available now. SMART Backend Services
-            are in development.
+            The FHIR store, generated synthetic patients, SMART App Launch, and SMART Backend Services are available
+            now.
           </p>
           <div className="grid gap-x-12 gap-y-6 sm:grid-cols-2">
             <div>

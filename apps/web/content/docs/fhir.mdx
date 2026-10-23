@@ -113,6 +113,7 @@ The server is also a SMART on FHIR authorization server, so SMART apps can launc
 - **Tokens:** access tokens last one hour. `offline_access` or `online_access` adds a refresh token; a refresh can narrow but not widen scopes. Tokens are cleared on reset.
 - **Enforcement:** a request that presents a SMART access token is held to it. Scopes grant interactions per resource type (`patient/Observation.rs` in v2, `patient/Observation.read` in v1, `*` for all types); interactions outside them get `403`. `patient/` scopes also limit reads, searches, history, `$everything`, includes, and Bundle entries to the token's patient: other patients' records look like `404`, and writes outside the patient get `403`. `user/` scopes are not limited to a patient. v2 granular scopes such as `patient/Observation.rs?category=laboratory` filter reads and searches. Unknown or expired tokens get `401` with `WWW-Authenticate: Bearer`.
 - **Strict mode:** requests without a token have full access by default, so quick start and `curl` keep working. Set `fhir.smart.required: true` to require a token on every FHIR request; `/metadata` and `/.well-known/smart-configuration` stay public. `/metadata` advertises the OAuth endpoints in `rest.security`.
+- **Backend Services:** server-to-server clients register public keys (`jwks` inline or `jwks_uri`) and call `/auth/token` with `grant_type=client_credentials`, `system/` scopes, and a `client_assertion` JWT signed with RS384 or ES384 (`iss` and `sub` the client id, `aud` the token endpoint, `exp` at most 5 minutes ahead, a unique `jti`). Tokens last 5 minutes, carry only `system/` scopes, and are not limited to a patient. Clients registered with keys can also use `private_key_jwt` for the authorization code flow.
 - **Clients:** any `client_id` and `redirect_uri` is accepted until you register clients. Registered clients are checked, confidential clients must send their secret (Basic auth or `client_secret`), and an optional `scope` limits what a client can be granted:
 
 ```yaml
@@ -125,6 +126,11 @@ fhir:
       - client_id: my-confidential-app
         client_secret: dev-secret
         redirect_uris: ["http://localhost:3001/callback"]
+      - client_id: my-backend-service
+        scope: "system/*.rs"
+        jwks:
+          keys:
+            - { kty: RSA, kid: key-1, alg: RS384, use: sig, n: "...", e: AQAB }
 ```
 
 ## Versioning
