@@ -1,6 +1,36 @@
 # Changelog
 
 <!-- release:start -->
+## 0.6.0
+
+The FHIR server now passes the ONC Inferno US Core and SMART App Launch tests in CI, and eight new emulators cover Epic and the life science APIs: openFDA, RxNav, ClinicalTrials.gov, NCBI E-utilities, the NPPES NPI Registry, Benchling, and REDCap. Synthetic data only.
+
+### New Features
+
+- **Inferno acceptance gate**: every change to the FHIR server runs the US Core 3.1.1 FHIR API tests (272 pass) and the SMART App Launch STU2 standalone, EHR, and backend services tests in CI. Only the TLS checks are expected to fail on a local HTTP emulator (#38)
+- **US Core synthetic data**: generated patients now cover every US Core 3.1.1 profile, including race and ethnicity, Provenance, notes, procedures, goals, care plans, care teams, devices, and a pediatric patient (#38)
+- **Epic** (`--service epic`, port 4101): the FHIR server under `/api/FHIR/R4` with OAuth 2.0 at `/oauth2`, `__epic.dstu2.patient` in token responses, Epic's informational OperationOutcome on empty searches, and `Appointment/$find` and `$book` scheduling (#39)
+- **openFDA** (`--service openfda`, port 4102): drug labels, adverse events, and drug, device, and food recalls with the openFDA query language, `count`, `sort`, and paging (#40)
+- **RxNav** (`--service rxnav`, port 4103): the RxNorm REST API (`rxcui`, `drugs`, `properties`, `related`, `allrelated`, `approximateTerm`, `spellingsuggestions`) over a verified RxNorm subset (#41)
+- **ClinicalTrials.gov** (`--service clinicaltrials`, port 4104): API v2 study search with queries, filters, `AREA[]` clauses, `fields`, `sort`, and page tokens over synthetic `NCT99` studies (#42)
+- **NCBI E-utilities** (`--service ncbi`, port 4105): `esearch` with history, `esummary`, `efetch`, `elink`, and `einfo` for synthetic PubMed articles and ten real human genes (#43)
+- **NPPES NPI Registry** (`--service nppes`, port 4106): provider search by NPI, name, taxonomy, and place over synthetic providers whose NPIs can never be real (#44)
+- **Benchling** (`--service benchling`, port 4107): API v2 sequences, notebook entries, registration, assay results, events, and Svix-signed webhooks (#45)
+- **REDCap** (`--service redcap`, port 4108): the `/api/` endpoint for metadata and record export, import, and delete in JSON, CSV, or XML (#46)
+
+### Changes
+
+- The FHIR server serves `/.well-known/openid-configuration`, and a SMART token can always read its own `fhirUser` resource (#38)
+- fhir-core gains `smart.tokenExtras` and `searchBundle` hooks for vendor emulators (#39)
+- Generated populations changed: patients from `syn-patient-004` on differ, and every patient has more resources (#38)
+
+### Documentation
+
+- [ADR 0013](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0013-inferno-acceptance-gate.md) on the Inferno gate and [ADR 0014](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0014-vendor-layers-over-fhir-core.md) on vendor layers over fhir-core (#38, #39)
+- Docs pages and agent skills for every new emulator
+
+<!-- release:end -->
+
 ## 0.5.0
 
 Server-to-server access and bulk export, a browsable inspector, and terminology for the FHIR server. Synthetic data only.
@@ -20,8 +50,6 @@ Server-to-server access and bulk export, a browsable inspector, and terminology 
 ### Documentation
 
 - Terminology fixtures in [ADR 0011](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0011-terminology-fixtures.md) (#35)
-
-<!-- release:end -->
 
 ## 0.4.0
 

@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/fhir-core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "FHIR R4 resource store and REST API shared by emuhealth emulators. Synthetic data only.",
   "license": "Apache-2.0",

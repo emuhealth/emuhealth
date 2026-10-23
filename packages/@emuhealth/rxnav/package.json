@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/rxnav",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "NLM RxNav (RxNorm REST API) emulator for emuhealth: rxcui lookup, properties, related concepts, drugs, approximate match, and spelling suggestions over an RxNorm subset.",
   "license": "Apache-2.0",
