@@ -49,7 +49,7 @@ Package: `@emuhealth/fhir-core`
 - [x] FHIR R4 resource store: create, read, update, patch, delete, `_history`, versioning, `ETag` and `If-Match` ([ADR 0008](docs/decisions/0008-fhir-core-design.md)) ([#19](https://github.com/emuhealth/emuhealth/pull/19))
 - [x] Search: `_id`, `_lastUpdated`, `_count`, `_sort`, `_include`, `_revinclude`, common token, reference, date, and string parameters, chained search ([#20](https://github.com/emuhealth/emuhealth/pull/20), [#21](https://github.com/emuhealth/emuhealth/pull/21))
 - [x] `batch` and `transaction` Bundles ([#22](https://github.com/emuhealth/emuhealth/pull/22))
-- [ ] `OperationOutcome` errors and `CapabilityStatement` at `/metadata`
+- [x] `OperationOutcome` errors and `CapabilityStatement` at `/metadata` ([#24](https://github.com/emuhealth/emuhealth/pull/24))
 - [ ] `Patient/$everything`
 - [ ] Bulk Data `$export` with NDJSON output
 - [ ] SMART App Launch: EHR and standalone launch, PKCE, v1 and v2 scopes, `.well-known/smart-configuration`, patient and practitioner picker built on `renderUserButton`
