@@ -649,3 +649,14 @@ terra:
   webhook:
     url: http://localhost:3000/terra/webhook
     secret: synthetic-signing-secret
+
+dicomweb:
+  # Synthetic CT and MR studies; false starts empty
+  generate:
+    studies: 3
+    instancesPerSeries: 3
+  # DICOM Part 10 files to load (Explicit or Implicit VR Little Endian)
+  # files:
+  #   - ./fixtures/synthetic-ct.dcm
+  # Require Authorization: Bearer <token>
+  # token: synthetic-token
