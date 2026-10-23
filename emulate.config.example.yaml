@@ -670,3 +670,14 @@ hl7v2:
   #   - mrn: syn-mrn-100
   #     family: SYNTHETIC
   #     given: QUINN
+
+veeva:
+  # Vault users for POST /api/{version}/auth
+  users:
+    - username: admin@synthetic-vault.example
+      password: synthetic-password
+  # Extra object records
+  # records:
+  #   product__v:
+  #     - name__v: Examplor
+  #       generic_name__c: examplorumab

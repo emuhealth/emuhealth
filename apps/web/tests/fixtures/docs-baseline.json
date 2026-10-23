@@ -301,6 +301,13 @@
       "ogTitle": "HL7 v2 over MLLP | emuhealth",
       "headings": ["MLLP", "Acknowledgements", "Message handling", "HTTP API", "Seed config"]
     },
+    "/docs/veeva": {
+      "title": "Veeva Vault | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/veeva",
+      "ogTitle": "Veeva Vault | emuhealth",
+      "headings": ["Authentication", "Object records", "Documents", "VQL", "Errors", "Synthetic data", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

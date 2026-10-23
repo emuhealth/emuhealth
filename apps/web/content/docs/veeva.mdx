@@ -1,0 +1,125 @@
+---
+title: "Veeva Vault"
+---
+
+An emulator of the [Veeva Vault REST API](https://developer.veevavault.com/) for clinical operations, regulatory, and quality integrations. It runs on `http://localhost:4126` with the same `/api/{version}` routes, `responseStatus` envelopes, and error types, over synthetic products, studies, sites, and trial documents. It is not affiliated with Veeva Systems.
+
+```bash
+npx emuhealth --service veeva
+SESSION=$(curl -s -X POST http://localhost:4126/api/v24.3/auth \
+  -d username=admin@synthetic-vault.example -d password=synthetic-password | jq -r .sessionId)
+curl -s -H "Authorization: $SESSION" http://localhost:4126/api/v24.3/vobjects/study__v
+```
+
+Point your Vault DNS at `localhost:4126` and use `http`. Any version path from `v1.0` up works, and `GET /api` lists the common ones.
+
+## Authentication
+
+`POST /api/{version}/auth` takes `username` and `password` as form fields and returns:
+
+- `sessionId`;
+- `userId`;
+- `vaultIds`, the one synthetic Vault;
+- `vaultId`.
+
+Send the session ID as the `Authorization` header (a `Bearer` prefix is also accepted). Sessions expire after 20 minutes without a request, and `DELETE /api/{version}/session` ends one. `POST /api/{version}/keep-alive` refreshes one.
+
+The default sign-in is `admin@synthetic-vault.example` with `synthetic-password`. Set your own with `veeva.users`.
+
+## Object records
+
+| Route                                                       | Purpose                                                                                                                                                                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /vobjects/{object}`                                    | Records with `fields` (default `id,name__v`), `limit` (at most 200), `offset`, and `sort` (`name__v desc`). `responseDetails` has `total`, `offset`, `limit`, `next_page`, `previous_page`, and `object` |
+| `GET /vobjects/{object}/{id}`                               | Every field of one record                                                                                                                                                                                |
+| `POST /vobjects/{object}`                                   | Create records from a JSON array or a CSV file (`Content-Type: text/csv`), up to 500. With `?idParam=external_id__v` it upserts                                                                          |
+| `PUT /vobjects/{object}`                                    | Update records by `id`, or by another unique field with `idParam`                                                                                                                                        |
+| `DELETE /vobjects/{object}`                                 | Delete records by `id`. Records still referenced by others fail with `OPERATION_NOT_ALLOWED`                                                                                                             |
+| `GET /metadata/vobjects`, `GET /metadata/vobjects/{object}` | Object metadata and field definitions                                                                                                                                                                    |
+
+All of these routes sit under `/api/{version}`. Batch responses list one result per input record, in order, each with its own `responseStatus` and either `data` (`id`, `url`) or `errors`.
+
+Fields are checked against the object:
+
+- Unknown fields fail with `ATTRIBUTE_NOT_SUPPORTED`. Read-only and invalid values fail with `INVALID_DATA`, and missing required fields fail with `PARAMETER_REQUIRED`.
+- Picklist values are arrays such as `["phase_2__v"]`. In input, a single value or a comma separated string also works.
+- Object reference fields must point at existing records.
+
+The objects are:
+
+| Object       | Fields beyond `id`, `name__v`, `status__v`, `external_id__v`, and audit fields     |
+| ------------ | ---------------------------------------------------------------------------------- |
+| `product__v` | `generic_name__c`, `therapeutic_area__c`                                           |
+| `country__v` | `abbreviation__c`                                                                  |
+| `study__v`   | `product__v`, `study_phase__v`, `study_status__v`, `planned_enrollment__c`         |
+| `site__v`    | `study__v` (required), `country__v`, `site_status__v`, `principal_investigator__c` |
+
+## Documents
+
+| Route                                                  | Purpose                                                                                                                                             |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /objects/documents`                               | Latest versions as `documents: [{ document }]` with `size`, `start`, `limit`. Supports `search`, `sort` (`id ASC`), and `versionscope=all`          |
+| `GET /objects/documents/{id}`                          | `document`, `versions` (number and URL), and `renditions`                                                                                           |
+| `GET /objects/documents/{id}/versions/{major}/{minor}` | One version                                                                                                                                         |
+| `GET /objects/documents/{id}/file`                     | The source file                                                                                                                                     |
+| `POST /objects/documents`                              | Create from a multipart form with `name__v`, `type__v`, `lifecycle__v`, other properties, and `file`. New documents start as version 0.1 in `Draft` |
+| `PUT /objects/documents/{id}`                          | Update editable properties                                                                                                                          |
+| `DELETE /objects/documents/{id}`                       | Delete the document                                                                                                                                 |
+| `GET /metadata/objects/documents/properties`           | Document property definitions                                                                                                                       |
+
+All of these routes sit under `/api/{version}`.
+
+## VQL
+
+`POST /api/{version}/query` with `q` as a form field (or `GET` with `?q=`) runs a subset of VQL against `documents` or any of the objects:
+
+```sql
+SELECT id, name__v, study__vr.name__v, country__vr.abbreviation__c
+FROM site__v
+WHERE site_status__v = 'active__v' AND study__vr.name__v LIKE 'EMU-1%'
+ORDER BY name__v DESC
+PAGESIZE 50
+```
+
+What the subset covers:
+
+- **Operators:** `=`, `!=`, `<`, `>`, `<=`, `>=`, `LIKE` with `%`, `IN`, `CONTAINS` (for multi-value fields), `AND`, `OR`, `NOT`, and parentheses.
+- **Clauses:** `ORDER BY`, `MAXROWS`, `PAGESIZE` (at most 1000), and `PAGEOFFSET`.
+- **Relationship fields:** `{field}__vr.{field}` follows object references, including the `product__v` and `study__v` references on documents.
+
+Responses carry `responseDetails` with `pagesize`, `pageoffset`, `size`, `total`, and `next_page` or `previous_page` URLs you can `GET`. Set `X-VaultAPI-DescribeQuery: true` to add `queryDescribe`.
+
+Syntax errors return `INCORRECT_QUERY_SYNTAX_ERROR`, and unknown targets or fields return `INVALID_DATA`. Subqueries, `FIND`, and functions are not supported.
+
+## Errors
+
+Errors use Vault's envelope, `{ "responseStatus": "FAILURE", "errors": [{ "type", "message" }] }`, with HTTP 200. The exception is unknown routes, which return `MALFORMED_URL` with HTTP 404.
+
+- `INVALID_SESSION_ID` for a missing or expired session.
+- `USERNAME_OR_PASSWORD_INCORRECT` and `NO_PASSWORD_PROVIDED` from sign-in.
+
+## Synthetic data
+
+- Three fictional products: Synthexa, Placebrin, and Fictorol.
+- Three studies (`EMU-101`, `EMU-202`, `EMU-303`) with three sites each in four countries.
+- For each study, a protocol, an investigator's brochure, and an informed consent template. Each is a short text file that says it is synthetic.
+
+Record IDs use Vault's format: the object prefix (`00P`, `00C`, `0ST`, `0SI`) and 12 digits.
+
+## Seed config
+
+```yaml
+veeva:
+  users:
+    - username: admin@synthetic-vault.example
+      password: synthetic-password
+  generate: true
+  sessionTimeoutMinutes: 20
+  records:
+    product__v:
+      - name__v: Examplor
+        generic_name__c: examplorumab
+        therapeutic_area__c: endocrinology__c
+```
+
+`generate: false` starts with no records or documents. `records` are created after the generated data, with the same checks as the API.
