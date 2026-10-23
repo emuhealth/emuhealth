@@ -1,0 +1,50 @@
+---
+title: "Google Cloud Healthcare API"
+---
+
+An emulator of the [Google Cloud Healthcare API](https://cloud.google.com/healthcare-api) FHIR stores, for apps that manage datasets and FHIR stores and read and write FHIR R4 through them. It runs on `http://localhost:4115` by default with the same `/v1` paths, and starts with one FHIR store preloaded with synthetic data. emuhealth is not affiliated with Google.
+
+```bash
+npx emuhealth --service gcphealthcare
+curl -H 'Authorization: Bearer test' \
+  http://localhost:4115/v1/projects/synthetic-project/locations/us-central1/datasets/synthetic-dataset/fhirStores/synthetic-fhir-store/fhir/Patient
+```
+
+Point the client's endpoint at `http://localhost:4115` instead of `https://healthcare.googleapis.com`.
+
+## Authentication
+
+Any `Authorization: Bearer <token>` is accepted. Requests without one get `401` with Google's error shape: `{ "error": { "code": 401, "message", "status": "UNAUTHENTICATED" } }`. Other management errors use the same shape (`NOT_FOUND`, `ALREADY_EXISTS`, `INVALID_ARGUMENT`).
+
+## Datasets and FHIR stores
+
+All under `/v1/projects/{project}/locations/{location}`:
+
+| Request | Notes |
+|---------|-------|
+| `POST /datasets?datasetId=` | Returns a completed long-running operation whose `response` is the dataset |
+| `GET /datasets`, `GET /datasets/{id}`, `DELETE /datasets/{id}` | Lists page with `pageSize` and `pageToken` |
+| `GET /datasets/{id}/operations/{operation}` | Operations from dataset creation, export, and import |
+| `POST /datasets/{id}/fhirStores?fhirStoreId=` | Body `{ "version": "R4", "enableUpdateCreate", "disableReferentialIntegrity", "labels" }`; only R4 |
+| `GET`, `PATCH ?updateMask=`, `DELETE /datasets/{id}/fhirStores/{store}` | `updateMask` can be `enableUpdateCreate` and `labels` |
+| `POST /datasets/{id}/fhirStores/{store}:export`, `:import` | Completed operations; the emulator does not read or write Cloud Storage |
+
+## FHIR API
+
+Each FHIR store serves the full [FHIR R4](/docs/fhir) API at `/v1/projects/{project}/locations/{location}/datasets/{dataset}/fhirStores/{store}/fhir`, and stores are isolated from each other. As in Cloud Healthcare, `PUT` to a resource that does not exist returns `404` unless the store has `enableUpdateCreate` on. FHIR errors are OperationOutcome resources.
+
+The default store, `projects/synthetic-project/locations/us-central1/datasets/synthetic-dataset/fhirStores/synthetic-fhir-store`, has `enableUpdateCreate` on and the 5 generated synthetic patients.
+
+## Seed config
+
+```yaml
+gcphealthcare:
+  datasets: # replaces the default dataset
+    - project: synthetic-project
+      location: us-central1
+      id: synthetic-dataset
+      fhirStores:
+        - id: synthetic-fhir-store
+          enableUpdateCreate: true
+          preload: true # load the synthetic population
+```

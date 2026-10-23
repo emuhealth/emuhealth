@@ -175,6 +175,16 @@ describe("createEmulator", () => {
     await healthlake.close();
   });
 
+  it("starts the Cloud Healthcare emulator with a default FHIR store", async () => {
+    const gcp = await createEmulator({ service: "gcphealthcare", port: 14034 });
+    const res = await fetch(
+      `${gcp.url}/v1/projects/synthetic-project/locations/us-central1/datasets/synthetic-dataset/fhirStores/synthetic-fhir-store/fhir/Patient/syn-patient-001`,
+      { headers: { Authorization: "Bearer test" } },
+    );
+    expect(res.status).toBe(200);
+    await gcp.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",
