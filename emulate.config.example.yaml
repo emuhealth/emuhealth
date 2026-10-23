@@ -457,3 +457,9 @@ clinicaltrials:
           briefTitle: My synthetic study
         statusModule:
           overallStatus: RECRUITING
+
+ncbi:
+  # Synthetic PubMed articles (PMIDs from 99000001); false starts without them
+  generate:
+    articles: 80 # 0 to 5000
+    seed: 1

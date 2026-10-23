@@ -28,6 +28,7 @@ export const docsSections: NavSection[] = [
       { name: "openFDA", href: "/docs/openfda" },
       { name: "RxNav", href: "/docs/rxnav" },
       { name: "ClinicalTrials.gov", href: "/docs/clinicaltrials" },
+      { name: "NCBI E-utilities", href: "/docs/ncbi" },
     ],
   },
   {

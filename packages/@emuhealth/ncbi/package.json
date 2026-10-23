@@ -1,0 +1,46 @@
+{
+  "name": "@emuhealth/ncbi",
+  "version": "0.5.0",
+  "private": true,
+  "description": "NCBI E-utilities emulator for emuhealth: einfo, esearch with history, esummary, efetch, and elink for PubMed (synthetic articles) and Gene.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://www.emuhealth.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emuhealth/emuhealth.git",
+    "directory": "packages/@emuhealth/ncbi"
+  },
+  "bugs": {
+    "url": "https://github.com/emuhealth/emuhealth/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "tsup --clean",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src",
+    "prepack": "node ../../../scripts/prepare-package.mjs"
+  },
+  "devDependencies": {
+    "@emulators/core": "workspace:*",
+    "tsup": "^8",
+    "typescript": "^5.7",
+    "vitest": "^4.1.0"
+  }
+}

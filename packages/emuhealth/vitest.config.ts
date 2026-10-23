@@ -11,6 +11,7 @@ export default defineConfig({
     // Health emulators bundle @emulators/core into their dist without its fonts; test against their source.
     alias: {
       "@emuhealth/fhir-core": source("../@emuhealth/fhir-core/src/index.ts"),
+      "@emuhealth/ncbi": source("../@emuhealth/ncbi/src/index.ts"),
       "@emuhealth/clinicaltrials": source("../@emuhealth/clinicaltrials/src/index.ts"),
       "@emuhealth/rxnav": source("../@emuhealth/rxnav/src/index.ts"),
       "@emuhealth/epic": source("../@emuhealth/epic/src/index.ts"),

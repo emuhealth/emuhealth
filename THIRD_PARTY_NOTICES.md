@@ -67,3 +67,10 @@ ICD-10-CM codes are published by the National Center for Health Statistics,
 ICD-10-PCS codes by the Centers for Medicare & Medicaid Services, and CVX codes
 and the Race and Ethnicity code set by the Centers for Disease Control and
 Prevention. All are U.S. government works in the public domain.
+
+### NCBI Gene
+
+The E-utilities emulator in `packages/@emuhealth/ncbi` includes the ids, symbols,
+names, and chromosomal locations of ten human genes as published by the National
+Center for Biotechnology Information (NCBI), a U.S. government work in the public
+domain. The gene summaries were written for emuhealth.

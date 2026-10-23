@@ -73,6 +73,13 @@ ClinicalTrials.gov:
   Synthetic studies use NCT99 ids; clinicaltrials.generate sets studies and seed, clinicaltrials.studies adds your own.
   Docs: https://www.emuhealth.dev/docs/clinicaltrials
 
+NCBI E-utilities:
+  'npx emuhealth --service ncbi' serves E-utilities at http://localhost:4105/entrez/eutils for db=pubmed and db=gene.
+  einfo.fcgi, esearch.fcgi (term with [ti] [au] [mh] [dp] tags, AND, OR, NOT; retstart, retmax, usehistory=y),
+  esummary.fcgi, efetch.fcgi (PubMed XML or rettype=abstract text), elink.fcgi (dbfrom=gene&db=pubmed). retmode=json for JSON.
+  PubMed articles are synthetic (PMIDs from 99000001); ncbi.generate sets articles and seed, or false for none.
+  Docs: https://www.emuhealth.dev/docs/ncbi
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

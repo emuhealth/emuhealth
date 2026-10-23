@@ -154,6 +154,13 @@
       "ogTitle": "ClinicalTrials.gov | emuhealth",
       "headings": ["Endpoints", "Search parameters", "Responses and errors", "Synthetic data", "Seed config"]
     },
+    "/docs/ncbi": {
+      "title": "NCBI E-utilities | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/ncbi",
+      "ogTitle": "NCBI E-utilities | emuhealth",
+      "headings": ["Endpoints", "Search terms", "Data", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
