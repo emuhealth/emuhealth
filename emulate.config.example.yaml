@@ -489,3 +489,16 @@ benchling:
     - url: http://localhost:3000/benchling/webhook
       events: [v2.entry.created, v2.entity.registered]
       secret: whsec_c3ludGhldGljLXNlY3JldA==
+
+redcap:
+  # API tokens (32 hex characters); default 5E7E0000000000000000000000000001
+  tokens: ["5E7E0000000000000000000000000001"]
+  # Synthetic records; false keeps the data dictionary only
+  generate:
+    records: 20 # 0 to 5000
+    seed: 1
+  # Your own records in flat format
+  records:
+    - record_id: "100"
+      sex: "1"
+      sbp: "128"

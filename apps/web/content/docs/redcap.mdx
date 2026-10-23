@@ -1,0 +1,57 @@
+---
+title: "REDCap"
+---
+
+An emulator of the [REDCap](https://projectredcap.org) API for apps that read and write research data. It runs on `http://localhost:4108` by default with the same single `POST /api/` endpoint, parameters, and formats, for a synthetic classic project.
+
+```bash
+npx emuhealth --service redcap
+curl -X POST http://localhost:4108/api/ \
+  -d token=5E7E0000000000000000000000000001 -d content=record -d format=json
+```
+
+Point your client at `http://localhost:4108/api/` instead of `https://<your REDCap>/api/`.
+
+## Requests
+
+Every request is a form encoded `POST /api/` with `token` and `content`. The default token is `5E7E0000000000000000000000000001`; set `redcap.tokens` to use your own (32 hexadecimal characters). A wrong or missing token gets `403` with `You do not have permissions to use the API`.
+
+`format` is `json`, `csv`, or `xml` (the default, as in REDCap). Errors follow `returnFormat` (or `format`): `{ "error": "..." }` in JSON, plain text in CSV, or `<hash><error>` in XML. Lists such as `records`, `fields`, and `forms` work as `records[0]=1&records[1]=2` or `records=1,2`.
+
+## Content types
+
+| `content` | Returns |
+|-----------|---------|
+| `version` | The REDCap version, as text |
+| `project` | Project information |
+| `metadata` | The data dictionary, optionally limited by `fields` or `forms` |
+| `instrument` | `instrument_name` and `instrument_label` |
+| `exportFieldNames` | Export column names, including `field___code` for checkboxes; `field` limits it to one field |
+| `record` | Export, import, or delete, see below |
+| `generateNextRecordName` | The next record id |
+
+`arm` and `event` return an error, as for any classic (not longitudinal) project.
+
+## Records
+
+- **Export** (`action=export`, the default): `records`, `fields`, and `forms` select rows and columns, the record id always comes first, and every requested form adds its `<form>_complete` column. `filterLogic` takes REDCap logic with `[field]` comparisons (`=`, `<>`, `>`, `<`, `>=`, `<=`), `and`, `or`, and parentheses. `rawOrLabel=label` returns choice labels. `type=eav` returns `record`, `field_name`, `value` rows.
+- **Import** (`action=import`): `data` is a JSON array or CSV in flat format. Values are checked against the data dictionary (choices, numbers, `date_ymd`), and unknown fields are rejected with `400`. `overwriteBehavior=overwrite` lets blank values clear data, `forceAutoNumber=true` assigns new record ids, and `returnContent` is `count` (default), `ids`, or `auto_ids`.
+- **Delete** (`action=delete`): `records` lists the ids; the response is the number deleted. Unknown ids are an error.
+
+## Synthetic project
+
+The "Synthetic Hypertension Registry" has two instruments. Demographics holds date of birth, sex (radio), race (checkbox), height, weight, and a calculated BMI. Visit holds visit date, blood pressure, medication (dropdown), and an adverse event yes/no with branching logic. The project starts with 20 generated records.
+
+## Seed config
+
+```yaml
+redcap:
+  tokens: ["5E7E0000000000000000000000000001"]
+  generate:
+    records: 20 # 0 to 5000; or generate: false for the data dictionary only
+    seed: 1
+  records:
+    - record_id: "100"
+      sex: "1"
+      sbp: "128"
+```
