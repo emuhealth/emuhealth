@@ -1,0 +1,96 @@
+name: FHIR Validator
+
+# Fidelity gate for @emuhealth/fhir-core: saves everything a local emuhealth FHIR service serves in R4, R4B, and R5
+# and validates it with the official HL7 FHIR Validator. The validator runs here rather than on developer machines
+# because it is third-party Java code that downloads FHIR packages.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "packages/@emuhealth/fhir-core/**"
+      - "packages/emuhealth/src/**"
+      - "tests/fhir-validator/**"
+      - ".github/workflows/fhir-validator.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VALIDATOR_VERSION: 6.10.4
+  FHIR_BASE: http://localhost:4100
+
+jobs:
+  validate:
+    name: FHIR ${{ matrix.release }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - release: R4
+            version: 4.0.1
+            # The generated data uses US Core 3.1.1 extensions and code systems.
+            args: -ig hl7.fhir.us.core#3.1.1
+          - release: R4B
+            version: 4.3.0
+            # US Core has no R4B or R5 edition, so its extensions are allowed without a definition.
+            args: -extension any
+          - release: R5
+            version: 5.0.0
+            args: -extension any
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - name: Start emuhealth
+        run: |
+          config=tests/fhir-validator/$(echo "${{ matrix.release }}" | tr A-Z a-z).config.yaml
+          node packages/emuhealth/dist/index.js start --service fhir --config "$config" > emuhealth.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf "$FHIR_BASE/metadata" > /dev/null && exit 0; sleep 1; done
+          cat emuhealth.log
+          exit 1
+
+      - name: Save served resources
+        run: node tests/fhir-validator/export.mjs "$FHIR_BASE" fhir-out
+
+      - name: Download the validator
+        run: curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/$VALIDATOR_VERSION/validator_cli.jar"
+
+      # Terminology is checked against nothing (-tx n/a) so a remote terminology server cannot make the gate flaky.
+      - name: Validate
+        run: |
+          java -Xmx4g -jar validator_cli.jar fhir-out -version ${{ matrix.version }} -tx n/a ${{ matrix.args }} \
+            -output validator-results.json > validator.log 2>&1 || true
+          tail -20 validator.log
+
+      - name: Check results
+        run: node tests/fhir-validator/check.mjs validator-results.json --min 300
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fhir-validator-${{ matrix.release }}
+          path: |
+            validator-results.json
+            validator.log
+            emuhealth.log

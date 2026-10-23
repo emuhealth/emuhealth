@@ -1,0 +1,6 @@
+# emuhealth config for the HL7 FHIR Validator gate (R4B).
+fhir:
+  fhirVersion: R4B
+  generate:
+    patients: 10
+    seed: 1
