@@ -194,6 +194,13 @@ Oura:
   /v2/usercollection/{collection}/{id}, /v2/usercollection/heartrate?start_datetime=&end_datetime= (5 minute samples).
   Docs: https://www.emuhealth.dev/docs/oura
 
+Withings:
+  'npx emuhealth --service withings' serves the Withings API at http://localhost:4122.
+  OAuth: /oauth2_user/authorize2 (pick a synthetic user), POST /v2/oauth2 action=requesttoken. Scopes: user.info,user.metrics,user.activity.
+  /measure action=getmeas, /v2/measure action=getactivity, /v2/sleep action=getsummary, /v2/user action=getdevice,
+  /notify action=subscribe|list|revoke; POST /emulator/notify userid=&appli= sends a notification now.
+  Docs: https://www.emuhealth.dev/docs/withings
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -237,6 +237,14 @@ describe("createEmulator", () => {
     await oura.close();
   });
 
+  it("starts the Withings emulator", async () => {
+    const withings = await createEmulator({ service: "withings", port: 14041 });
+    const res = await fetch(`${withings.url}/measure?action=getmeas`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { status: number }).status).toBe(401);
+    await withings.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

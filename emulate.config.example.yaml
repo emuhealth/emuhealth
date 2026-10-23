@@ -630,3 +630,12 @@ oura:
       redirect_uris: ["http://localhost:3000/callback"]
   generate:
     patients: 5
+
+withings:
+  # Registered apps; with none, any client id and redirect URI is accepted
+  clients:
+    - client_id: my-withings-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5

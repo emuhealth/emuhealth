@@ -25,6 +25,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "dexcom",
   "fitbit",
   "oura",
+  "withings",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -520,6 +521,29 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         clients: [
           {
             client_id: "my-oura-app",
+            client_secret: "synthetic-secret",
+            redirect_uris: ["http://localhost:3000/callback"],
+          },
+        ],
+      },
+    },
+  },
+  withings: {
+    label: "Withings API emulator",
+    endpoints:
+      "OAuth 2.0 (/oauth2_user/authorize2 consent page, /v2/oauth2 action=requesttoken); /measure getmeas (weight, blood pressure, heart pulse, SpO2), /v2/measure getactivity, /v2/sleep getsummary, /v2/user getdevice, /notify subscribe, list, revoke with callbacks; HTTP 200 with status codes; synthetic users; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/withings");
+      return { plugin: mod.withingsPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "withings-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      withings: {
+        clients: [
+          {
+            client_id: "my-withings-app",
             client_secret: "synthetic-secret",
             redirect_uris: ["http://localhost:3000/callback"],
           },

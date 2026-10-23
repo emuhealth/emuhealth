@@ -1,0 +1,57 @@
+---
+title: "Withings"
+---
+
+An emulator of the [Withings API](https://developer.withings.com/api-reference) for apps that read weight, blood pressure, activity, and sleep from Withings devices. It runs on `http://localhost:4122` by default with Withings' action-based endpoints, for synthetic users with a Body+ scale, a BPM Connect blood pressure monitor, and a tracker. emuhealth is not affiliated with Withings.
+
+```bash
+npx emuhealth --service withings
+```
+
+Point your client at `http://localhost:4122` for both `https://account.withings.com` (authorization) and `https://wbsapi.withings.net`.
+
+As on Withings, every API response is HTTP 200 with a JSON `status`: `0` for success with the data in `body`, or an error code with an `error` message (`401` for an invalid token or missing scope, `503` for invalid parameters, `601` for client errors, `294` for an unknown subscription). Every endpoint takes its parameters as a query string or a form encoded `POST` body, with `action` choosing the call.
+
+## OAuth
+
+1. `GET /oauth2_user/authorize2?client_id=&redirect_uri=&response_type=code&scope=user.info,user.metrics,user.activity&state=` shows a consent page with the synthetic users.
+2. `POST /v2/oauth2` with `action=requesttoken`, `grant_type=authorization_code`, `code`, `client_id`, `client_secret`, and `redirect_uri` returns `body.userid`, `access_token` (3 hours), `refresh_token`, `scope`, and `token_type`. `grant_type=refresh_token` rotates the refresh token.
+
+Any client id and redirect URI work until you register apps under `withings.clients`.
+
+## Measures
+
+`/measure` with `action=getmeas` (scope `user.metrics`) returns `measuregrps` between `startdate` and `enddate` (unix times; by default the last 7 days), newest first, paged by `offset` with `more`. `meastype` or `meastypes` filters the measures. Each day has a weight group at 07:00 and a blood pressure group at 08:00 UTC.
+
+| Type | Measure | Unit |
+|------|---------|------|
+| `1` | Weight | `-3` (grams as kilograms times 1000) |
+| `9`, `10` | Diastolic and systolic blood pressure | `0` (mmHg) |
+| `11` | Heart pulse | `0` (bpm) |
+| `54` | SpO2 | `-1` (percent times 10) |
+
+A measure's real value is `value` times 10 to the power of `unit`.
+
+## Activity and sleep
+
+- `/v2/measure` with `action=getactivity` (scope `user.activity`) and `startdateymd` and `enddateymd` returns daily `activities`: steps, distance, elevation, activity durations, calories, and heart rate averages.
+- `/v2/sleep` with `action=getsummary` (scope `user.activity`) and the same dates returns sleep `series` with stage durations, heart rate, sleep score, efficiency, and wake ups.
+- `/v2/user` with `action=getdevice` (scope `user.info`) lists the user's devices.
+
+Data is deterministic per user and day.
+
+## Notifications
+
+`/notify` with `action=subscribe`, `callbackurl`, and `appli` (the data category, such as `1` for weight) registers a callback for the token's user; `action=list` lists them and `action=revoke` removes one. `POST /emulator/notify` with `userid` and `appli` sends a notification now: Withings' form encoded `userid`, `startdate`, `enddate`, and `appli`, posted to each matching callback URL.
+
+## Seed config
+
+```yaml
+withings:
+  clients:
+    - client_id: my-withings-app
+      client_secret: synthetic-secret
+      redirect_uris: ["http://localhost:3000/callback"]
+  generate:
+    patients: 5
+```
