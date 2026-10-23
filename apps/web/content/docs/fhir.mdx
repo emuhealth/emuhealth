@@ -2,7 +2,7 @@
 title: "FHIR R4"
 ---
 
-A stateful FHIR R4 (4.0.1) server for developing and testing health apps. It runs on `http://localhost:4100` by default and accepts any R4 resource type. Load synthetic data only, never real patient data.
+A stateful FHIR R4 (4.0.1) server for developing and testing health apps. It runs on `http://localhost:4100` by default and accepts any R4 resource type. It can serve [R4B or R5](#fhir-versions) instead. Load synthetic data only, never real patient data.
 
 ```bash
 npx emuhealth --service fhir
@@ -197,6 +197,30 @@ The inspector does not need a token, even when `fhir.smart.required` is on. It o
 ## Capability statement
 
 `GET /metadata` returns a `CapabilityStatement` (FHIR 4.0.1, JSON) generated from what the server implements: every R4 resource type with its interactions, versioning, supported search parameters, `searchInclude` and `searchRevInclude` values, plus the `batch`, `transaction`, and system history interactions. FHIR clients that check `/metadata` on connect work without extra setup.
+
+## FHIR versions
+
+The server speaks one FHIR version at a time: R4 (4.0.1) by default, or R4B (4.3.0) or R5 (5.0.0) with `fhir.fhirVersion`.
+
+```yaml
+fhir:
+  fhirVersion: R5 # or 4.0.1, R4, 4.3.0, R4B, 5.0.0
+```
+
+- **Resource types.** The resource types are the ones that version defines. For example, R5 has `DeviceAssociation` and `SubscriptionTopic` but no `DeviceUseStatement`, and R4B has `SubscriptionTopic` but none of the R4 `MedicinalProduct*` types. Other types return `404`.
+- **CapabilityStatement and `$versions`.** The CapabilityStatement reports the version. `GET /$versions` returns it as `Parameters`, or as `{ "versions": [...], "default": ... }` when you ask for `application/json`.
+- **Media types.** On R4B and R5, responses use `application/fhir+json; fhirVersion=4.3` or `fhirVersion=5.0`. On every version, an `Accept` header that asks only for another `fhirVersion` gets `406`, and a body sent with another `fhirVersion` gets `415`.
+- **Generated data.** The synthetic population is generated in the version's shape. In R5, examples:
+  - Encounters use `class` as a list, `actualPeriod`, `reason`, and `participant.actor`;
+  - MedicationRequests use `medication.concept`;
+  - Procedures use `occurrenceDateTime`;
+  - DocumentReferences use `context` references and `content.profile`;
+  - implanted Devices are linked to the patient by a `DeviceAssociation`.
+
+  R4B keeps the R4 shapes, which these resources share.
+- **Searches.** Search parameters cover the renamed R5 elements, so `Encounter?date=` and `MedicationRequest?code=` work on every version.
+
+Resources you load or write are stored as sent. They are not converted or validated against the version. The Inferno gate in [Conformance](#conformance) runs against R4.
 
 ## Errors
 

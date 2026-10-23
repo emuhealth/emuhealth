@@ -1,4 +1,4 @@
-// Resource types defined by FHIR R4 (4.0.1).
+// Resource types defined by FHIR R4 (4.0.1), R4B (4.3.0), and R5 (5.0.0).
 export const R4_RESOURCE_TYPES: ReadonlySet<string> = new Set([
   "Account",
   "ActivityDefinition",
@@ -148,6 +148,116 @@ export const R4_RESOURCE_TYPES: ReadonlySet<string> = new Set([
   "VisionPrescription",
 ]);
 
+// FHIR R4B (4.3.0) and R5 (5.0.0), as differences from R4, from each version's resource-types code system.
+const R4B_ADDED = [
+  "AdministrableProductDefinition",
+  "Citation",
+  "ClinicalUseDefinition",
+  "EvidenceReport",
+  "Ingredient",
+  "ManufacturedItemDefinition",
+  "MedicinalProductDefinition",
+  "NutritionProduct",
+  "PackagedProductDefinition",
+  "RegulatedAuthorization",
+  "SubscriptionStatus",
+  "SubscriptionTopic",
+  "SubstanceDefinition",
+];
+const R4B_REMOVED = [
+  "EffectEvidenceSynthesis",
+  "MedicinalProduct",
+  "MedicinalProductAuthorization",
+  "MedicinalProductContraindication",
+  "MedicinalProductIndication",
+  "MedicinalProductIngredient",
+  "MedicinalProductInteraction",
+  "MedicinalProductManufactured",
+  "MedicinalProductPackaged",
+  "MedicinalProductPharmaceutical",
+  "MedicinalProductUndesirableEffect",
+  "RiskEvidenceSynthesis",
+  "SubstanceNucleicAcid",
+  "SubstancePolymer",
+  "SubstanceProtein",
+  "SubstanceReferenceInformation",
+  "SubstanceSourceMaterial",
+  "SubstanceSpecification",
+];
+const R5_ADDED = [
+  "ActorDefinition",
+  "AdministrableProductDefinition",
+  "ArtifactAssessment",
+  "BiologicallyDerivedProductDispense",
+  "Citation",
+  "ClinicalUseDefinition",
+  "ConditionDefinition",
+  "DeviceAssociation",
+  "DeviceDispense",
+  "DeviceUsage",
+  "EncounterHistory",
+  "EvidenceReport",
+  "FormularyItem",
+  "GenomicStudy",
+  "ImagingSelection",
+  "Ingredient",
+  "InventoryItem",
+  "InventoryReport",
+  "ManufacturedItemDefinition",
+  "MedicinalProductDefinition",
+  "NutritionIntake",
+  "NutritionProduct",
+  "PackagedProductDefinition",
+  "Permission",
+  "RegulatedAuthorization",
+  "RequestOrchestration",
+  "Requirements",
+  "SubscriptionStatus",
+  "SubscriptionTopic",
+  "SubstanceDefinition",
+  "TestPlan",
+  "Transport",
+];
+const R5_REMOVED = [
+  "CatalogEntry",
+  "DeviceUseStatement",
+  "DocumentManifest",
+  "EffectEvidenceSynthesis",
+  "Media",
+  "MedicinalProduct",
+  "MedicinalProductAuthorization",
+  "MedicinalProductContraindication",
+  "MedicinalProductIndication",
+  "MedicinalProductIngredient",
+  "MedicinalProductInteraction",
+  "MedicinalProductManufactured",
+  "MedicinalProductPackaged",
+  "MedicinalProductPharmaceutical",
+  "MedicinalProductUndesirableEffect",
+  "RequestGroup",
+  "ResearchDefinition",
+  "ResearchElementDefinition",
+  "RiskEvidenceSynthesis",
+  "SubstanceSpecification",
+];
+
+export const R4B_RESOURCE_TYPES: ReadonlySet<string> = new Set(
+  [...R4_RESOURCE_TYPES].filter((t) => !R4B_REMOVED.includes(t)).concat(R4B_ADDED),
+);
+export const R5_RESOURCE_TYPES: ReadonlySet<string> = new Set(
+  [...R4_RESOURCE_TYPES].filter((t) => !R5_REMOVED.includes(t)).concat(R5_ADDED),
+);
+
 export function isR4ResourceType(type: string): boolean {
   return R4_RESOURCE_TYPES.has(type);
+}
+
+export type FhirVersion = "4.0.1" | "4.3.0" | "5.0.0";
+
+export function resourceTypesFor(version: FhirVersion): ReadonlySet<string> {
+  return version === "5.0.0" ? R5_RESOURCE_TYPES : version === "4.3.0" ? R4B_RESOURCE_TYPES : R4_RESOURCE_TYPES;
+}
+
+export function isResourceType(type: string, version: FhirVersion = "4.0.1"): boolean {
+  return resourceTypesFor(version).has(type);
 }

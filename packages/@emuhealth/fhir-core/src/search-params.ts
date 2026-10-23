@@ -33,7 +33,10 @@ const humanName = [
   p("given", "string", ["name.given"]),
 ];
 
-/** Search parameters per resource type, following the FHIR R4 and US Core definitions for the common cases. */
+/**
+ * Search parameters per resource type, following the FHIR R4 and US Core definitions for the common cases.
+ * Where R5 renamed an element, both paths are listed so the same definitions serve every version.
+ */
 export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
   Patient: [
     p("identifier", "token", ["identifier"]),
@@ -96,16 +99,16 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
     p("status", "token", ["status"]),
     p("class", "token", ["class"]),
     p("type", "token", ["type"]),
-    p("date", "date", ["period"]),
+    p("date", "date", ["period", "actualPeriod"]),
     p("location", "reference", ["location.location"], ["Location"]),
-    p("practitioner", "reference", ["participant.individual"], ["Practitioner"]),
+    p("practitioner", "reference", ["participant.individual", "participant.actor"], ["Practitioner"]),
   ],
   MedicationRequest: [
     ...patientRef(),
     encounterRef,
     p("status", "token", ["status"]),
     p("intent", "token", ["intent"]),
-    p("code", "token", ["medicationCodeableConcept"]),
+    p("code", "token", ["medicationCodeableConcept", "medication.concept"]),
     p("authoredon", "date", ["authoredOn"]),
     p("requester", "reference", ["requester"]),
   ],
@@ -128,7 +131,7 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
     encounterRef,
     p("code", "token", ["code"]),
     p("status", "token", ["status"]),
-    p("date", "date", ["performedDateTime", "performedPeriod"]),
+    p("date", "date", ["performedDateTime", "performedPeriod", "occurrenceDateTime", "occurrencePeriod"]),
   ],
   DiagnosticReport: [
     ...patientRef(),
@@ -145,7 +148,7 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
     p("category", "token", ["category"]),
     p("status", "token", ["status"]),
     p("date", "date", ["date"]),
-    p("period", "date", ["context.period"]),
+    p("period", "date", ["context.period", "period"]),
   ],
   CarePlan: [
     ...patientRef(),

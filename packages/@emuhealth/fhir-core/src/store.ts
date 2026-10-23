@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { Collection, Entity, Store } from "@emulators/core";
 import { FhirError } from "./outcome.js";
-import { isR4ResourceType } from "./resource-types.js";
+import { isResourceType, type FhirVersion } from "./resource-types.js";
+import { getFhirVersion } from "./version.js";
 import { applyJsonPatch } from "./json-patch.js";
 
 export interface FhirResource {
@@ -50,8 +51,8 @@ export interface HistoryOptions {
 
 const ID_PATTERN = /^[A-Za-z0-9\-.]{1,64}$/;
 
-export function assertResourceType(type: string): void {
-  if (!isR4ResourceType(type)) throw new FhirError(404, "not-supported", `Unknown resource type "${type}"`);
+export function assertResourceType(type: string, version: FhirVersion = "4.0.1"): void {
+  if (!isResourceType(type, version)) throw new FhirError(404, "not-supported", `Unknown resource type "${type}"`);
 }
 
 export function assertId(id: string): void {
@@ -76,8 +77,11 @@ function versionMatches(ifMatch: string | undefined, versionId: number): boolean
 export class FhirStore {
   readonly resources: Collection<FhirResourceRecord>;
   readonly history: Collection<FhirHistoryRecord>;
+  /** The FHIR version this store serves, which decides the known resource types. */
+  readonly version: FhirVersion;
 
   constructor(store: Store) {
+    this.version = getFhirVersion(store);
     this.resources = store.collection<FhirResourceRecord>("fhir.resources", ["key", "resource_type"]);
     this.history = store.collection<FhirHistoryRecord>("fhir.history", ["key"]);
   }
@@ -117,7 +121,7 @@ export class FhirStore {
 
   /** Create a resource with a server-assigned id (or one chosen by a transaction). Any id in the body is ignored. */
   create(type: string, body: unknown, id: string = randomUUID()): WriteResult {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     assertResourceBody(body, type);
     return this.write(type, id, body, "POST");
   }
@@ -152,7 +156,7 @@ export class FhirStore {
 
   /** Current, non-deleted resources of a type, oldest first. */
   listCurrent(type: string): FhirResource[] {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     return this.resources
       .findBy("resource_type", type)
       .filter((r): r is FhirResourceRecord & { resource: FhirResource } => r.resource !== null)
@@ -161,7 +165,7 @@ export class FhirStore {
   }
 
   read(type: string, id: string): FhirResourceRecord & { resource: FhirResource } {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     const record = this.current(type, id);
     if (!record) throw new FhirError(404, "not-found", `${type}/${id} is not known`);
     if (record.resource === null) throw new FhirError(410, "deleted", `${type}/${id} has been deleted`);
@@ -169,7 +173,7 @@ export class FhirStore {
   }
 
   vread(type: string, id: string, versionId: string): FhirHistoryRecord {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     const version = this.history.findBy("key", `${type}/${id}`).find((h) => String(h.version_id) === versionId);
     if (!version) throw new FhirError(404, "not-found", `${type}/${id}/_history/${versionId} is not known`);
     if (version.resource === null)
@@ -179,7 +183,7 @@ export class FhirStore {
 
   /** Update a resource, creating it with the given id when it does not exist. */
   update(type: string, id: string, body: unknown, ifMatch?: string): WriteResult {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     assertId(id);
     assertResourceBody(body, type);
     if (body.id === undefined) throw new FhirError(400, "required", "Resource id is required for update");
@@ -205,7 +209,7 @@ export class FhirStore {
 
   /** Logical delete. Deleting a missing or already deleted resource is a no-op. */
   delete(type: string, id: string, ifMatch?: string): { versionId?: number } {
-    assertResourceType(type);
+    assertResourceType(type, this.version);
     const existing = this.current(type, id);
     if (!existing || existing.resource === null) return {};
     if (!versionMatches(ifMatch, existing.version_id))
@@ -226,7 +230,7 @@ export class FhirStore {
 
   /** History entries, newest first. Returns the total before `count` is applied. */
   listHistory(options: HistoryOptions = {}): { total: number; entries: FhirHistoryRecord[] } {
-    if (options.type) assertResourceType(options.type);
+    if (options.type) assertResourceType(options.type, this.version);
     let since: number | undefined;
     if (options.since !== undefined) {
       since = Date.parse(options.since);

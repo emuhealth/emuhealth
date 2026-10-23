@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Store } from "@emulators/core";
 import { inPatientCompartment, type AccessGuard } from "./access.js";
 import { FhirError } from "./outcome.js";
-import { isR4ResourceType } from "./resource-types.js";
+import { isResourceType } from "./resource-types.js";
 import type { FhirResource, FhirStore } from "./store.js";
 
 // FHIR Bulk Data Access (Flat FHIR) $export: system, Patient, and Group level, NDJSON output.
@@ -76,7 +76,8 @@ export function startExport(store: Store, fhir: FhirStore, guard: AccessGuard, r
   }
   const requestedTypes = params.get("_type")?.split(",").filter(Boolean);
   for (const type of requestedTypes ?? [])
-    if (!isR4ResourceType(type)) throw new FhirError(400, "value", `Unknown resource type "${type}" in _type`);
+    if (!isResourceType(type, fhir.version))
+      throw new FhirError(400, "value", `Unknown resource type "${type}" in _type`);
   // Explicitly requested types must be readable; without _type, export what the token can read.
   for (const type of requestedTypes ?? []) guard.require(type, "r");
   const readable = (type: string) => {

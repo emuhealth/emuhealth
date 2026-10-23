@@ -1,5 +1,5 @@
 import { FhirError } from "./outcome.js";
-import { isR4ResourceType } from "./resource-types.js";
+import { isResourceType, type FhirVersion } from "./resource-types.js";
 import { parseReference } from "./search.js";
 import type { FhirResource, FhirStore } from "./store.js";
 
@@ -24,12 +24,12 @@ function referenceKeys(value: unknown, out: Set<string> = new Set()): Set<string
   return out;
 }
 
-/** Validate a _type value: a comma separated list of R4 resource types. */
-export function parseTypes(raw: string | undefined): string[] | undefined {
+/** Validate a _type value: a comma separated list of resource types of the server's FHIR version. */
+export function parseTypes(raw: string | undefined, version: FhirVersion = "4.0.1"): string[] | undefined {
   if (raw === undefined) return undefined;
   const types = raw.split(",").filter(Boolean);
   for (const type of types)
-    if (!isR4ResourceType(type)) throw new FhirError(400, "value", `Unknown resource type "${type}" in _type`);
+    if (!isResourceType(type, version)) throw new FhirError(400, "value", `Unknown resource type "${type}" in _type`);
   return types;
 }
 

@@ -3,6 +3,8 @@ import { registerFhirRoutes, type FhirRouteOptions } from "./routes.js";
 import { seedTerminology } from "./terminology.js";
 import { generateSyntheticRecords, type GenerateOptions } from "./generator.js";
 import { getFhirStore } from "./store.js";
+import { recordsForVersion } from "./r5.js";
+import { getFhirVersion } from "./version.js";
 
 /**
  * A FHIR server with its own store, for cloud emulators that host many FHIR stores created at run time (AWS
@@ -29,7 +31,8 @@ export function createFhirInstance(options: FhirInstanceOptions): FhirInstance {
   if (generate) {
     seedTerminology(store);
     const fhir = getFhirStore(store);
-    for (const r of generateSyntheticRecords(generate === true ? {} : generate)) fhir.update(r.resourceType, r.id!, r);
+    const records = generateSyntheticRecords(generate === true ? {} : generate);
+    for (const r of recordsForVersion(records, getFhirVersion(store))) fhir.update(r.resourceType, r.id!, r);
   }
   return {
     app,
