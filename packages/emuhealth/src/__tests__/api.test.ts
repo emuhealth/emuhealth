@@ -20,7 +20,8 @@ async function createInstallationToken(url: string, appId: string, installationI
 }
 
 describe("createEmulator", () => {
-  it("starts github and returns a url", async () => {
+  // First test in the file: it pays the cold import of the GitHub emulator, which can exceed 5s on busy CI runners.
+  it("starts github and returns a url", { timeout: 20_000 }, async () => {
     const github = await createEmulator({ service: "github", port: 14000 });
 
     expect(github.url).toBe("http://localhost:14000");
