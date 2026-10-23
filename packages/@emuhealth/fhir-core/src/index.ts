@@ -53,6 +53,7 @@ export {
   type SmartConfig,
   type SmartPaths,
   type SmartRouteOptions,
+  type SmartTokenGrant,
   type SmartToken,
 } from "./smart.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";

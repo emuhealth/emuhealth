@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -30,6 +30,25 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             birthDate: "1980-01-01",
           },
         ],
+      },
+    },
+  },
+  epic: {
+    label: "Epic FHIR R4 emulator",
+    endpoints:
+      "Epic URL shape (/api/FHIR/R4) over the full FHIR server, OAuth 2.0 at /oauth2/authorize and /oauth2/token with SMART App Launch and Backend Services, __epic.dstu2.patient in token responses, informational OperationOutcome (4101) on empty searches, Schedules and Slots with Appointment/$find and Appointment/$book, generated synthetic patients, inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/epic");
+      return { plugin: mod.epicPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "epic-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      epic: {
+        generate: { patients: 5, seed: 1 },
+        scheduling: { days: 10 },
+        smart: { clients: [{ client_id: "my-epic-app", redirect_uris: ["http://localhost:3000/callback"] }] },
       },
     },
   },

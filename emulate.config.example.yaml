@@ -408,3 +408,14 @@ fhir:
       valueQuantity:
         value: 72
         unit: beats/minute
+
+epic:
+  # Same keys as fhir (generate, resources, smart, terminology), served under /api/FHIR/R4
+  smart:
+    clients:
+      - client_id: my-epic-app
+        redirect_uris: ["http://localhost:3000/callback"]
+  # Slots for Appointment/$find and $book: weekdays from startDate (default today), 09:00 to 16:00 UTC
+  scheduling:
+    startDate: "2026-11-02"
+    days: 10

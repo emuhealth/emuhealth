@@ -63,6 +63,17 @@ export interface SmartRouteOptions {
   basePath: string;
   /** Absolute paths on this server; defaults are under the FHIR base path (/auth/authorize, ...). */
   paths?: Partial<SmartPaths>;
+  /** Vendor-specific fields to add to authorization code and refresh token responses. */
+  tokenExtras?: (grant: SmartTokenGrant) => Record<string, unknown>;
+}
+
+/** What a token response is issued for, as passed to `tokenExtras`. */
+export interface SmartTokenGrant {
+  clientId: string;
+  scope: string;
+  patient?: string;
+  encounter?: string;
+  fhirUser?: string;
 }
 
 interface AuthorizeRequest {
@@ -632,6 +643,13 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
       ...(granted.has("openid") && grant.fhirUser
         ? { id_token: await idToken(grant.clientId, grant.fhirUser, grant.nonce ?? "") }
         : {}),
+      ...options.tokenExtras?.({
+        clientId: grant.clientId,
+        scope: grant.scope,
+        patient: grant.patient,
+        encounter: grant.encounter,
+        fhirUser: grant.fhirUser,
+      }),
     });
   }
 

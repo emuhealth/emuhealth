@@ -3,7 +3,7 @@ import type { Context, Hono, Store } from "@emulators/core";
 import { FhirError, operationOutcome } from "./outcome.js";
 import { processBundle } from "./bundle.js";
 import { buildCapabilityStatement } from "./capability.js";
-import { registerSmartRoutes, type SmartPaths } from "./smart.js";
+import { registerSmartRoutes, type SmartPaths, type SmartRouteOptions } from "./smart.js";
 import { registerFhirInspector } from "./inspector.js";
 import { lookupCode, validateCode } from "./terminology.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
@@ -31,8 +31,10 @@ export interface FhirRouteOptions {
   software?: { name: string; version?: string };
   /** Implementation description reported in the CapabilityStatement, for example the vendor being emulated. */
   description?: string;
-  /** SMART App Launch endpoint paths, for vendors that use their own (absolute paths on this server). */
-  smart?: { paths?: Partial<SmartPaths> };
+  /** SMART App Launch endpoint paths for vendors that use their own (absolute paths on this server), and vendor fields for token responses. */
+  smart?: { paths?: Partial<SmartPaths>; tokenExtras?: SmartRouteOptions["tokenExtras"] };
+  /** Adjust every search result Bundle, for vendor quirks such as an OperationOutcome entry on empty results. */
+  searchBundle?: (bundle: FhirResource, type: string) => FhirResource;
   /** Path of the HTML inspector (default /_inspector), or false to leave it out. */
   inspectorPath?: string | false;
 }
@@ -207,7 +209,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     }
     const page = parsed.summaryCount ? [] : matches.slice(parsed.offset, parsed.offset + parsed.count);
     const included = resolveIncludes(page, parsed, ctx).filter((r) => guard.allows(r, "r"));
-    return {
+    const result: FhirResource = {
       resourceType: "Bundle",
       id: randomUUID(),
       meta: { lastUpdated: new Date().toISOString() },
@@ -227,6 +229,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
         })),
       ],
     };
+    return options.searchBundle ? options.searchBundle(result, type) : result;
   }
 
   async function bundle(c: AnyContext): Promise<Response> {
@@ -249,7 +252,12 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     );
   }
 
-  const smartPaths = registerSmartRoutes(app, store, { base, basePath, paths: options.smart?.paths });
+  const smartPaths = registerSmartRoutes(app, store, {
+    base,
+    basePath,
+    paths: options.smart?.paths,
+    tokenExtras: options.smart?.tokenExtras,
+  });
   if (options.inspectorPath !== false)
     registerFhirInspector(app, store, { path: options.inspectorPath ?? "/_inspector", base });
   const origin = new URL(base).origin;

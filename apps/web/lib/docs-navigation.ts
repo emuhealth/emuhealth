@@ -22,7 +22,10 @@ export const docsSections: NavSection[] = [
   },
   {
     title: "Health",
-    items: [{ name: "FHIR R4", href: "/docs/fhir" }],
+    items: [
+      { name: "FHIR R4", href: "/docs/fhir" },
+      { name: "Epic", href: "/docs/epic" },
+    ],
   },
   {
     title: "Services",

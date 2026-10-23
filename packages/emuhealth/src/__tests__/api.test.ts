@@ -49,6 +49,14 @@ describe("createEmulator", () => {
     await Promise.all([github.close(), vercel.close()]);
   });
 
+  it("starts the Epic emulator under Epic's FHIR base", async () => {
+    const epic = await createEmulator({ service: "epic", port: 14020 });
+    const res = await fetch(`${epic.url}/api/FHIR/R4/Patient/syn-patient-001`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { id: string }).id).toBe("syn-patient-001");
+    await epic.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

@@ -63,7 +63,7 @@ Package: `@emuhealth/fhir-core`
 
 Each is a thin layer over `fhir-core` adding the vendor's URL shape, auth quirks, error formats, and proprietary endpoints.
 
-- [ ] Epic (FHIR R4, SMART, backend JWT auth, scheduling)
+- [x] Epic (FHIR R4, SMART, backend JWT auth, scheduling) ([ADR 0014](docs/decisions/0014-vendor-layers-over-fhir-core.md))
 - [ ] Oracle Health / Cerner (tenant URL shape, SMART)
 - [ ] athenahealth (proprietary REST plus FHIR)
 - [ ] CMS Blue Button 2.0 (patient access OAuth, ExplanationOfBenefit, Coverage)
