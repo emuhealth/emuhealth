@@ -47,3 +47,5 @@ epic:
 ```
 
 Docs: https://www.emuhealth.dev/docs/epic
+
+Example app: https://github.com/emuhealth/emuhealth/tree/main/examples/smart-on-fhir-epic (standalone launch with PKCE, tested end to end).

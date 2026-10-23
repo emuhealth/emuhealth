@@ -46,3 +46,5 @@ rave:
 ```
 
 Not affiliated with Medidata. Docs: https://www.emuhealth.dev/docs/rave
+
+Example: https://github.com/emuhealth/emuhealth/tree/main/examples/rave-edc-sync (incremental sync from `ClinicalAuditRecords` with a saved `startid`).

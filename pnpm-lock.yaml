@@ -106,6 +106,15 @@ importers:
         specifier: ^5.7
         version: 5.9.3
 
+  examples/hl7v2-to-fhir:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
+
   examples/nextjs-embedded:
     dependencies:
       '@base-ui/react':
@@ -256,6 +265,15 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  examples/rave-edc-sync:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
+
   examples/resend-magic-link:
     dependencies:
       '@base-ui/react':
@@ -318,6 +336,15 @@ importers:
         version: 4.2.2
       typescript:
         specifier: ^5
+        version: 5.9.3
+
+  examples/smart-on-fhir-epic:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
         version: 5.9.3
 
   examples/stripe-checkout:

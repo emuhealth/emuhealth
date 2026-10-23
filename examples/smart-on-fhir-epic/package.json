@@ -1,0 +1,16 @@
+{
+  "name": "smart-on-fhir-epic-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulator": "npx emuhealth start --service epic",
+    "start": "node src/server.ts",
+    "type-check": "tsc --noEmit",
+    "test": "node --test src/app.test.ts"
+  },
+  "devDependencies": {
+    "emuhealth": "workspace:*",
+    "typescript": "^5.7"
+  }
+}

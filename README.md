@@ -66,6 +66,8 @@ Health and life science services use a fixed range starting at `http://localhost
 - **Veeva Vault** on `http://localhost:4126` (REST API under `/api/{version}`: `POST /auth` sessions, Vault object records with create, upsert, update, and delete in JSON or CSV, documents with versions and files, object and document metadata, and VQL queries with relationship fields and paging; synthetic products, studies, sites, countries, and trial documents; browse them at `/_inspector`)
 - **Medidata Rave** on `http://localhost:4127` (Rave Web Services under `/RaveWebServices` with HTTP Basic auth: study lists, CRF metadata as ODM, subjects with status and links, ODM clinical data datasets by study, subject, and form, `ClinicalAuditRecords` paging, and `PostODMClinicalData` imports with Rave's `Response` format; synthetic studies with demographics, vital signs, and adverse events; browse subjects at `/_inspector`)
 
+End-to-end examples, each with a test that runs the whole flow: a [SMART on FHIR app against Epic](examples/smart-on-fhir-epic), an [HL7 v2 feed into FHIR](examples/hl7v2-to-fhir), and an [incremental EDC sync from Rave](examples/rave-edc-sync).
+
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 
 Slack event callbacks use `X-Slack-Request-Timestamp` and `X-Slack-Signature` when `slack.signing_secret` is configured. The signature is an HMAC-SHA256 over `v0:<timestamp>:<raw-body>`; configure the receiver with the same secret and verify against the unparsed request body. Existing event subscriptions remain unsigned when the secret is absent or empty.

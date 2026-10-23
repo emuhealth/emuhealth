@@ -1,0 +1,16 @@
+{
+  "name": "rave-edc-sync-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulator": "npx emuhealth start --service rave",
+    "sync": "node src/cli.ts",
+    "type-check": "tsc --noEmit",
+    "test": "node --test src/sync.test.ts"
+  },
+  "devDependencies": {
+    "emuhealth": "workspace:*",
+    "typescript": "^5.7"
+  }
+}
