@@ -28,6 +28,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "withings",
   "terra",
   "dicomweb",
+  "hl7v2",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -589,6 +590,25 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         generate: {
           studies: 3,
           instancesPerSeries: 3,
+        },
+      },
+    },
+  },
+  hl7v2: {
+    label: "HL7 v2 (MLLP) emulator",
+    endpoints:
+      "MLLP listener on port 2575 that returns original mode ACKs (AA, AE, AR); ADT admit, transfer, discharge, update, cancel, and merge, ORU results, and ORM and OML orders applied to a synthetic patient registry; HTTP API to post messages, list messages and patients, get sample messages, and send to your MLLP receiver; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/hl7v2");
+      return { plugin: mod.hl7v2Plugin, seedFromConfig: mod.seedFromConfig, listen: mod.listen };
+    },
+    defaultFallback() {
+      return { login: "hl7v2-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      hl7v2: {
+        mllp: {
+          port: 2575,
         },
       },
     },

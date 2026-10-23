@@ -262,6 +262,21 @@ describe("createEmulator", () => {
     await dicomweb.close();
   });
 
+  it("acknowledges HL7 v2 messages over MLLP and closes the listener", async () => {
+    const { sendMllp } = await import("@emuhealth/hl7v2");
+    const hl7v2 = await createEmulator({ service: "hl7v2", port: 14051, seed: { hl7v2: { mllp: { port: 14052 } } } });
+    const ack = await sendMllp(
+      "127.0.0.1",
+      14052,
+      "MSH|^~\\&|A|B|C|D|20260101||ADT^A04|T1|P|2.5.1\rPID|1||syn-mrn-1^^^X^MR||SYNTHETIC^PAT",
+    );
+    expect(ack).toContain("MSA|AA|T1");
+    const patient = await fetch(`${hl7v2.url}/patients/syn-mrn-1`);
+    expect(patient.status).toBe(200);
+    await hl7v2.close();
+    await expect(sendMllp("127.0.0.1", 14052, "MSH|^~\\&|A", 1000)).rejects.toThrow();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

@@ -48,6 +48,7 @@ export const docsSections: NavSection[] = [
       { name: "Withings", href: "/docs/withings" },
       { name: "Terra", href: "/docs/terra" },
       { name: "DICOMweb", href: "/docs/dicomweb" },
+      { name: "HL7 v2 over MLLP", href: "/docs/hl7v2" },
     ],
   },
   {

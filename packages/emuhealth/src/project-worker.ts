@@ -17,7 +17,7 @@ process.on(
             if (process.connected) process.send?.({ type: "dependencies", dependencies }, () => {});
           });
           await run!.start();
-          process.send?.({ type: "started" });
+          process.send?.({ type: "started", metadata: run!.metadata });
         } else if (message.type === "close") {
           await run?.close();
           process.send?.({ type: "closed" });

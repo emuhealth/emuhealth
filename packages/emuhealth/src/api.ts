@@ -20,7 +20,7 @@ export {
 export { defineConfig, type EmulateConfig, type ServiceConfig } from "./config.js";
 import { SERVICE_REGISTRY } from "./registry.js";
 export type { ServiceName } from "./registry.js";
-import type { ServiceName } from "./registry.js";
+import type { ServiceListener, ServiceName } from "./registry.js";
 import { resolveBaseUrl } from "./base-url.js";
 import { defaultServicePort } from "./registry-health.js";
 
@@ -152,6 +152,7 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
   const loaded = await entry.load();
 
   let handler: ((request: Request) => Response | Promise<Response>) | undefined;
+  let listener: ServiceListener | undefined;
   const httpServer = serve({
     fetch: (request) => (handler ? handler(request) : new Response("Starting", { status: 503 })),
     port,
@@ -209,6 +210,13 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
       }
     };
     seed();
+    listener = await loaded.listen?.({
+      store,
+      webhooks,
+      baseUrl,
+      config: svcSeedConfig,
+      hostname: options.hostname,
+    });
 
     handler = app.fetch;
     let closing: Promise<void> | undefined;
@@ -225,10 +233,11 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
         seed();
       },
       close(): Promise<void> {
-        return (closing ??= closeHttpServer(httpServer));
+        return (closing ??= Promise.all([closeHttpServer(httpServer), listener?.close()]).then(() => undefined));
       },
     };
   } catch (error) {
+    await listener?.close();
     await closeHttpServer(httpServer);
     throw error;
   }

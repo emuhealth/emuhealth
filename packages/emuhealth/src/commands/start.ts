@@ -1,5 +1,5 @@
 import { createServer, serve, type AppKeyResolver, type Store } from "@emulators/core";
-import { SERVICE_REGISTRY, SERVICE_NAMES, type ServiceName } from "../registry.js";
+import { SERVICE_REGISTRY, SERVICE_NAMES, type ServiceListener, type ServiceName } from "../registry.js";
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { parse as parseYaml } from "yaml";
@@ -188,6 +188,20 @@ export function seedPreparedService(
   }
 }
 
+/** Open the service's extra listeners (decision 0015) and add their URLs to the banner. */
+export async function startPreparedServiceListener(
+  preparedService: PreparedService,
+  store: Store,
+  webhooks: ReturnType<typeof createServer>["webhooks"],
+  hostname: string | undefined,
+  serviceUrls: Array<{ name: string; url: string }>,
+): Promise<ServiceListener | undefined> {
+  const { svc, loadedSvc, svcSeedConfig, baseUrl } = preparedService;
+  const listener = await loadedSvc.listen?.({ store, webhooks, baseUrl, config: svcSeedConfig, hostname });
+  for (const url of listener?.urls ?? []) serviceUrls.push({ name: svc, url });
+  return listener;
+}
+
 function waitForServerListening(server: HttpServer): Promise<void> {
   if (server.listening) return Promise.resolve();
   return new Promise((resolve, reject) => {
@@ -224,6 +238,7 @@ function reportCleanupError(stage: string, error: unknown): void {
 
 async function rollbackStartup(
   httpServers: HttpServer[],
+  listeners: ServiceListener[],
   stores: Store[],
   registeredAliases: PortlessAlias[],
   generatedSecretsFile: PublishedGeneratedSecretsFile,
@@ -231,6 +246,13 @@ async function rollbackStartup(
   for (const server of [...httpServers].reverse()) {
     try {
       await closeServer(server);
+    } catch (error) {
+      reportCleanupError("listener", error);
+    }
+  }
+  for (const listener of [...listeners].reverse()) {
+    try {
+      await listener.close();
     } catch (error) {
       reportCleanupError("listener", error);
     }
@@ -256,7 +278,12 @@ async function rollbackStartup(
   }
 }
 
-function installShutdown(portlessAliases: PortlessAlias[], stores: Store[], httpServers: HttpServer[]): void {
+function installShutdown(
+  portlessAliases: PortlessAlias[],
+  stores: Store[],
+  httpServers: HttpServer[],
+  listeners: ServiceListener[],
+): void {
   const shutdown = () => {
     console.log(`\n${pc.dim("Shutting down...")}`);
     if (portlessAliases.length > 0) {
@@ -267,6 +294,9 @@ function installShutdown(portlessAliases: PortlessAlias[], stores: Store[], http
     }
     for (const server of httpServers) {
       server.close();
+    }
+    for (const listener of listeners) {
+      void listener.close();
     }
     process.exit(0);
   };
@@ -331,6 +361,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
   const serviceUrls: Array<{ name: string; url: string }> = [];
   const stores: Store[] = [];
   const httpServers: HttpServer[] = [];
+  const listeners: ServiceListener[] = [];
 
   if (!generatedSecretsTarget) {
     if (portlessAliases.length > 0) {
@@ -345,10 +376,12 @@ export async function startCommand(options: StartOptions): Promise<void> {
       seedPreparedService(preparedService, store, webhooks);
       const httpServer = serve({ fetch: app.fetch, port, hostname: options.host });
       httpServers.push(httpServer);
+      const listener = await startPreparedServiceListener(preparedService, store, webhooks, options.host, serviceUrls);
+      if (listener) listeners.push(listener);
     }
 
     printBanner(serviceUrls, tokens, configSource);
-    installShutdown(portlessAliases, stores, httpServers);
+    installShutdown(portlessAliases, stores, httpServers, listeners);
     return;
   }
 
@@ -376,15 +409,17 @@ export async function startCommand(options: StartOptions): Promise<void> {
       const httpServer = serve({ fetch: app.fetch, port, hostname: options.host });
       httpServers.push(httpServer);
       await waitForServerListening(httpServer);
+      const listener = await startPreparedServiceListener(preparedService, store, webhooks, options.host, serviceUrls);
+      if (listener) listeners.push(listener);
     }
 
     printBanner(serviceUrls, tokens, configSource);
   } catch (error) {
-    await rollbackStartup(httpServers, stores, registeredAliases, publishedSecretsFile);
+    await rollbackStartup(httpServers, listeners, stores, registeredAliases, publishedSecretsFile);
     throw error;
   }
 
-  installShutdown(registeredAliases, stores, httpServers);
+  installShutdown(registeredAliases, stores, httpServers, listeners);
 }
 
 function printBanner(

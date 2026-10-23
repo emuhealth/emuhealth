@@ -215,6 +215,13 @@ DICOMweb:
   dicomweb.generate sets studies and instancesPerSeries; dicomweb.files loads Part 10 files; dicomweb.token requires a bearer token.
   Docs: https://www.emuhealth.dev/docs/dicomweb
 
+HL7 v2 over MLLP:
+  'npx emuhealth --service hl7v2' listens for MLLP on localhost:2575 and serves its HTTP API at http://localhost:4125.
+  Every framed message gets an ACK (AA, AE, AR); ADT, ORU, ORM, and OML update a synthetic patient registry.
+  POST /messages (ER7 body) returns the ACK; GET /messages, /patients, /samples/adt-a01; POST /send {port, message}.
+  hl7v2.mllp sets port and host (false turns MLLP off); hl7v2.patients adds synthetic patients.
+  Docs: https://www.emuhealth.dev/docs/hl7v2
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

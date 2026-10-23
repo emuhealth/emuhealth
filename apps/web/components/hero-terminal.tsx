@@ -24,6 +24,7 @@ const services = [
   { name: "withings", port: 4122, note: "Withings" },
   { name: "terra", port: 4123, note: "Terra" },
   { name: "dicomweb", port: 4124, note: "DICOMweb" },
+  { name: "hl7v2", port: 4125, note: "HL7 v2 over MLLP" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
