@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/availity",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Availity emulator for emuhealth: OAuth, payer list, configurations, asynchronous coverages (270/271) and claim statuses (276/277), service reviews (278), and demo mock scenarios, with synthetic payers and members.",
   "license": "Apache-2.0",

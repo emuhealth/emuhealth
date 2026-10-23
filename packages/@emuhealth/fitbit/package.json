@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/fitbit",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Fitbit Web API emulator for emuhealth: OAuth 2.0, profile, activity, heart rate, sleep, and weight for synthetic users.",
   "license": "Apache-2.0",

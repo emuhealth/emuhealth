@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/stedi",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Stedi healthcare clearinghouse emulator for emuhealth: eligibility (270/271), professional claims (837P), claim status (276/277), and 835 ERAs in Stedi's JSON forms, with synthetic payers and members.",
   "license": "Apache-2.0",

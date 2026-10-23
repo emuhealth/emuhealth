@@ -1,6 +1,29 @@
 # Changelog
 
 <!-- release:start -->
+## 0.9.0
+
+Fidelity release: the emulators are now checked against the HL7 FHIR Validator and against the client libraries real integrations use, and the fixes those checks found ship here. Synthetic data only.
+
+### Fixes
+
+- **Medidata Rave**: `Response` documents no longer start with an XML declaration, so rwslib recognizes import errors (#73). Failed `PostODMClinicalData` imports return HTTP 400, an existing subject returns Rave's `RWS00024`, and a missing CRF version returns `RWS00092` (#74)
+- **Veeva Vault**: `GET /api` lists v26.1 and v26.2, which VAPIL checks when it validates a session (#73). Unknown routes return `MALFORMED_URL` with HTTP 200, as Vault documents for every processed request (#74)
+- **FHIR R5**: generated CareTeam roles, AllergyIntolerance manifestations, Device UDI issuers, and Organization, PractitionerRole, and Location contacts now pass the HL7 FHIR Validator; `Organization?address=` searches the R5 path (#72)
+
+### Changes
+
+- CI validates everything the FHIR server serves in R4, R4B, and R5 with the HL7 FHIR Validator (#72)
+- CI drives the emulators with rwslib, fhirclient, dicomweb-client with pydicom, python-hl7, and Veeva's VAPIL (#73)
+
+### Documentation
+
+- End-to-end examples: a SMART on FHIR app against Epic, an HL7 v2 feed into FHIR, and an incremental EDC sync from Rave, each with a test that runs the whole flow (#75)
+- The Vault and Rave docs cite their sources for error statuses and reason codes (#74)
+- The homepage covers FHIR R4, R4B, and R5, and the hero version comes from the CLI package (#70)
+
+<!-- release:end -->
+
 ## 0.8.0
 
 The rest of the roadmap ships: DICOMweb, HL7 v2 over MLLP, Veeva Vault, Medidata Rave, and FHIR R4B and R5. Synthetic data only.
@@ -22,7 +45,6 @@ The rest of the roadmap ships: DICOMweb, HL7 v2 over MLLP, Veeva Vault, Medidata
 
 - Docs pages and agent skills for every new emulator, and a FHIR versions section in the FHIR docs
 
-<!-- release:end -->
 
 ## 0.7.0
 
