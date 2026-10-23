@@ -121,7 +121,7 @@ R4 (4.0.1) by default. `fhir.fhirVersion: R4B` (4.3.0) or `R5` (5.0.0) switches 
 - resource types follow that version (R5 adds `DeviceAssociation`, `SubscriptionTopic`, and others);
 - the CapabilityStatement `fhirVersion` and `$versions` report it;
 - responses use `application/fhir+json; fhirVersion=5.0` (or `4.3`);
-- generated data is in R5 shape: Encounter `actualPeriod`, `class` list, `reason`; MedicationRequest `medication.concept`; Procedure `occurrenceDateTime`; DeviceAssociation for devices.
+- generated data is in R5 shape: Encounter `actualPeriod`, `class` list, `reason`; MedicationRequest `medication.concept`; Procedure `occurrenceDateTime`; DeviceAssociation for devices; single CareTeam `role`; AllergyIntolerance `manifestation.concept`; telecom (and Organization addresses) under `contact`.
 
 On every version, `Accept` with another `fhirVersion` returns 406 and a body with another `fhirVersion` returns 415. Resources you write are stored as sent, without conversion.
 

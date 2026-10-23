@@ -99,10 +99,59 @@ function endpoint(r: Json): Json {
   };
 }
 
+function careTeam(r: Json): Json {
+  const { participant, ...rest } = r;
+  return {
+    ...rest,
+    ...(participant
+      ? { participant: participant.map(({ role, ...p }: Json) => ({ ...p, ...(role?.[0] ? { role: role[0] } : {}) })) }
+      : {}),
+  };
+}
+
+function allergyIntolerance(r: Json): Json {
+  const { reaction, ...rest } = r;
+  return {
+    ...rest,
+    ...(reaction
+      ? {
+          reaction: reaction.map(({ manifestation, ...x }: Json) => ({
+            ...x,
+            ...(manifestation ? { manifestation: manifestation.map((concept: Json) => ({ concept })) } : {}),
+          })),
+        }
+      : {}),
+  };
+}
+
+/** R5 moves telecom, and on Organization the addresses, into ExtendedContactDetail entries. */
+function contacts(r: Json, moveAddress: boolean): Json {
+  const { telecom, address, ...rest } = r;
+  const addresses: Json[] = moveAddress ? (address ?? []) : [];
+  const contact: Json[] = addresses.map((a, i) => ({ ...(i === 0 && telecom ? { telecom } : {}), address: a }));
+  if (telecom && contact.length === 0) contact.push({ telecom });
+  return {
+    ...rest,
+    ...(!moveAddress && address ? { address } : {}),
+    ...(contact.length ? { contact: [...(r.contact ?? []), ...contact] } : {}),
+  };
+}
+
 /** R5 drops Device.patient; the link moves to a DeviceAssociation. */
 function device(r: Json): Json[] {
-  const { patient, type, distinctIdentifier: _distinct, ...rest } = r;
-  const out: Json[] = [{ ...rest, ...(type ? { type: [type] } : {}) }];
+  const { patient, type, distinctIdentifier: _distinct, udiCarrier, ...rest } = r;
+  const out: Json[] = [
+    {
+      ...rest,
+      // R5 requires the issuer; the generated UDIs are GS1 (application identifier 01).
+      ...(udiCarrier
+        ? {
+            udiCarrier: udiCarrier.map((u: Json) => ({ issuer: "http://hl7.org/fhir/NamingSystem/gs1-di", ...u })),
+          }
+        : {}),
+      ...(type ? { type: [type] } : {}),
+    },
+  ];
   if (patient)
     out.push({
       resourceType: "DeviceAssociation",
@@ -130,6 +179,15 @@ export function toR5(resources: FhirResource[]): FhirResource[] {
         return [endpoint(r) as FhirResource];
       case "Device":
         return device(r) as FhirResource[];
+      case "CareTeam":
+        return [careTeam(r) as FhirResource];
+      case "AllergyIntolerance":
+        return [allergyIntolerance(r) as FhirResource];
+      case "Organization":
+        return [contacts(r, true) as FhirResource];
+      case "PractitionerRole":
+      case "Location":
+        return [contacts(r, false) as FhirResource];
       default:
         return [r];
     }

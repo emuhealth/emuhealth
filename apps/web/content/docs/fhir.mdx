@@ -215,10 +215,12 @@ fhir:
   - MedicationRequests use `medication.concept`;
   - Procedures use `occurrenceDateTime`;
   - DocumentReferences use `context` references and `content.profile`;
-  - implanted Devices are linked to the patient by a `DeviceAssociation`.
+  - implanted Devices are linked to the patient by a `DeviceAssociation`, and their UDI carriers name a GS1 `issuer`;
+  - CareTeam participants have a single `role`, and AllergyIntolerance reactions list `manifestation.concept`;
+  - Organization, PractitionerRole, and Location keep their phone numbers in `contact`, and Organization its addresses too.
 
-  R4B keeps the R4 shapes, which these resources share.
-- **Searches.** Search parameters cover the renamed R5 elements, so `Encounter?date=` and `MedicationRequest?code=` work on every version.
+  R4B keeps the R4 shapes, which these resources share. In CI, the served data for each version passes the HL7 FHIR Validator.
+- **Searches.** Search parameters cover the renamed R5 elements, so `Encounter?date=`, `MedicationRequest?code=`, and `Organization?address=` work on every version.
 
 Resources you load or write are stored as sent. They are not converted or validated against the version. The Inferno gate in [Conformance](#conformance) runs against R4.
 

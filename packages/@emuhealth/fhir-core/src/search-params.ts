@@ -63,7 +63,7 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
     p("identifier", "token", ["identifier"]),
     p("name", "string", ["name", "alias"]),
     p("active", "token", ["active"]),
-    p("address", "string", ["address"]),
+    p("address", "string", ["address", "contact.address"]),
   ],
   Location: [
     p("identifier", "token", ["identifier"]),
