@@ -105,7 +105,7 @@ Apple HealthKit and Android Health Connect are on-device APIs and out of scope.
 
 ## Later
 
-- [ ] DICOMweb (QIDO-RS, WADO-RS, STOW-RS)
+- [x] DICOMweb (QIDO-RS, WADO-RS, STOW-RS)
 - [ ] HL7v2 over MLLP (needs a TCP listener in core)
 - [ ] Veeva Vault, Medidata Rave (APIs partly gated, check access first)
 - [ ] FHIR R4B and R5 support

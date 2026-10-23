@@ -287,6 +287,13 @@
       "ogTitle": "Terra | emuhealth",
       "headings": ["Authentication", "Connecting users", "Data", "Webhooks", "Seed config"]
     },
+    "/docs/dicomweb": {
+      "title": "DICOMweb | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/dicomweb",
+      "ogTitle": "DICOMweb | emuhealth",
+      "headings": ["Search (QIDO-RS)", "Retrieve (WADO-RS)", "Store (STOW-RS)", "Synthetic data", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

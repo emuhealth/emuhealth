@@ -1,0 +1,83 @@
+---
+title: "DICOMweb"
+---
+
+An emulator of the [DICOMweb](https://www.dicomstandard.org/using/dicomweb) services in DICOM PS3.18 for imaging apps, viewers, and pipelines. It runs on `http://localhost:4124` by default and serves QIDO-RS search, WADO-RS retrieve, and STOW-RS store over synthetic CT and MR studies.
+
+```bash
+npx emuhealth --service dicomweb
+curl http://localhost:4124/studies
+```
+
+Point your client's DICOMweb root (for example the `wadoRoot` and `qidoRoot` of a viewer, or the base URL of a DICOMweb client library) at `http://localhost:4124`. Responses use the DICOM JSON model (`application/dicom+json`).
+
+## Search (QIDO-RS)
+
+| Route                                                                                                | Returns   |
+| ---------------------------------------------------------------------------------------------------- | --------- |
+| `GET /studies`                                                                                       | Studies   |
+| `GET /series`, `GET /studies/{study}/series`                                                         | Series    |
+| `GET /instances`, `GET /studies/{study}/instances`, `GET /studies/{study}/series/{series}/instances` | Instances |
+
+Query attributes take a keyword or an eight digit tag: `PatientID`, `PatientName`, `StudyDate`, `StudyTime`, `AccessionNumber`, `ModalitiesInStudy`, `ReferringPhysicianName`, `StudyDescription`, `StudyInstanceUID`, `StudyID`, `Modality`, `SeriesDescription`, `SeriesInstanceUID`, `SeriesNumber`, `SOPClassUID`, `SOPInstanceUID`, `InstanceNumber`, and more.
+
+- UIDs match a list separated by commas or backslashes.
+- Dates match a range such as `20260101-20260131`, `-20260131`, or `20260101-`.
+- `*` and `?` are wildcards. Person names match case-insensitively, and `fuzzymatching=true` matches the start of any name component.
+- A filter on a lower level attribute (such as `Modality` on `/studies`) matches when any instance in the study matches.
+- `includefield` adds attributes by keyword or tag. `includefield=all` returns every attribute on instance searches.
+- `limit` and `offset` page the results.
+
+Study results include the computed `ModalitiesInStudy`, `NumberOfStudyRelatedSeries`, and `NumberOfStudyRelatedInstances`. Series results include `NumberOfSeriesRelatedInstances`. Every result carries its `RetrieveURL` (`00081190`). An unknown query attribute returns `400`.
+
+## Retrieve (WADO-RS)
+
+| Route                                                                           | Returns                                                                          |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `GET /studies/{study}`, `.../series/{series}`, `.../instances/{instance}`       | `multipart/related; type="application/dicom"` with one Part 10 file per instance |
+| `.../metadata` at any of those levels                                           | `application/dicom+json` with every attribute; pixel data is a `BulkDataURI`     |
+| `.../instances/{instance}/frames/{1,2,...}`                                     | `multipart/related; type="application/octet-stream"` with the raw frames         |
+| `.../instances/{instance}/bulkdata/7FE00010`                                    | The pixel data as `application/octet-stream`                                     |
+| `.../instances/{instance}/rendered`, `.../frames/{n}/rendered`, and `thumbnail` | `image/png`                                                                      |
+
+Instances come back in their stored transfer syntax. The generated ones are Explicit VR Little Endian. An `Accept` header that asks for another media type or transfer syntax gets `406`. Rendered output supports 8 and 16 bit grayscale images, scaled from the minimum to the maximum pixel value.
+
+## Store (STOW-RS)
+
+`POST /studies` or `POST /studies/{study}` with `Content-Type: multipart/related; type="application/dicom"; boundary=...`, one Part 10 file per part, in Explicit or Implicit VR Little Endian.
+
+```bash
+curl -X POST http://localhost:4124/studies \
+  -H 'Content-Type: multipart/related; type="application/dicom"; boundary=b' \
+  --data-binary @upload.multipart
+```
+
+The response is the standard store result in DICOM JSON:
+
+- `ReferencedSOPSequence` (`00081199`) lists what was stored, each with its `RetrieveURL`.
+- `FailedSOPSequence` (`00081198`) lists failures with a `FailureReason`: `0xC000` (`49152`) for a part that is not a readable Part 10 file, and `0xA900` (`43264`) when the UIDs are missing or the study does not match the one in the URL.
+
+The status is `200` when everything was stored, `202` when some parts failed, and `409` when all of them failed. A body that is not `multipart/related` returns `415`. Storing an instance with an existing SOP Instance UID replaces it.
+
+`DELETE` on a study, series, or instance removes it and returns `204`, as most DICOMweb servers allow.
+
+## Synthetic data
+
+Three studies are generated from a seed for the [synthetic patients](/docs/fhir#synthetic-patients) (`syn-patient-001` and onward, with names such as `SYNTHETIC^AVERY`): a CT chest, a two series MRI brain, and a two series CT abdomen. Each series has three 64x64 single frame images of a simple phantom. CT images are 16 bit and MR images are 8 bit, both `MONOCHROME2`.
+
+UIDs are `2.25` UUID derived values, so they never collide with UIDs from real equipment. Accession numbers start with `SYNACC`. Browse the studies, with thumbnails, at `/_inspector`.
+
+## Seed config
+
+```yaml
+dicomweb:
+  generate:
+    studies: 3 # 0 to 100
+    instancesPerSeries: 3 # 1 to 50
+    seed: emuhealth
+  files:
+    - ./fixtures/synthetic-ct.dcm
+  token: synthetic-token
+```
+
+`generate: false` starts empty. `files` loads your own Part 10 files at startup; use only synthetic or fully deidentified images. When `token` is set, every DICOMweb route needs `Authorization: Bearer <token>`.

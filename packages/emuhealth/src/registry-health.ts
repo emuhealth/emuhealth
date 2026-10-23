@@ -27,6 +27,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "oura",
   "withings",
   "terra",
+  "dicomweb",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -568,6 +569,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         webhook: {
           url: "http://localhost:3000/terra/webhook",
           secret: "synthetic-signing-secret",
+        },
+      },
+    },
+  },
+  dicomweb: {
+    label: "DICOMweb (QIDO-RS, WADO-RS, STOW-RS) emulator",
+    endpoints:
+      "QIDO-RS search at /studies, /series, /instances (keyword or tag matching, wildcards, date ranges, fuzzymatching, includefield, limit, offset); WADO-RS retrieve as multipart/related application/dicom, metadata as application/dicom+json, frames, bulk data, and rendered PNG; STOW-RS store with the standard response and failure reasons; DELETE; synthetic CT and MR studies; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/dicomweb");
+      return { plugin: mod.dicomwebPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "dicomweb-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      dicomweb: {
+        generate: {
+          studies: 3,
+          instancesPerSeries: 3,
         },
       },
     },

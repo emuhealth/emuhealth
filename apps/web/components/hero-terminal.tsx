@@ -23,6 +23,7 @@ const services = [
   { name: "oura", port: 4121, note: "Oura" },
   { name: "withings", port: 4122, note: "Withings" },
   { name: "terra", port: 4123, note: "Terra" },
+  { name: "dicomweb", port: 4124, note: "DICOMweb" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

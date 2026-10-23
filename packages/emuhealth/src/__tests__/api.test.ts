@@ -252,6 +252,16 @@ describe("createEmulator", () => {
     await terra.close();
   });
 
+  it("serves DICOMweb searches over synthetic studies", async () => {
+    const dicomweb = await createEmulator({ service: "dicomweb", port: 14050 });
+    const res = await fetch(`${dicomweb.url}/studies?ModalitiesInStudy=MR`);
+    expect(res.headers.get("content-type")).toContain("application/dicom+json");
+    const studies = (await res.json()) as Array<Record<string, { Value: unknown[] }>>;
+    expect(studies).toHaveLength(1);
+    expect(studies[0]["00201208"].Value).toEqual([6]);
+    await dicomweb.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

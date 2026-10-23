@@ -1,0 +1,46 @@
+{
+  "name": "@emuhealth/dicomweb",
+  "version": "0.7.0",
+  "private": true,
+  "description": "DICOMweb emulator for emuhealth: QIDO-RS search, WADO-RS retrieve, and STOW-RS store over synthetic imaging studies.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://www.emuhealth.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emuhealth/emuhealth.git",
+    "directory": "packages/@emuhealth/dicomweb"
+  },
+  "bugs": {
+    "url": "https://github.com/emuhealth/emuhealth/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "tsup --clean",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src",
+    "prepack": "node ../../../scripts/prepare-package.mjs"
+  },
+  "devDependencies": {
+    "@emulators/core": "workspace:*",
+    "tsup": "^8",
+    "typescript": "^5.7",
+    "vitest": "^4.1.0"
+  }
+}

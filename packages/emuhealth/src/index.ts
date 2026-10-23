@@ -208,6 +208,13 @@ Terra:
   otherwise data goes to terra.webhook, signed with terra-signature: t=<time>,v1=<HMAC-SHA256>.
   Docs: https://www.emuhealth.dev/docs/terra
 
+DICOMweb:
+  'npx emuhealth --service dicomweb' serves DICOMweb at http://localhost:4124 (QIDO-RS, WADO-RS, STOW-RS).
+  Search /studies, /series, /instances; retrieve /studies/{uid} (multipart/related), .../metadata, .../frames/1,
+  .../rendered (PNG); store with POST /studies (multipart/related; type="application/dicom").
+  dicomweb.generate sets studies and instancesPerSeries; dicomweb.files loads Part 10 files; dicomweb.token requires a bearer token.
+  Docs: https://www.emuhealth.dev/docs/dicomweb
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

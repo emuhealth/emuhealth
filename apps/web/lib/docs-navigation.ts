@@ -47,6 +47,7 @@ export const docsSections: NavSection[] = [
       { name: "Oura", href: "/docs/oura" },
       { name: "Withings", href: "/docs/withings" },
       { name: "Terra", href: "/docs/terra" },
+      { name: "DICOMweb", href: "/docs/dicomweb" },
     ],
   },
   {
