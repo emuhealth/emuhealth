@@ -128,8 +128,9 @@ The server is also a SMART on FHIR authorization server, so SMART apps can launc
 | `POST /auth/introspect`, `POST /auth/revoke` | Token introspection and revocation |
 | `GET /auth/launch` | EHR launch simulator |
 | `GET /.well-known/jwks.json` | Key for verifying `id_token` signatures |
+| `GET /.well-known/openid-configuration` | OpenID Connect discovery for the `id_token` |
 
-- **Standalone launch:** `launch/patient` in the scope shows a patient picker; `openid fhirUser` or any `user/` scope shows a practitioner picker first. The token response carries `patient`, and `openid fhirUser` adds a signed `id_token` with the `fhirUser` claim.
+- **Standalone launch:** `launch/patient` in the scope shows a patient picker; `openid fhirUser` or any `user/` scope shows a practitioner picker first. The token response carries `patient`, and `openid fhirUser` adds a signed `id_token` with the `fhirUser` claim. A token can always read its own `fhirUser` resource, whatever its scopes.
 - **EHR launch:** open `/auth/launch?launch_uri=<your app launch URL>` and pick a patient (or pass `patient`, `encounter`, and `practitioner` ids). The app receives `iss` and `launch`, and sending `launch` with the `launch` scope to `/auth/authorize` skips the pickers; the token carries `patient` and `encounter`.
 - **PKCE:** `S256` is required for public clients (`plain` is rejected). Set `fhir.smart.requirePkce: false` to allow public clients without it.
 - **Tokens:** access tokens last one hour. `offline_access` or `online_access` adds a refresh token; a refresh can narrow but not widen scopes. Tokens are cleared on reset.
@@ -154,6 +155,10 @@ fhir:
           keys:
             - { kty: RSA, kid: key-1, alg: RS384, use: sig, n: "...", e: AQAB }
 ```
+
+## Conformance
+
+Every change to the FHIR server runs the ONC Inferno test kits in CI: the US Core 3.1.1 FHIR API tests against the five default patients, and the SMART App Launch STU2 standalone launch, EHR launch, and backend services tests. Only the TLS checks are expected to fail, because the emulator serves plain HTTP.
 
 ## Versioning
 

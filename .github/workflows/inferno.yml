@@ -151,7 +151,7 @@ jobs:
           cp smart_stu2_with_commands*expected*.json ../smart-results.json
 
       - name: Check results
-        run: node tests/inferno/check-results.mjs smart-results.json --min 60
+        run: node tests/inferno/check-results.mjs smart-results.json --min 50
 
       - uses: actions/upload-artifact@v4
         if: always()

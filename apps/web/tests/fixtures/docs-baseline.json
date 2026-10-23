@@ -21,7 +21,13 @@
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og",
       "ogTitle": "emuhealth | Local API Emulation for Health Apps",
-      "headings": ["Quick Start", "CLI", "Options", "Programmatic API", "Framework Integration"]
+      "headings": [
+        "Quick Start",
+        "CLI",
+        "Options",
+        "Programmatic API",
+        "Framework Integration"
+      ]
     },
     "/docs/custom-emulators": {
       "title": "Custom Emulators | emuhealth",
@@ -138,6 +144,7 @@
         "Patient $everything",
         "Bulk Data export",
         "SMART App Launch",
+        "Conformance",
         "Versioning",
         "History",
         "Inspector",
@@ -154,7 +161,14 @@
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/vercel",
       "ogTitle": "Vercel API | emuhealth",
-      "headings": ["User & Teams", "Projects", "Deployments", "Domains", "Environment Variables", "Blob"]
+      "headings": [
+        "User & Teams",
+        "Projects",
+        "Deployments",
+        "Domains",
+        "Environment Variables",
+        "Blob"
+      ]
     },
     "/docs/github": {
       "title": "GitHub API | emuhealth",
@@ -262,7 +276,12 @@
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/apple",
       "ogTitle": "Apple Sign In | emuhealth",
-      "headings": ["Endpoints", "Authorization Flow", "ID Token", "Supported Parameters"]
+      "headings": [
+        "Endpoints",
+        "Authorization Flow",
+        "ID Token",
+        "Supported Parameters"
+      ]
     },
     "/docs/microsoft": {
       "title": "Microsoft Entra ID | emuhealth",
@@ -284,28 +303,54 @@
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/aws",
       "ogTitle": "AWS | emuhealth",
-      "headings": ["S3", "SQS", "IAM", "STS", "Inspector"]
+      "headings": [
+        "S3",
+        "SQS",
+        "IAM",
+        "STS",
+        "Inspector"
+      ]
     },
     "/docs/okta": {
       "title": "Okta | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/okta",
       "ogTitle": "Okta | emuhealth",
-      "headings": ["OAuth / OIDC", "Users", "Groups", "Apps", "Authorization Servers"]
+      "headings": [
+        "OAuth / OIDC",
+        "Users",
+        "Groups",
+        "Apps",
+        "Authorization Servers"
+      ]
     },
     "/docs/mongoatlas": {
       "title": "MongoDB Atlas | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/mongoatlas",
       "ogTitle": "MongoDB Atlas | emuhealth",
-      "headings": ["Admin API", "Projects", "Clusters", "Database Users", "Data Explorer", "Data API"]
+      "headings": [
+        "Admin API",
+        "Projects",
+        "Clusters",
+        "Database Users",
+        "Data Explorer",
+        "Data API"
+      ]
     },
     "/docs/resend": {
       "title": "Resend | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/resend",
       "ogTitle": "Resend | emuhealth",
-      "headings": ["Emails", "Idempotency", "Domains", "API Keys", "Audiences & Contacts", "Inbox"]
+      "headings": [
+        "Emails",
+        "Idempotency",
+        "Domains",
+        "API Keys",
+        "Audiences & Contacts",
+        "Inbox"
+      ]
     },
     "/docs/stripe": {
       "title": "Stripe | emuhealth",
@@ -345,7 +390,13 @@
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
       "ogImage": "/og/architecture",
       "ogTitle": "Architecture | emuhealth",
-      "headings": ["Core", "Plugin System", "In-Memory State", "Middleware", "Custom emulators"]
+      "headings": [
+        "Core",
+        "Plugin System",
+        "In-Memory State",
+        "Middleware",
+        "Custom emulators"
+      ]
     }
   },
   "redirects": {
