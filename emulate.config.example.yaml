@@ -667,6 +667,8 @@ hl7v2:
   # MLLP listener; false turns it off
   mllp:
     port: 2575
+  # Reject message types the emulator does not apply (AR, ERR code 200) instead of accepting them
+  # strict: true
   # Extra synthetic patients for the registry
   # patients:
   #   - mrn: syn-mrn-100

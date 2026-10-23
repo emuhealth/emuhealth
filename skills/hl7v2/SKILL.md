@@ -27,7 +27,7 @@ Samples: `adt-a01`, `adt-a03`, `adt-a08`, `oru-r01`, `orm-o01` (`?patient=syn-pa
 
 ## ACKs
 
-Original mode: `AA` accepted; `AE` could not apply (no PID, empty PID-3, no visit to discharge, unknown merge source); `AR` unparseable or missing MSH-9, MSH-10, MSH-12. MSA-2 echoes the control ID; errors add MSA-3 and an ERR segment.
+Original mode: `AA` accepted; `AE` could not apply (no PID, empty PID-3, no visit to discharge, unknown merge source); `AR` unparseable or missing MSH-9, MSH-10, MSH-12. MSA-2 echoes the control ID; errors add MSA-3 and an ERR segment. Other message types (SIU, MDM) are accepted with `AA`; `hl7v2.strict: true` rejects them with `AR` and ERR code 200.
 
 ## Effects
 

@@ -10,6 +10,7 @@ import {
   listen,
   parseMessage,
   receive,
+  seedFromConfig,
   segment,
   sendMllp,
   unescape,
@@ -126,6 +127,17 @@ describe("message handling", () => {
     const ae = msa(receive(store, "MSH|^~\\&|A|B|C|D|20260101||ADT^A08|Z1|P|2.5\rEVN|A08"));
     expect(ae).toMatchObject({ code: "AE", text: "Required segment PID is missing" });
     expect(msa(receive(store, "MSH|^~\\&|A|B|C|D|20260101||SIU^S12|Z2|P|2.5")).code).toBe("AA");
+  });
+
+  it("rejects message types it does not apply in strict mode", () => {
+    const { store } = startService();
+    seedFromConfig(store, base, { strict: true });
+    const ack = receive(store, "MSH|^~\\&|A|B|C|D|20260101||SIU^S12|Z3|P|2.5");
+    expect(msa(ack)).toMatchObject({ code: "AR", text: "Message type SIU^S12 is not supported" });
+    expect(segment(parseMessage(ack), "ERR")).toBeDefined();
+    expect(ack).toContain("|200^^HL70357|");
+    expect(msa(receive(store, adt("A01"))).code).toBe("AA");
+    expect(() => seedFromConfig(store, base, { strict: "yes" as never })).toThrow("hl7v2.strict must be true or false");
   });
 });
 
