@@ -293,6 +293,16 @@ describe("createEmulator", () => {
     await veeva.close();
   });
 
+  it("serves Rave Web Services clinical data as ODM", async () => {
+    const rave = await createEmulator({ service: "rave", port: 14054 });
+    const res = await fetch(`${rave.url}/RaveWebServices/studies/EMU-101(Prod)/subjects`, {
+      headers: { Authorization: `Basic ${Buffer.from("rws.synthetic:synthetic-password").toString("base64")}` },
+    });
+    expect(res.headers.get("content-type")).toContain("text/xml");
+    expect((await res.text()).match(/<SubjectData /g)).toHaveLength(8);
+    await rave.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

@@ -1,0 +1,114 @@
+---
+title: "Medidata Rave"
+---
+
+An emulator of Medidata Rave Web Services (RWS) for EDC integrations, data pipelines, and tools built on clients such as [rwslib](https://github.com/mdsol/rwslib). It runs on `http://localhost:4127` with the `/RaveWebServices` routes and the CDISC ODM 1.3 XML that RWS returns and accepts, over synthetic studies. It is not affiliated with Medidata Solutions.
+
+```bash
+npx emuhealth --service rave
+curl -u rws.synthetic:synthetic-password 'http://localhost:4127/RaveWebServices/studies/EMU-101(Prod)/datasets/regular/VS'
+```
+
+With rwslib, connect to the emulator by URL:
+
+```python
+from rwslib import RWSConnection
+from rwslib.rws_requests import ClinicalStudiesRequest
+rave = RWSConnection("http://localhost:4127", "rws.synthetic", "synthetic-password")
+rave.send_request(ClinicalStudiesRequest())
+```
+
+## Authentication
+
+Every route except `version`, `version/build`, `version/codename`, `diagnostics`, and `twohundred` needs HTTP Basic credentials. A wrong user name or password gets `401` with an ODM error document whose `mdsol:ErrorDescription` ends in `[RWS00008]`.
+
+The default user is `rws.synthetic` with `synthetic-password`. MAuth is not emulated.
+
+## Studies and metadata
+
+| Route                                                            | Returns                                                                                                                                                 |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /RaveWebServices/studies`                                   | Study environments as ODM `Study` elements. Prod studies have no environment suffix (`EMU-101`); others do (`EMU-101(UAT)`, study name `EMU-101 (UAT)`) |
+| `GET /RaveWebServices/metadata/studies`                          | Projects                                                                                                                                                |
+| `GET /RaveWebServices/metadata/libraries`                        | One synthetic global library                                                                                                                            |
+| `GET /RaveWebServices/metadata/studies/{project}/versions`       | CRF versions (`1001` for `EMU-101`, `2001` for `EMU-202`)                                                                                               |
+| `GET /RaveWebServices/metadata/studies/{project}/drafts`         | One draft                                                                                                                                               |
+| `GET /RaveWebServices/metadata/studies/{project}/versions/{oid}` | The full `MetaDataVersion`                                                                                                                              |
+
+The full `MetaDataVersion` lists:
+
+- folders (`StudyEventDef`);
+- forms (`FormDef`) and item groups;
+- fields (`ItemDef`, with Rave style `FORM.FIELD` OIDs);
+- code lists.
+
+## Subjects
+
+`GET /RaveWebServices/studies/{project}({environment})/subjects` returns one `ClinicalData` element per subject, with `SubjectData` and its `SiteRef` (`LocationOID` and `mdsol:StudyEnvSiteNumber`). It takes these options:
+
+- `status=all` adds `mdsol:` status flags such as `Touched`, `Empty`, `Overdue`, `Locked`, and `Frozen`.
+- `links=all` adds an `mdsol:Link` with an `xlink:href` to the subject page.
+- `subjectKeyType=SubjectUUID` puts the subject UUID in `SubjectKey`, with `mdsol:SubjectName`.
+- `include=inactive`, `deleted`, or `inactiveAndDeleted` adds those subjects.
+
+## Clinical data
+
+| Route                                                                                        | Returns                          |
+| -------------------------------------------------------------------------------------------- | -------------------------------- |
+| `GET .../studies/{project}({environment})/datasets/{type}[/{formoid}]`                       | Clinical data for every subject  |
+| `GET .../studies/{project}({environment})/subjects/{subjectkey}/datasets/{type}[/{formoid}]` | One subject, by name or UUID     |
+| `GET .../studies/{project}({environment})/versions/{oid}/datasets/{type}[/{formoid}]`        | Every subject on one CRF version |
+
+`{type}` is `regular` or `raw`. The data nests `SubjectData`, `StudyEventData`, `FormData`, `ItemGroupData`, and `ItemData` (`ItemOID` and `Value`). Add `start=2026-02-01T00:00:00` to return only forms changed since then.
+
+`regular` and `raw` return the same values. The suffix options (`rawsuffix`, `codelistsuffix`, and others) are accepted and ignored.
+
+## Audit records
+
+`GET /RaveWebServices/datasets/ClinicalAuditRecords.odm?studyoid=EMU-101(Prod)&startid=1&per_page=500` returns one `ClinicalData` per audit record. Each record has:
+
+- `mdsol:AuditSubCategoryName` (`Entered` or `Removed`);
+- the subject UUID;
+- the item and its value;
+- an `AuditRecord` with `UserRef`, `LocationRef`, `DateTimeStamp`, and `SourceID`.
+
+When more records follow, a `Link` header with `rel="next"` points at the next page. `per_page` is at most 10000.
+
+## Importing data
+
+`POST /RaveWebServices/webservice.aspx?PostODMClinicalData` with an ODM document (`Content-Type: text/xml`) applies `ClinicalData` to the study it names (`EMU-101 (Prod)` or `EMU-101(Prod)`).
+
+- `SubjectData` takes `TransactionType` `Insert` (with a `SiteRef`), `Update`, `Upsert`, `Context`, or `Remove`, and `mdsol:SubjectKeyType="SubjectUUID"` to address subjects by UUID.
+- Folders, forms, and fields must exist in the CRF. `ItemOID` can be `VS.PULSE` or just `PULSE` inside the `VS` form.
+- Values are checked against the field's data type and code list. `IsNull="Yes"` or `TransactionType="Remove"` clears a value, and `TransactionType="Remove"` on `ItemGroupData` removes a log line.
+- Each change adds an audit record under the posting user.
+
+The whole document applies or nothing does. Success returns Rave's `Response` with:
+
+- `IsTransactionSuccessful="1"`;
+- `InboundODMFileOID`;
+- `SuccessStatistics` (`Rave objects touched: Subjects=1; Folders=1; Forms=1; Fields=2; LogLines=0`);
+- `SubjectNumberInStudy` and `SubjectNumberInStudySite` for a new subject.
+
+Failures return `409` with `IsTransactionSuccessful="0"`, `ErrorClientResponseMessage`, an XPath style `ErrorOriginLocation`, and a `ReasonCode`. The reason codes are the emulator's own (`EMU001` to `EMU011`) and do not match Rave's catalog.
+
+## Synthetic data
+
+- Two studies, `EMU-101` and `EMU-202`, each in `Prod` and `UAT`, with three sites.
+- Prod has eight subjects (`101-001` and onward) and UAT has two.
+- Subjects have demographics and vital signs at screening, baseline, and week 4 visits (some visits are missing on purpose), and adverse event log lines.
+- Values are generated from a seed. Site names, users, and terms are fictional.
+
+## Seed config
+
+```yaml
+rave:
+  users:
+    - username: rws.synthetic
+      password: synthetic-password
+  generate:
+    subjects: 8 # per Prod environment, 0 to 500
+    seed: emuhealth
+```
+
+`generate: false` keeps the studies and CRFs but starts without subjects.

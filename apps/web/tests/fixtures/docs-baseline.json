@@ -308,6 +308,13 @@
       "ogTitle": "Veeva Vault | emuhealth",
       "headings": ["Authentication", "Object records", "Documents", "VQL", "Errors", "Synthetic data", "Seed config"]
     },
+    "/docs/rave": {
+      "title": "Medidata Rave | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/rave",
+      "ogTitle": "Medidata Rave | emuhealth",
+      "headings": ["Authentication", "Studies and metadata", "Subjects", "Clinical data", "Audit records", "Importing data", "Synthetic data", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

@@ -229,6 +229,13 @@ Veeva Vault:
   veeva.users sets sign-ins (default admin@synthetic-vault.example / synthetic-password); veeva.records adds records.
   Docs: https://www.emuhealth.dev/docs/veeva
 
+Medidata Rave:
+  'npx emuhealth --service rave' serves Rave Web Services at http://localhost:4127/RaveWebServices.
+  HTTP Basic auth (default rws.synthetic / synthetic-password). GET /studies, /studies/EMU-101(Prod)/subjects,
+  /studies/EMU-101(Prod)/datasets/regular[/{form}], /metadata/studies/EMU-101/versions/1001, ClinicalAuditRecords.
+  POST webservice.aspx?PostODMClinicalData imports ODM. rave.users sets credentials; rave.generate sets subjects.
+  Docs: https://www.emuhealth.dev/docs/rave
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -30,6 +30,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "dicomweb",
   "hl7v2",
   "veeva",
+  "rave",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -630,6 +631,28 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
         users: [
           {
             username: "admin@synthetic-vault.example",
+            password: "synthetic-password",
+          },
+        ],
+      },
+    },
+  },
+  rave: {
+    label: "Medidata Rave Web Services (RWS) emulator",
+    endpoints:
+      "Rave Web Services under /RaveWebServices: version and diagnostics, HTTP Basic auth, study and metadata study lists, CRF versions and full ODM metadata, subjects with status and links, ODM clinical data datasets by study, subject, CRF version, and form, ClinicalAuditRecords with paging, and webservice.aspx?PostODMClinicalData imports that apply transactionally; synthetic studies EMU-101 and EMU-202 in Prod and UAT; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/rave");
+      return { plugin: mod.ravePlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "rave-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      rave: {
+        users: [
+          {
+            username: "rws.synthetic",
             password: "synthetic-password",
           },
         ],
