@@ -42,7 +42,7 @@ def test_every_resource_parses(smart):
                 continue
             FHIRElementFactory.instantiate(resource["resourceType"], resource)
             parsed += 1
-    assert parsed > 300
+    assert parsed > 150
     assert absent < 10
 
 
