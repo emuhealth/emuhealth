@@ -115,11 +115,11 @@ export class FhirStore {
     };
   }
 
-  /** Create a resource with a server-assigned id. Any id in the body is ignored. */
-  create(type: string, body: unknown): WriteResult {
+  /** Create a resource with a server-assigned id (or one chosen by a transaction). Any id in the body is ignored. */
+  create(type: string, body: unknown, id: string = randomUUID()): WriteResult {
     assertResourceType(type);
     assertResourceBody(body, type);
-    return this.write(type, randomUUID(), body, "POST");
+    return this.write(type, id, body, "POST");
   }
 
   /** The current resource, or undefined when it is unknown or deleted. Never throws. */

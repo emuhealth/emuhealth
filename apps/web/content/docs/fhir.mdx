@@ -18,7 +18,7 @@ The FHIR base URL is the server root. All responses use `application/fhir+json`.
 - `PATCH /:type/:id` applies a JSON Patch (`Content-Type: application/json-patch+json`)
 - `DELETE /:type/:id` deletes a resource logically; later reads return `410 Gone`
 
-`batch` and `transaction` Bundles, `/metadata`, and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
+`/metadata` and SMART on FHIR authorization are on the [roadmap](https://github.com/emuhealth/emuhealth/blob/main/ROADMAP.md) and not available yet. Requests are not authenticated until SMART support lands.
 
 ## Search
 
@@ -47,6 +47,39 @@ curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://
 
 ```bash
 curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observation:subject'
+```
+
+## Batch and transaction
+
+`POST /` (the base URL) with a `batch` or `transaction` Bundle. Each entry has a `request` with `method` and `url`, relative (`Patient/123`) or absolute on this server.
+
+- Entries can create (`POST`), read, vread, search, or read history (`GET`), update (`PUT`), patch (`PATCH` with a `Binary` resource whose `contentType` is `application/json-patch+json` and whose `data` is the base64 encoded patch), and delete (`DELETE`). `request.ifMatch` and `request.ifNoneMatch` work as their headers do.
+- **batch**: entries run independently in order. The `batch-response` has a status for every entry, and failed entries carry an `OperationOutcome` in `response.outcome`.
+- **transaction**: all or nothing. Entries run in FHIR order (deletes, creates, updates and patches, then reads) and the `transaction-response` lists results in request order. If any entry fails, every change is rolled back and the response is that entry's `OperationOutcome` with its status.
+- In a transaction, references to an entry's `fullUrl` (such as `urn:uuid:...`) are rewritten to the new `Type/id`. `request.ifNoneExist` makes a create conditional: one match reuses it (`200`), more than one fails with `412`.
+- Two entries that change the same resource are rejected with `400`. Conditional update and delete (`PUT Patient?identifier=...`) are not supported.
+
+```json
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:5f1c4d8e-0000-4000-8000-000000000001",
+      "resource": { "resourceType": "Patient", "name": [{ "family": "Example" }] },
+      "request": { "method": "POST", "url": "Patient" }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "code": { "text": "Heart rate" },
+        "subject": { "reference": "urn:uuid:5f1c4d8e-0000-4000-8000-000000000001" }
+      },
+      "request": { "method": "POST", "url": "Observation" }
+    }
+  ]
+}
 ```
 
 ## Versioning

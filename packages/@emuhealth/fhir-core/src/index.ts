@@ -15,6 +15,7 @@ export {
 } from "./store.js";
 export { FhirError, operationOutcome, type OperationOutcome, type IssueCode } from "./outcome.js";
 export { applyJsonPatch, type JsonPatchOperation } from "./json-patch.js";
+export { processBundle, type BundleDeps } from "./bundle.js";
 export { R4_RESOURCE_TYPES, isR4ResourceType } from "./resource-types.js";
 export {
   parseSearch,

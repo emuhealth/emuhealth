@@ -42,8 +42,9 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | delete | `DELETE /:type/:id` (logical; later reads return `410 Gone`) |
 | history | `GET /:type/:id/_history`, `GET /:type/_history`, `GET /_history` with `_count` and `_since` |
 | search | `GET /:type?<params>` or `POST /:type/_search` (form-encoded) |
+| batch, transaction | `POST /` with a `batch` or `transaction` Bundle |
 
-Not available yet: `batch` and `transaction` Bundles, `/metadata`, SMART on FHIR. Requests are not authenticated until SMART support lands.
+Not available yet: `/metadata`, SMART on FHIR, conditional update and delete. Requests are not authenticated until SMART support lands.
 
 ## Search
 
@@ -63,6 +64,15 @@ Returns a `searchset` Bundle with `total` and `self`/`next`/`previous` links.
 ```bash
 curl 'http://localhost:4100/Observation?patient=synthetic-patient-1&code=http://loinc.org|8867-4&_sort=-date'
 ```
+
+## Batch and transaction
+
+`POST /` with a Bundle of entries, each with `request.method` and `request.url`.
+
+- batch: entries run independently; every entry gets a `response.status`, failures carry `response.outcome`
+- transaction: all or nothing, run as deletes, creates, updates/patches, reads; any failure rolls everything back and returns that entry's `OperationOutcome`
+- references to an entry `fullUrl` like `urn:uuid:...` are rewritten to the new `Type/id`; `request.ifNoneExist` makes a create conditional
+- PATCH entries use a `Binary` with `contentType: application/json-patch+json` and base64 `data`
 
 ## Versioning
 

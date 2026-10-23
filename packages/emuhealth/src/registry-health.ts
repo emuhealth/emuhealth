@@ -10,7 +10,7 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
   fhir: {
     label: "FHIR R4 server emulator",
     endpoints:
-      "create, read, vread, update (including create on update), JSON Patch, logical delete, _history, search with paging and sorting, ETag and If-Match",
+      "create, read, vread, update (including create on update), JSON Patch, logical delete, _history, search with includes and chaining, batch and transaction Bundles, ETag and If-Match",
     async load() {
       const mod = await import("@emuhealth/fhir-core");
       return { plugin: mod.fhirPlugin, seedFromConfig: mod.seedFromConfig };
