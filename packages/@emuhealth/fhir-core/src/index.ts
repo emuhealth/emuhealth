@@ -22,6 +22,15 @@ export { processBundle, type BundleDeps } from "./bundle.js";
 export { buildCapabilityStatement, type CapabilityOptions } from "./capability.js";
 export { patientEverything, type EverythingOptions } from "./everything.js";
 export {
+  startExport,
+  exportManifest,
+  getExportJob,
+  deleteExportJob,
+  NDJSON,
+  type ExportJob,
+  type ExportRequest,
+} from "./bulk.js";
+export {
   parseScopes,
   guardForToken,
   resolveAccess,

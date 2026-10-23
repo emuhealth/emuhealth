@@ -54,6 +54,7 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
         options.description ?? "emuhealth FHIR R4 emulator for development and testing. Synthetic data only.",
       url: options.base,
     },
+    instantiates: ["http://hl7.org/fhir/uv/bulkdata/CapabilityStatement/bulk-data"],
     fhirVersion: "4.0.1",
     format: ["application/fhir+json", "json"],
     patchFormat: ["application/json-patch+json"],
@@ -105,11 +106,20 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
             ? {
                 operation: [
                   { name: "everything", definition: "http://hl7.org/fhir/OperationDefinition/Patient-everything" },
+                  { name: "export", definition: "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/patient-export" },
+                ],
+              }
+            : {}),
+          ...(type === "Group"
+            ? {
+                operation: [
+                  { name: "export", definition: "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/group-export" },
                 ],
               }
             : {}),
         })),
         interaction: [{ code: "transaction" }, { code: "batch" }, { code: "history-system" }],
+        operation: [{ name: "export", definition: "http://hl7.org/fhir/uv/bulkdata/OperationDefinition/export" }],
       },
     ],
   };

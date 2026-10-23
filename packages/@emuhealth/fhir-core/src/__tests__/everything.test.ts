@@ -132,9 +132,10 @@ describe("Patient/$everything", () => {
   it("is advertised in the CapabilityStatement", async () => {
     const cs = await ((await app.request(`${base}/metadata`)) as JsonResponse).json();
     const patient = cs.rest[0].resource.find((r: { type: string }) => r.type === "Patient");
-    expect(patient.operation).toEqual([
-      { name: "everything", definition: "http://hl7.org/fhir/OperationDefinition/Patient-everything" },
-    ]);
+    expect(patient.operation).toContainEqual({
+      name: "everything",
+      definition: "http://hl7.org/fhir/OperationDefinition/Patient-everything",
+    });
   });
 });
 

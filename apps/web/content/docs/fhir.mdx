@@ -95,6 +95,28 @@ curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observat
 curl 'http://localhost:4100/Patient/syn-patient-001/$everything?_type=Patient,Condition,MedicationRequest'
 ```
 
+## Bulk Data export
+
+FHIR Bulk Data Access (`$export`) at three levels, with NDJSON output:
+
+| Kick-off | Exports |
+|----------|---------|
+| `GET /$export` | Every resource |
+| `GET /Patient/$export` | Resources in any patient's compartment |
+| `GET /Group/:id/$export` | Resources in the compartments of the Group's patient members |
+
+1. Send the kick-off with `Prefer: respond-async`. The response is `202 Accepted` with a `Content-Location` status URL.
+2. `GET` the status URL for the manifest: `transactionTime`, `request`, `requiresAccessToken`, and an `output` list with one NDJSON file URL and `count` per resource type. The emulator finishes exports right away, so the first poll returns `200`.
+3. Download each file (`application/fhir+ndjson`). `DELETE` the status URL to remove the export.
+
+Parameters: `_type` (comma separated types), `_since`, and `_outputFormat` (`application/fhir+ndjson`, `application/ndjson`, or `ndjson`). `_typeFilter` and `_elements` return `400`.
+
+With a SMART token, the export only includes what the token can read: `system/*.rs` from [Backend Services](#smart-app-launch) exports everything, a narrower scope exports only its types (`_type` outside it gets `403`), and a patient token exports only its patient. Exports started with a token can only be read with a token from the same client (`requiresAccessToken: true`).
+
+```bash
+curl -i 'http://localhost:4100/$export?_type=Patient,Observation' -H 'Prefer: respond-async'
+```
+
 ## SMART App Launch
 
 The server is also a SMART on FHIR authorization server, so SMART apps can launch against it locally. Discovery is at `GET /.well-known/smart-configuration`.
