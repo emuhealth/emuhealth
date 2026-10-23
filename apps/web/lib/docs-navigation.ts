@@ -34,6 +34,7 @@ export const docsSections: NavSection[] = [
       { name: "REDCap", href: "/docs/redcap" },
       { name: "Oracle Health (Cerner)", href: "/docs/cerner" },
       { name: "athenahealth", href: "/docs/athena" },
+      { name: "CMS Blue Button 2.0", href: "/docs/bluebutton" },
     ],
   },
   {

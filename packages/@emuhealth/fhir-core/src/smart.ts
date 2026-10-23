@@ -70,6 +70,11 @@ export interface SmartRouteOptions {
    * system accounts use a shared secret instead of a JWT assertion (Oracle Health). Default false.
    */
   clientCredentialsWithSecret?: boolean;
+  /**
+   * Patient access only (CMS Blue Button): every authorization picks a patient, never a practitioner, and the
+   * patient is the token's fhirUser. Default false.
+   */
+  patientAccess?: boolean;
 }
 
 /** What a token response is issued for, as passed to `tokenExtras`. */
@@ -232,7 +237,7 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
   };
   const origin = new URL(base).origin;
   const url = (path: string) => `${origin}${path}`;
-  const selectPath = `${paths.authorize}/select`;
+  const selectPath = `${paths.authorize.replace(/\/+$/, "")}/select`;
 
   function findClient(clientId: string): { client?: SmartClient; error?: string } {
     const clients = getSmartConfig(store).clients ?? [];
@@ -375,6 +380,10 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
         400,
       );
     const granted = scopes(req.scope);
+    if (options.patientAccess) {
+      if (!req.patient) return picker(c, requestId, "patient");
+      req.fhirUser = `Patient/${req.patient}`;
+    }
     const wantsUser =
       (granted.has("openid") && granted.has("fhirUser")) || [...granted].some((s) => s.startsWith("user/"));
     if (wantsUser && !req.fhirUser) return picker(c, requestId, "practitioner");

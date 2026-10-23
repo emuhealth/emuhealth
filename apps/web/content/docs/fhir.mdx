@@ -26,7 +26,7 @@ Requests without a token have full access by default. Requests that present a SM
 
 `GET /:type?<params>` and `POST /:type/_search` (form-encoded parameters) return a `searchset` Bundle with `total` and `self`, `next`, and `previous` links.
 
-- Every type supports `_id` and `_lastUpdated`. Patient, Practitioner, PractitionerRole, Organization, Location, Provenance, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, DocumentReference, CarePlan, CareTeam, Goal, ServiceRequest, Coverage, Device, and Medication support their common parameters, such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, and `birthdate`.
+- Every type supports `_id` and `_lastUpdated`. Patient, Practitioner, PractitionerRole, Organization, Location, Provenance, Observation, Condition, Encounter, MedicationRequest, AllergyIntolerance, Immunization, Procedure, DiagnosticReport, DocumentReference, CarePlan, CareTeam, Goal, ServiceRequest, Coverage, ExplanationOfBenefit, Device, and Medication support their common parameters, such as `patient`, `subject`, `code`, `category`, `status`, `date`, `identifier`, `name`, `family`, `given`, `gender`, and `birthdate`.
 - **string**: accent- and case-insensitive prefix match; `:exact` and `:contains` are supported.
 - **token**: `code`, `system|code`, `|code`, or `system|`; `:not` and `:text` are supported.
 - **date**: partial dates cover their whole range (`2026`, `2026-02`); prefixes `eq`, `ne`, `lt`, `gt`, `le`, `ge`, `sa`, `eb`, and `ap`. Periods are matched as ranges.
