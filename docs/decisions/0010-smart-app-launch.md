@@ -1,6 +1,6 @@
 # 0010: SMART App Launch
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 - Refines: [0003](0003-fhir-r4-baseline.md), [0008](0008-fhir-core-design.md)
 
@@ -48,7 +48,7 @@ The CapabilityStatement adds the `SMART-on-FHIR` security service and the `oauth
 ### Scopes and enforcement
 
 - Both SMART v1 (`patient/Observation.read`, `user/*.write`, `.*`) and v2 (`patient/Observation.rs`, `cruds` subsets, and granular `?category=...` constraints) are parsed into one internal form: a context (`patient`, `user`, `system`), a resource type or `*`, a set of interactions (create, read, update, delete, search), and optional search constraints.
-- **Permissive by default (recommended):** requests without a token keep full access, so quick start and existing tests work unchanged. A request that presents a SMART token is always held to it: interactions outside its scopes get `403` with an `OperationOutcome`, and `patient/` scopes limit reads, searches, history, `$everything`, and Bundle entries to that patient's compartment (resources outside it look like `404`, writes outside it get `403`). Invalid or expired tokens get `401` with `WWW-Authenticate: Bearer`.
+- **Permissive by default:** requests without a token keep full access, so quick start and existing tests work unchanged. A request that presents a SMART token is always held to it: interactions outside its scopes get `403` with an `OperationOutcome`, and `patient/` scopes limit reads, searches, history, `$everything`, and Bundle entries to that patient's compartment (resources outside it look like `404`, writes outside it get `403`). Invalid or expired tokens get `401` with `WWW-Authenticate: Bearer`.
 - `fhir.smart.required: true` turns on strict mode: every FHIR request needs a valid token. `/metadata` and `/.well-known/smart-configuration` stay public.
 - v2 granular constraints are enforced on search and read results; constraints on write interactions are out of scope for now.
 
@@ -67,4 +67,4 @@ The ONC Inferno SMART App Launch test kit becomes the acceptance gate later in P
 - SMART apps can be developed and tested end to end against `npx emuhealth --service fhir` without accounts or network.
 - Existing users see no change unless they present SMART tokens or turn on `required`.
 - Enforcement adds a check to every FHIR route; it lives in one place in `routes.ts` and `bundle.ts`, so vendor emulators inherit it.
-- Picking "permissive by default" means an app that forgets to send its token still works locally; teams that want production-like behavior set `required: true` in CI.
+- Permissive by default (chosen over requiring tokens by default, which would break quick start and `curl` use) means an app that forgets to send its token still works locally; teams that want production-like behavior set `required: true` in CI.
