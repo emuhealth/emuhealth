@@ -1,6 +1,29 @@
 # Changelog
 
 <!-- release:start -->
+## 0.4.0
+
+The FHIR server now starts with synthetic patients and supports SMART App Launch, so SMART apps can launch, pick a patient, and get scoped tokens against `npx emuhealth --service fhir`. Synthetic data only.
+
+### New Features
+
+- **Synthetic patients**: the `fhir` service starts with 5 generated, deterministic synthetic patients, each with encounters, vital signs, conditions, medications, labs, allergies, and immunizations. `fhir.generate` sets `patients`, `seed`, and `referenceDate`, and `generate: false` starts empty. Records are tagged synthetic and use ICD-10-CM, RxNorm, CVX, and a small set of LOINC codes (#26)
+- **`Patient/$everything`**: one Bundle with a patient, every resource that references it, and the practitioners and organizations those point to, with `_type`, `_since`, and `_count` paging. Also at the type level (#27)
+- **SMART App Launch**: discovery at `/.well-known/smart-configuration`, authorization with patient and practitioner pickers, an EHR launch simulator at `/auth/launch`, and a token endpoint with S256 PKCE, refresh, introspection, revocation, and a signed `id_token` for `openid fhirUser`. Any client works until you register clients under `fhir.smart.clients` (#29)
+- **SMART enforcement**: requests that present a token are held to its SMART v1 or v2 scopes (including granular `?category=` constraints) and, for `patient/` scopes, to that patient's records across reads, search, history, `$everything`, writes, and Bundles. Requests without a token keep full access unless `fhir.smart.required: true`. `/metadata` advertises SMART security (#30)
+
+### Changes
+
+- Configs that only list `fhir.resources` now also get the 5 generated patients. Add `fhir.generate: false` to keep the server empty apart from your resources (#26)
+- A request that sends an unknown or expired `Authorization: Bearer` token now gets `401` from the FHIR API (#30)
+
+### Documentation
+
+- SMART App Launch design in [ADR 0010](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0010-smart-app-launch.md) and the synthetic generator in [ADR 0009](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0009-synthetic-patient-generator.md) (#26, #28)
+- LOINC, RxNorm, ICD-10-CM, and CVX attribution in `THIRD_PARTY_NOTICES.md` (#26)
+
+<!-- release:end -->
+
 ## 0.3.0
 
 The first health emulator: a stateful FHIR R4 server. Run it with `npx emuhealth --service fhir` on `http://localhost:4100`. Synthetic data only, never real patient data.
@@ -20,8 +43,6 @@ The first health emulator: a stateful FHIR R4 server. Run it with `npx emuhealth
 ### Testing
 
 - Longer timeout for the cold-start `createEmulator` test, which was timing out on busy CI runners (#23)
-
-<!-- release:end -->
 
 ## 0.2.0
 
