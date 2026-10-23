@@ -42,8 +42,9 @@ SOFTWARE.
 
 The emuhealth synthetic data generator in
 `packages/@emuhealth/fhir-core/src/generator.ts` uses a small number of codes from
-the following code systems to make generated records realistic. No full code
-system is redistributed.
+the following code systems to make generated records realistic, and the RxNav
+emulator in `packages/@emuhealth/rxnav` serves the same small RxNorm subset. No
+full code system is redistributed.
 
 ### LOINC
 

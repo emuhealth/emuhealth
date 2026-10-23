@@ -18,8 +18,8 @@ export default function LandingPage() {
           sandbox accounts, no network. Synthetic data only.
         </p>
         <p className="mb-8 max-w-xl text-sm text-neutral-500">
-          The FHIR R4 server with SMART App Launch, Epic, and openFDA are available now. Oracle Health, RxNav, and more
-          are in development.
+          The FHIR R4 server with SMART App Launch and a growing set of EHR and life science emulators are available
+          now. The roadmap shows what is next.
         </p>
 
         <div className="mb-6 flex flex-wrap items-center gap-3">

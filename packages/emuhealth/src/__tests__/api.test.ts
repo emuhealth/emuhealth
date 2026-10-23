@@ -66,6 +66,13 @@ describe("createEmulator", () => {
     await openfda.close();
   });
 
+  it("starts the RxNav emulator with the RxNorm subset", async () => {
+    const rxnav = await createEmulator({ service: "rxnav", port: 14022 });
+    const res = await fetch(`${rxnav.url}/REST/rxcui.json?name=lisinopril`);
+    expect(((await res.json()) as { idGroup: { rxnormId: string[] } }).idGroup.rxnormId).toEqual(["29046"]);
+    await rxnav.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

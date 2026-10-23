@@ -2,7 +2,7 @@ import type { ServiceEntry } from "./registry.js";
 
 // Health and life science services. Each emulator lives in packages/@emuhealth/<name>.
 // Append new names to the end only: a service's position in this list sets its default port.
-const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda"] as const;
+const HEALTH_SERVICE_NAME_LIST = ["fhir", "epic", "openfda", "rxnav"] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
 
@@ -66,6 +66,29 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
     initConfig: {
       openfda: {
         generate: { seed: 1, events: 300 },
+      },
+    },
+  },
+  rxnav: {
+    label: "NLM RxNav (RxNorm API) emulator",
+    endpoints:
+      "RxNorm REST API under /REST: rxcui by name, drugs, properties, related and allrelated concepts, ndcs, approximateTerm, spellingsuggestions, displaynames, with or without .json; built-in RxNorm subset plus configured concepts; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/rxnav");
+      return { plugin: mod.rxnavPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "rxnav-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      rxnav: {
+        concepts: [
+          {
+            rxcui: "900001",
+            name: "examplemab",
+            tty: "IN",
+          },
+        ],
       },
     },
   },
