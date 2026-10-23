@@ -37,3 +37,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Clinical terminology
+
+The emuhealth synthetic data generator in
+`packages/@emuhealth/fhir-core/src/generator.ts` uses a small number of codes from
+the following code systems to make generated records realistic. No full code
+system is redistributed.
+
+### LOINC
+
+This material contains content from LOINC (https://loinc.org). LOINC is
+copyright Regenstrief Institute, Inc. and the Logical Observation Identifiers
+Names and Codes (LOINC) Committee and is available at no cost under the license
+at https://loinc.org/license. LOINC® is a registered United States trademark of
+Regenstrief Institute, Inc.
+
+### RxNorm
+
+This product uses publicly available data from the U.S. National Library of
+Medicine (NLM), National Institutes of Health, Department of Health and Human
+Services; NLM is not responsible for the product and does not endorse or
+recommend this or any other product.
+
+### ICD-10-CM and CVX
+
+ICD-10-CM codes are published by the National Center for Health Statistics and
+CVX codes by the Centers for Disease Control and Prevention. Both are U.S.
+government works in the public domain.

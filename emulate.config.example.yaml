@@ -382,6 +382,10 @@ twilio:
 
 # FHIR R4 server (health service, default port 4100). Synthetic data only.
 fhir:
+  # Generated synthetic population (default 5 patients); false starts empty
+  generate:
+    patients: 5
+    seed: 1
   resources:
     - resourceType: Patient
       id: synthetic-patient-1

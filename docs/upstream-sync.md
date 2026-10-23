@@ -49,6 +49,7 @@ These diverge from upstream on purpose and are where conflicts are most likely:
 | `pnpm-workspace.yaml`                     | Adds `packages/@emuhealth/*`                      |
 | `packages/emuhealth/tsup.config.ts`, `package.json` | Bundles `@emuhealth/*` into the CLI ([decision 0008](decisions/0008-fhir-core-design.md)) |
 | `emulate.config.example.yaml`             | `fhir` section                                    |
+| `THIRD_PARTY_NOTICES.md`                  | Clinical terminology attribution ([decision 0009](decisions/0009-synthetic-patient-generator.md)) |
 | `scripts/*.mjs`                           | Package name and version sync targets             |
 | `AGENTS.md`                               | Fork rules, CLI name, release process             |
 | `CHANGELOG.md`                            | emuhealth entries above emulate's history; upstream's new entries go below the "emulate's own history" line |

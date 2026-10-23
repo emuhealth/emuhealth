@@ -18,3 +18,4 @@ Rules:
 | [0006](0006-repository-protections.md) | Repository protections           | Accepted |
 | [0007](0007-branded-config-and-env-names.md) | Branded config and environment names | Accepted |
 | [0008](0008-fhir-core-design.md) | fhir-core package design | Accepted |
+| [0009](0009-synthetic-patient-generator.md) | Synthetic patient generator | Accepted |

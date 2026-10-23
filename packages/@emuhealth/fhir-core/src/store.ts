@@ -122,6 +122,12 @@ export class FhirStore {
     return this.write(type, id, body, "POST");
   }
 
+  /** Remove every resource and version. */
+  clear(): void {
+    this.resources.clear();
+    this.history.clear();
+  }
+
   /** The current resource, or undefined when it is unknown or deleted. Never throws. */
   find(type: string, id: string): FhirResource | undefined {
     const record = this.current(type, id);

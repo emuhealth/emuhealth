@@ -8,6 +8,8 @@ A stateful FHIR R4 (4.0.1) server for developing and testing health apps. It run
 npx emuhealth --service fhir
 ```
 
+The server starts with 5 generated synthetic patients, each with encounters, vital signs, conditions, medications, labs, allergies, and immunizations, so you can read and search right away (`GET /Patient`).
+
 ## Resources
 
 The FHIR base URL is the server root. All responses use `application/fhir+json`.
@@ -113,9 +115,25 @@ History supports `_count` and `_since`. Deleted versions appear as entries with 
 
 Errors are `OperationOutcome` resources with a matching status: `400` for invalid input, `404` for unknown ids, resource types, or paths that are not FHIR interactions, `410` for deleted resources, `412` for version conflicts, `415` for unsupported content types, and `422` when a JSON Patch `test` fails.
 
+## Synthetic patients
+
+A built-in generator creates a deterministic synthetic population: the same options always produce the same records, with readable ids like `Patient/syn-patient-001`. Each patient gets Encounters, vital sign Observations (heart rate, respiratory rate, temperature, oxygen saturation, blood pressure, height, weight), Conditions with matching MedicationRequests and labs (HbA1c, cholesterol), sometimes an AllergyIntolerance, and Immunizations. One Organization and two Practitioners are shared.
+
+Everything generated is tagged `urn:emuhealth:tag|synthetic`, uses `urn:emuhealth:synthetic:*` identifiers and fictional 555-01xx phone numbers, and codes from ICD-10-CM, RxNorm, CVX, and a small set of LOINC codes.
+
+```yaml
+fhir:
+  generate:
+    patients: 25 # 0 to 1000, default 5
+    seed: 42 # default 1
+    referenceDate: "2026-01-01" # ages and dates are relative to this, default 2026-01-01
+```
+
+Set `generate: false` to start with an empty server. Resetting the emulator restores the configured population.
+
 ## Seed config
 
-Load synthetic resources at startup. Resources with an `id` keep it; others get a server-assigned id.
+Load synthetic resources at startup, on top of the generated population. Resources with an `id` keep it; others get a server-assigned id.
 
 ```yaml
 fhir:
