@@ -4,6 +4,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",
+  availity: "Availity",
   stedi: "Stedi",
   azurehealth: "Azure Health Data Services",
   gcphealthcare: "Google Cloud Healthcare API",

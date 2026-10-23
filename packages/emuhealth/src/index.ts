@@ -166,6 +166,13 @@ Stedi:
   Payers SYN01 and SYN02; members SYNM000001 and up from the synthetic patients. Claims are paid at once with an 835.
   Docs: https://www.emuhealth.dev/docs/stedi
 
+Availity:
+  'npx emuhealth --service availity' serves Availity APIs at http://localhost:4118/availity.
+  POST /availity/v1/token (client_credentials, scope hipaa) for a 5 minute Bearer token.
+  POST /availity/v1/coverages (form) and GET /availity/v1/claim-statuses start inquiries; GET .../{id} polls until statusCode 4.
+  /availity/v2/service-reviews (278), /availity/availity-payer-list, /availity/v1/configurations; X-Api-Mock-Scenario-ID mocks.
+  Docs: https://www.emuhealth.dev/docs/availity
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

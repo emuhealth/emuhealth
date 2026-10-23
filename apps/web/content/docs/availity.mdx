@@ -1,0 +1,53 @@
+---
+title: "Availity"
+---
+
+An emulator of the [Availity](https://www.availity.com) HIPAA transaction APIs for apps that check coverage, follow claim status, and request prior authorizations through Availity. It runs on `http://localhost:4118` by default under `/availity`, with synthetic payers, members, and claims. emuhealth is not affiliated with Availity.
+
+```bash
+npx emuhealth --service availity
+TOKEN=$(curl -s http://localhost:4118/availity/v1/token -d grant_type=client_credentials \
+  -d client_id=my-app -d client_secret=my-secret -d scope=hipaa | jq -r .access_token)
+curl -X POST http://localhost:4118/availity/v1/coverages -H "Authorization: Bearer $TOKEN" \
+  -d payerId=SYNAV1 -d providerNpi=0000000016 -d memberId=AVM0000001 -d serviceType=30
+```
+
+The emulator follows the paths, asynchronous flow, status codes, and Demo plan scenarios in Availity's public API guide. Availity's full response schemas are only available to registered developers, so response bodies carry the documented fields (`id`, `statusCode`, `status`, payer, subscriber, plans, benefits, validation messages) in a reasonable shape rather than an exact copy. Treat it as a stand-in for the Demo plan, not a contract test.
+
+## Authentication
+
+`POST /availity/v1/token` with `grant_type=client_credentials` (client id and secret as Basic auth or form fields, `scope=hipaa`) returns a Bearer token that lasts 5 minutes, as on Availity. Other requests need it, or get `401`.
+
+## Payers and configurations
+
+`GET /availity/availity-payer-list` lists two synthetic payers, `SYNAV1` (Synthetic Commercial Health, accepts 270, 276, and 278) and `SYNAV2` (Synthetic Medicaid Plan, 270 and 276), filtered by `payerId` and `transactionType`. `GET /availity/v1/configurations?type=270` (or `claim-statuses-inquiry`, `service-reviews`) describes the request fields per payer.
+
+## Coverages
+
+Coverages (270/271) are asynchronous, as on Availity:
+
+1. `POST /availity/v1/coverages` with form fields `payerId`, `providerNpi`, and `memberId` (or `patientLastName` and `patientBirthDate`), plus `serviceType` and `asOfDate`, returns `202` with an `id` and `statusCode: "0"` (In Progress).
+2. Poll `GET /availity/v1/coverages/{id}`. It answers `202` In Progress for `pollsUntilComplete` polls (default 1), then `200` with `statusCode: "4"` (Complete), the subscriber, and plans with deductible, co-payment, co-insurance, and out-of-pocket benefits. An unknown member completes with `statusCode: "6"` (Rejection Error) and validation message `75`.
+
+Missing fields return `400` with `errors[{ field, errorMessage }]`. `GET /availity/v1/coverages` lists inquiries, and `DELETE /availity/v1/coverages/{id}` removes one.
+
+## Claim statuses
+
+`GET /availity/v1/claim-statuses?payerId=&providerNpi=&memberId=&fromDate=&toDate=` starts a 276/277 inquiry and returns its id; poll `GET /availity/v1/claim-statuses/{id}` the same way. The result lists the member's synthetic claims (one per generated encounter) with category `F1` and status `65`, or `A4` when nothing matches.
+
+## Service reviews
+
+`POST /availity/v2/service-reviews` with a JSON 278 request (`payer.id`, request and service type codes, dates, diagnoses, procedures) returns `202` with a `Location` header. `GET` that location to read the review: `Approved` with status code `A1` and a certification number, `updatable` and `deletable` true. `DELETE /availity/v2/service-reviews/{id}` voids it, and `GET /availity/v2/service-reviews` lists reviews. Payers that do not take 278 return `400`.
+
+## Demo plan scenarios
+
+Send `X-Api-Mock-Scenario-ID` to get Availity's canned Demo plan responses instead: `Coverages-Complete-i` (200), `Coverages-InProgress-i` (202), `Coverages-Retrying-i` (202, `statusCode: "R1"`), `Coverages-RequestError1-i` (400), `SR-CreateRequestAccepted-i` (202), `SR-GetComplete-i` (200), `SR-GetPayerDown-i` (504), and `SR-GetRetrying-i` (202). Mock responses carry `X-Api-Mock-Response: true`.
+
+## Seed config
+
+```yaml
+availity:
+  generate:
+    patients: 5 # members AVM0000001 and up, with a claim per encounter
+  pollsUntilComplete: 1 # 0 to 10
+```
