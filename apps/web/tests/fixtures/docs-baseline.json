@@ -231,6 +231,13 @@
       "ogTitle": "Google Cloud Healthcare API | emuhealth",
       "headings": ["Authentication", "Datasets and FHIR stores", "FHIR API", "Seed config"]
     },
+    "/docs/azurehealth": {
+      "title": "Azure Health Data Services | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/azurehealth",
+      "ogTitle": "Azure Health Data Services | emuhealth",
+      "headings": ["FHIR services", "Entra ID tokens", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

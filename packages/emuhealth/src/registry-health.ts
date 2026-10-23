@@ -19,6 +19,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "redox",
   "healthlake",
   "gcphealthcare",
+  "azurehealth",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -376,6 +377,33 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
               {
                 id: "synthetic-fhir-store",
                 enableUpdateCreate: true,
+                preload: true,
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+  azurehealth: {
+    label: "Azure Health Data Services emulator (FHIR services)",
+    endpoints:
+      "FHIR services per workspace at /{workspace}-{fhirservice} (the path form of {workspace}-{fhirservice}.fhir.azurehealthcareapis.com), each a full FHIR R4 server; Entra ID Bearer tokens required (public metadata), verified against an issuer's JWKS such as the emuhealth Microsoft emulator when azurehealth.entra is set; inspector at /_inspector",
+    async load() {
+      const mod = await import("@emuhealth/azurehealth");
+      return { plugin: mod.azurehealthPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "azurehealth-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      azurehealth: {
+        workspaces: [
+          {
+            name: "synthetic",
+            fhirServices: [
+              {
+                name: "fhir",
                 preload: true,
               },
             ],

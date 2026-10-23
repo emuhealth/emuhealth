@@ -577,6 +577,23 @@ describe("Microsoft plugin integration", () => {
     expect(body.id_token).toBeUndefined();
   });
 
+  it("issues a signed JWT for a non-Graph resource (emuhealth)", async () => {
+    const res = await app.request(`${base}/oauth2/v2.0/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: "test-client",
+        client_secret: "test-secret",
+        scope: "http://localhost:4116/synthetic-fhir/.default",
+      }).toString(),
+    });
+    const token = ((await res.json()) as { access_token: string }).access_token;
+    const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
+    expect(payload).toMatchObject({ aud: "http://localhost:4116/synthetic-fhir", appid: "test-client", ver: "2.0" });
+    expect(payload.iss).toMatch(/\/v2\.0$/);
+  });
+
   it("rejects client_credentials with wrong secret", async () => {
     const formData = new URLSearchParams({
       grant_type: "client_credentials",

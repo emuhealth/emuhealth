@@ -185,6 +185,16 @@ describe("createEmulator", () => {
     await gcp.close();
   });
 
+  it("starts the Azure Health Data Services emulator", async () => {
+    const azure = await createEmulator({ service: "azurehealth", port: 14035 });
+    expect((await fetch(`${azure.url}/synthetic-fhir/Patient`)).status).toBe(401);
+    const res = await fetch(`${azure.url}/synthetic-fhir/Patient/syn-patient-001`, {
+      headers: { Authorization: "Bearer t" },
+    });
+    expect(res.status).toBe(200);
+    await azure.close();
+  });
+
   it("reset wipes and re-seeds stores", async () => {
     const github = await createEmulator({
       service: "github",

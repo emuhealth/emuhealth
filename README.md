@@ -53,6 +53,7 @@ Health and life science services use a fixed range starting at `http://localhost
 - **Redox** on `http://localhost:4113` (API key and OAuth authentication, `POST /endpoint` for Redox JSON data models such as PatientSearch, ClinicalSummary, PatientAdmin, Scheduling, and Results with Redox's `Meta.Errors`, and EHR events delivered to your destinations with the `verification-token` header and Redox's challenge handshake, over synthetic records)
 - **AWS HealthLake** on `http://localhost:4114` (the HealthLake control plane for FHIR datastores and import and export jobs, and a FHIR R4 data plane per datastore at `/datastore/{id}/r4`, with real SigV4 signature checks so the AWS SDKs and CLI work against it; starts with one datastore preloaded with synthetic data)
 - **Google Cloud Healthcare API** on `http://localhost:4115` (datasets and FHIR stores under `/v1/projects/{project}/locations/{location}`, with long-running operations and Google error shapes, and a FHIR R4 API per store that honors `enableUpdateCreate`; starts with a preloaded synthetic FHIR store)
+- **Azure Health Data Services** on `http://localhost:4116` (FHIR services per workspace at `/{workspace}-{fhirservice}`, each a full FHIR R4 server, behind Entra ID Bearer tokens that are verified against the emuhealth Microsoft emulator, or any issuer, when `azurehealth.entra` is set; starts with `synthetic-fhir`, preloaded)
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 

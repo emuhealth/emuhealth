@@ -39,6 +39,7 @@ export const docsSections: NavSection[] = [
       { name: "Redox", href: "/docs/redox" },
       { name: "AWS HealthLake", href: "/docs/healthlake" },
       { name: "Google Cloud Healthcare API", href: "/docs/gcphealthcare" },
+      { name: "Azure Health Data Services", href: "/docs/azurehealth" },
     ],
   },
   {
