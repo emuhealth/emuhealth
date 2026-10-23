@@ -43,6 +43,14 @@ FHIR R4:
   Backend Services: client_credentials with a private_key_jwt assertion for clients registered with jwks or jwks_uri.
   Docs: https://www.emuhealth.dev/docs/fhir
 
+Epic:
+  'npx emuhealth --service epic' serves the FHIR R4 server the way Epic does, at http://localhost:4101/api/FHIR/R4.
+  OAuth 2.0 at /oauth2/authorize and /oauth2/token; token responses with a patient add __epic.dstu2.patient.
+  Empty searches return Epic's informational OperationOutcome (code 4101) in the Bundle.
+  POST /api/FHIR/R4/Appointment/$find and /Appointment/$book schedule into generated Slots (epic.scheduling).
+  Configure it under epic with the same keys as fhir (generate, resources, smart, terminology).
+  Docs: https://www.emuhealth.dev/docs/epic
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

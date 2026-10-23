@@ -1,4 +1,7 @@
-const services = [{ name: "fhir", port: 4100, note: "FHIR R4" }];
+const services = [
+  { name: "fhir", port: 4100, note: "FHIR R4" },
+  { name: "epic", port: 4101, note: "Epic" },
+];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {
   return (

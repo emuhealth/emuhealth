@@ -23,3 +23,4 @@ Rules:
 | [0011](0011-terminology-fixtures.md) | Terminology fixtures | Accepted |
 | [0012](0012-delegated-merge-and-release-approval.md) | Delegated merge and release approval | Accepted |
 | [0013](0013-inferno-acceptance-gate.md) | Inferno acceptance gate | Accepted |
+| [0014](0014-vendor-layers-over-fhir-core.md) | Vendor layers over fhir-core | Accepted |

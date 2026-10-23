@@ -1,0 +1,74 @@
+---
+title: "Epic"
+---
+
+An emulator of the Epic FHIR R4 API for developing and testing apps that will connect to Epic. It runs on `http://localhost:4101` by default and serves the full [FHIR R4](/docs/fhir) server under Epic's URL shape, with the same generated synthetic patients. emuhealth is not affiliated with Epic, and the emulator holds synthetic data only.
+
+```bash
+npx emuhealth --service epic
+```
+
+## URLs
+
+| What | URL |
+|------|-----|
+| FHIR base | `http://localhost:4101/api/FHIR/R4` |
+| Authorize | `http://localhost:4101/oauth2/authorize` |
+| Token | `http://localhost:4101/oauth2/token` |
+| Introspect, revoke | `http://localhost:4101/oauth2/introspect`, `/oauth2/revoke` |
+| SMART discovery | `http://localhost:4101/api/FHIR/R4/.well-known/smart-configuration` |
+| EHR launch simulator | `http://localhost:4101/api/FHIR/R4/auth/launch?launch_uri=<your app launch URL>` |
+| Inspector | `http://localhost:4101/_inspector` |
+
+Point your app's FHIR base URL at `http://localhost:4101/api/FHIR/R4` and it discovers the OAuth endpoints from `.well-known/smart-configuration`. Everything else in the [FHIR R4 docs](/docs/fhir) applies under that base: search, Bundles, `$everything`, Bulk Data `$export`, terminology, and the SMART behavior.
+
+## OAuth 2.0
+
+SMART App Launch (standalone and EHR launch, PKCE, v1 and v2 scopes, `openid fhirUser`) and SMART Backend Services work as on the [FHIR R4 server](/docs/fhir#smart-app-launch), at Epic's paths. When a token has a patient in context, the token response carries it twice, as `patient` and as `__epic.dstu2.patient`, the way Epic does:
+
+```json
+{
+  "access_token": "...",
+  "token_type": "Bearer",
+  "scope": "launch patient/*.rs",
+  "patient": "syn-patient-002",
+  "__epic.dstu2.patient": "syn-patient-002"
+}
+```
+
+## Search behavior
+
+A search with no matches returns a `searchset` Bundle with `total: 0` and one entry: an informational OperationOutcome with `search.mode: outcome` and Epic's detail code `4101` ("Resource request returns no results."). Clients written against Epic often check for it, so it is there locally too.
+
+## Scheduling
+
+The emulator seeds a Schedule for each practitioner and 30 minute Slots from 09:00 to 16:00 UTC on weekdays, starting today, for 10 weekdays.
+
+- `POST /api/FHIR/R4/Appointment/$find` takes a `Parameters` resource with `patient` (a reference or id), `startTime`, and `endTime`, and returns a Bundle of proposed Appointments, one per free Slot (up to 50).
+- `POST /api/FHIR/R4/Appointment/$book` takes `appointment` (one of the proposed Appointments, or its id as `valueString`), plus `patient` when the appointment does not name one, and an optional `appointmentNote`. It stores a `booked` Appointment and marks the Slot `busy`. Booking a taken Slot returns `409`.
+
+```bash
+curl -X POST http://localhost:4101/api/FHIR/R4/Appointment/\$find \
+  -H 'Content-Type: application/fhir+json' \
+  -d '{"resourceType":"Parameters","parameter":[
+        {"name":"patient","valueReference":{"reference":"Patient/syn-patient-001"}},
+        {"name":"startTime","valueDateTime":"2026-11-02T09:00:00Z"},
+        {"name":"endTime","valueDateTime":"2026-11-02T12:00:00Z"}]}'
+```
+
+SMART scopes apply: `$find` needs search access to Appointment and `$book` needs create access, and a `patient/` token can only schedule its own patient.
+
+## Seed config
+
+The `epic` key takes the same options as `fhir` (`generate`, `resources`, `smart`, `terminology`), plus `scheduling`:
+
+```yaml
+epic:
+  smart:
+    clients:
+      - client_id: my-epic-app
+        redirect_uris: ["http://localhost:3000/callback"]
+  scheduling:
+    startDate: "2026-11-02" # first day with slots, default today
+    days: 10 # weekdays with slots, 0 to 60
+```
