@@ -269,6 +269,13 @@ Prior Authorization:
   Rules by HCPCS: E0601 CPAP (pended), E1390 oxygen (approved), K0001 wheelchair (no PA), E0260 hospital bed (denied).
   Docs: https://www.emuhealth.dev/docs/priorauth
 
+IHE XDS and XCA:
+  'npx emuhealth --service xds' serves IHE XDS.b and XCA over SOAP 1.2 at http://localhost:4130.
+  ITI-41 and ITI-43 at /xds/repository, ITI-18 (FindDocuments, GetDocuments, GetSubmissionSets) and ITI-42 at
+  /xds/registry, XCA ITI-38 and ITI-39 at /xca/query and /xca/retrieve. MTOM requests get MTOM responses.
+  Patient ids are the FHIR MRNs with the emulator's assigning authority; xds.patientIds accepts more.
+  Docs: https://www.emuhealth.dev/docs/xds
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

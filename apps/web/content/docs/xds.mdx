@@ -1,0 +1,69 @@
+---
+title: "IHE XDS and XCA"
+---
+
+An emulator of IHE document sharing for apps and HIEs that exchange clinical documents over SOAP. It runs on `http://localhost:4130` and serves an XDS.b Document Registry and Document Repository and an XCA Responding Gateway, with synthetic text documents for each person of the [shared population](/docs/configuration#shared-population).
+
+```bash
+npx emuhealth --service xds
+```
+
+## Endpoints
+
+Every endpoint takes SOAP 1.2 with WS-Addressing (`Action` and `MessageID` headers; responses carry `RelatesTo`), plain or MTOM/XOP. A request sent as MTOM gets an MTOM response, with retrieved documents as attachments.
+
+| Endpoint | Transactions |
+| --- | --- |
+| `POST /xds/repository` | ITI-41 Provide and Register Document Set-b, ITI-43 Retrieve Document Set |
+| `POST /xds/registry` | ITI-18 Registry Stored Query, ITI-42 Register Document Set-b |
+| `POST /xca/query` | ITI-38 Cross Gateway Query |
+| `POST /xca/retrieve` | ITI-39 Cross Gateway Retrieve |
+
+Each endpoint accepts any of these actions; the paths are there to match how registries, repositories, and gateways are configured. An unknown action or a malformed envelope returns a SOAP Fault with code `Sender`.
+
+`GET /documents` lists the documents as JSON, `GET /documents/{uniqueId}` returns one document's content, and `/_inspector` shows documents and submission sets.
+
+## Identifiers
+
+- Patient ids are the population's MRNs with the emulator's assigning authority, such as `SYN-000001^^^&2.25.211144934573491648823315826212385512893&ISO`. Submissions for other patients fail with `XDSUnknownPatientId`; add ids with `xds.patientIds`.
+- The repository unique id is `2.25.106212425219263453271339394582217123742`, and the home community id is `urn:oid:2.25.338474659226574913810834289214564431301`.
+- Identifiers use the `2.25` (UUID) OID arc, so they cannot collide with assigned OIDs.
+
+## Stored queries
+
+| Query | Id | Parameters |
+| --- | --- | --- |
+| FindDocuments | `urn:uuid:14d4debf-8f97-4251-9a74-a90016b0af0d` | `$XDSDocumentEntryPatientId` and `$XDSDocumentEntryStatus` (required); `$XDSDocumentEntryClassCode`, `$XDSDocumentEntryTypeCode`, `$XDSDocumentEntryCreationTimeFrom`, `$XDSDocumentEntryCreationTimeTo` |
+| GetDocuments | `urn:uuid:5c4f972b-d56b-40ac-a5fc-c8ca9b40b9d4` | `$XDSDocumentEntryEntryUUID` or `$XDSDocumentEntryUniqueId` |
+| GetSubmissionSets | `urn:uuid:51224314-5390-4169-9b91-b1980040715a` | `$uuid` (DocumentEntry entryUUIDs) |
+
+`returnType="LeafClass"` returns ExtrinsicObjects with their slots, classifications (class, type, format, confidentiality, facility type, practice setting), and external identifiers. `ObjectRef` returns references only. XCA responses add `home` to every object, and a query for another community fails with `XDSUnknownCommunity`. Missing required parameters fail with `XDSStoredQueryParamNumber`, and other query ids with `XDSUnknownStoredQuery`.
+
+## Submitting documents
+
+ITI-41 takes a `ProvideAndRegisterDocumentSetRequest`: a `SubmitObjectsRequest` with DocumentEntries (ExtrinsicObject) and a SubmissionSet (RegistryPackage), and an `xdsb:Document` per entry, inline base64 or an `xop:Include` of an MTOM attachment. The repository computes size and hash. The whole submission fails, with an error per problem, for:
+
+- `XDSUnknownPatientId` or `XDSPatientIdDoesNotMatch`;
+- `XDSMissingDocument` for an entry without content;
+- `XDSRepositoryMetadataError` when a sent size or hash does not match;
+- `XDSDuplicateUniqueIdInRegistry` or `XDSNonIdenticalHash` for a unique id already registered;
+- `XDSRegistryMetadataError` for missing metadata.
+
+An `RPLC` association deprecates the document it replaces. ITI-42 registers metadata the same way, with size and hash given in the metadata.
+
+## Retrieving documents
+
+ITI-43 and ITI-39 take `DocumentRequest` entries with `RepositoryUniqueId` and `DocumentUniqueId` (and `HomeCommunityId` for XCA). The response has a `RegistryResponse` (`Success`, `PartialSuccess`, or `Failure` with `XDSUnknownRepositoryId`, `XDSDocumentUniqueIdError`, or `XDSUnknownCommunity`) and a `DocumentResponse` per found document.
+
+## Seed config
+
+```yaml
+xds:
+  generate:
+    patients: 5 # or false to start empty; the top-level population key also applies
+    seed: 1
+  patientIds:
+    - "SYN-900001^^^&2.25.211144934573491648823315826212385512893&ISO"
+```
+
+The documents are synthetic text notes. ATNA audit logging, TLS mutual authentication, XUA, and on-demand documents are not emulated.
