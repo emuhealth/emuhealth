@@ -30,6 +30,7 @@ const services = [
   { name: "veeva", port: 4126, note: "Veeva Vault" },
   { name: "rave", port: 4127, note: "Medidata Rave" },
   { name: "payer", port: 4128, note: "Payer APIs" },
+  { name: "priorauth", port: 4129, note: "Prior Authorization" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

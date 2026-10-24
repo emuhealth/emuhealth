@@ -322,6 +322,13 @@
       "ogTitle": "Payer APIs | emuhealth",
       "headings": ["Patient access", "Payer-to-payer", "Provider directory", "Seed config"]
     },
+    "/docs/priorauth": {
+      "title": "Prior Authorization | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/priorauth",
+      "ogTitle": "Prior Authorization | emuhealth",
+      "headings": ["Coverage rules", "Coverage Requirements Discovery", "Documentation Templates and Rules", "Prior Authorization Support"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

@@ -70,6 +70,7 @@ Health and life science services use a fixed range starting at `http://localhost
 A top-level `population` key (`patients`, `seed`, `referenceDate`) gives every patient-centric service the same synthetic people, from FHIR and the EHRs to payers, devices, the HL7 v2 registry, and Rave subjects. `population.scenarios` adds clinical stories (`diabetes-cgm`, `inpatient-stay`, `trial-adverse-event`) that every service shows for the same person. See [Configuration](https://www.emuhealth.dev/docs/configuration#shared-population).
 
 Every service can inject faults (latency, rate limits, outages, and expired tokens) from a `faults` seed key or at runtime with `PUT /_emulate/faults`, for testing retries and backoff. See [Configuration](https://www.emuhealth.dev/docs/configuration#fault-injection). A `record` key captures a session as NDJSON, and `npx emuhealth replay` checks it against a fresh emulator as a regression test.
+- **Prior Authorization** on `http://localhost:4129` (a synthetic payer's Da Vinci services: a CRD CDS service at `/cds-services` that adds coverage-information to draft orders, DTR `Questionnaire/$questionnaire-package` with SDC questionnaires, and PAS `Claim/$submit` and `Claim/$inquire` that approve, pend, or deny by HCPCS code)
 
 End-to-end examples, each with a test that runs the whole flow: a [SMART on FHIR app against Epic](examples/smart-on-fhir-epic), an [HL7 v2 feed into FHIR](examples/hl7v2-to-fhir), and an [incremental EDC sync from Rave](examples/rave-edc-sync).
 

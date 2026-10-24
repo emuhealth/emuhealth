@@ -262,6 +262,13 @@ Payer APIs:
   /directory: public, read-only Plan-Net provider directory.
   Docs: https://www.emuhealth.dev/docs/payer
 
+Prior Authorization:
+  'npx emuhealth --service priorauth' serves a synthetic payer's prior authorization services at http://localhost:4129.
+  CRD: GET /cds-services, POST /cds-services/coverage-requirements-order-sign with draftOrders and a coverage prefetch.
+  DTR: POST /fhir/Questionnaire/$questionnaire-package. PAS: POST /fhir/Claim/$submit and /fhir/Claim/$inquire.
+  Rules by HCPCS: E0601 CPAP (pended), E1390 oxygen (approved), K0001 wheelchair (no PA), E0260 hospital bed (denied).
+  Docs: https://www.emuhealth.dev/docs/priorauth
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

@@ -1,0 +1,56 @@
+---
+title: "Prior Authorization"
+---
+
+An emulator of a synthetic payer's [Da Vinci](https://www.hl7.org/about/davinci/) prior authorization services, for EHR and provider apps that build to the CMS Interoperability and Prior Authorization rule. It runs on `http://localhost:4129` with:
+
+- a [CRD](https://hl7.org/fhir/us/davinci-crd/) (Coverage Requirements Discovery) CDS service at `/cds-services`;
+- [DTR](https://hl7.org/fhir/us/davinci-dtr/) (Documentation Templates and Rules) questionnaire packages at `/fhir`;
+- [PAS](https://hl7.org/fhir/us/davinci-pas/) (Prior Authorization Support) `Claim/$submit` and `Claim/$inquire` at `/fhir`.
+
+```bash
+npx emuhealth --service priorauth
+curl http://localhost:4129/cds-services
+```
+
+It is not affiliated with any payer. The rules and decisions are synthetic.
+
+## Coverage rules
+
+Decisions come from rules keyed by HCPCS Level II codes, which are public:
+
+| HCPCS | Item | Prior auth | Documentation | PAS decision |
+| --- | --- | --- | --- | --- |
+| `E0601` | CPAP device | Required | Clinical, questionnaire `home-cpap` | Pended, then approved on inquiry |
+| `E1390` | Oxygen concentrator | Required | Clinical, questionnaire `home-oxygen` | Approved |
+| `K0001` | Standard wheelchair | Not required | None | Approved |
+| `E0260` | Semi-electric hospital bed | Required | Administrative, questionnaire `hospital-bed` | Denied |
+
+Other codes are treated as needing prior authorization, and a PAS request for them stays pended.
+
+## Coverage Requirements Discovery
+
+`GET /cds-services` lists `coverage-requirements-order-sign` and `coverage-requirements-order-select`, each asking for `patient` and `coverage` prefetch. `POST /cds-services/{id}` with `context.draftOrders` (DeviceRequest or ServiceRequest with an HCPCS code) and a coverage prefetch returns:
+
+- a `systemActions` entry per order that adds the CRD `ext-coverage-information` extension: `coverage`, `covered`, `pa-needed`, `doc-needed`, `questionnaire`, `date`, and `coverage-assertion-id`;
+- a card per order with the rule's note, and a link to the DTR questionnaire when documentation is needed.
+
+Without a coverage prefetch, the service answers with one warning card.
+
+## Documentation Templates and Rules
+
+`POST /fhir/Questionnaire/$questionnaire-package` with a Parameters body holding `coverage` and `order` resources (or `questionnaire` canonicals) returns a `PackageBundle` per questionnaire. The questionnaires prefill the patient's name and birth date with SDC `initialExpression` in FHIRPath. DTR's CQL libraries are not emulated.
+
+## Prior Authorization Support
+
+`POST /fhir/Claim/$submit` takes a PAS request Bundle whose Claim has `use: preauthorization` and an identifier. The response Bundle starts with a ClaimResponse:
+
+- `outcome`: `complete` when every item is approved, `queued` when one is pended, `error` when all are denied, and `partial` otherwise;
+- `preAuthRef` and `preAuthPeriod` when approved;
+- per item, an `urn:emuhealth:extension:priorauth-review-decision` extension (`approved`, `pended`, or `denied`).
+
+PAS conveys item decisions with X12 review action codes, which are licensed, so the emulator uses that stand-in extension instead.
+
+`POST /fhir/Claim/$inquire` with a Bundle holding a Claim with the same identifier returns the current decision. A pended request is decided at the inquiry. Claims and ClaimResponses are stored, so `GET /fhir/ClaimResponse` lists them.
+
+PAS Subscriptions for pended decisions are not emulated; inquire instead.
