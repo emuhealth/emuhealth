@@ -33,3 +33,4 @@ Rules:
 | [0021](0021-record-and-replay.md) | Record and replay | Accepted |
 | [0022](0022-fhir-subscriptions.md) | FHIR Subscriptions | Accepted |
 | [0023](0023-mcp-server.md) | MCP server | Accepted |
+| [0024](0024-stability-and-deprecation.md) | Stability and deprecation policy for 1.0 | Accepted |

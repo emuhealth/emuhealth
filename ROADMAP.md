@@ -160,9 +160,9 @@ Inferno test kits for these guides are the acceptance gates where they exist. NC
 
 ## Phase 13: 1.0
 
-- [ ] Stability policy decision record: config keys, ports, programmatic API, and seed format
-- [ ] Deprecation policy and upgrade guide
-- [ ] CONTRIBUTING guide for new emulators, SECURITY.md, and issue templates
+- [x] Stability policy decision record: config keys, ports, programmatic API, and seed format (PR pending)
+- [x] Deprecation policy and upgrade guide (PR pending)
+- [x] CONTRIBUTING guide for new emulators, SECURITY.md, and issue templates (PR pending)
 - [ ] Release 1.0.0
 
 Maintainer actions outside the roadmap: enable GitHub Discussions, record fixtures from vendor sandboxes that need accounts, and decide whether to host a public demo.

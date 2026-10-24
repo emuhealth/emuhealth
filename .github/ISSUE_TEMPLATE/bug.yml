@@ -1,0 +1,34 @@
+name: Bug report
+description: An emulator or the CLI does something wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Use synthetic data only. Never paste real patient data into an issue.
+  - type: input
+    id: version
+    attributes:
+      label: emuhealth version
+      placeholder: 0.9.0
+    validations:
+      required: true
+  - type: input
+    id: service
+    attributes:
+      label: Service
+      placeholder: fhir, epic, hl7v2, ...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Requests (curl or code), seed config, and what you ran.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected and what happened
+    validations:
+      required: true

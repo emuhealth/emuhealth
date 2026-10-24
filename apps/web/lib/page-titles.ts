@@ -3,6 +3,7 @@ export const PAGE_TITLES: Record<string, string> = {
   "programmatic-api": "Programmatic API",
   mcp: "MCP Server",
   testing: "Testing Guide",
+  upgrading: "Upgrading",
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",

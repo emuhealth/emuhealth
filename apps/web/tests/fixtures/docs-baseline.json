@@ -55,6 +55,13 @@
       "ogTitle": "Testing Guide | emuhealth",
       "headings": ["Vitest and Jest", "pytest and other languages", "Testcontainers", "In CI", "Patterns"]
     },
+    "/docs/upgrading": {
+      "title": "Upgrading | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/upgrading",
+      "ogTitle": "Upgrading | emuhealth",
+      "headings": ["What stays compatible", "Deprecations", "Upgrading to 1.0"]
+    },
     "/docs/programmatic-api": {
       "title": "Programmatic API | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
