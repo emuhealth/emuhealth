@@ -30,6 +30,7 @@ const GENERATOR_SERVICES = new Set([
   "terra",
   "hl7v2",
   "xds",
+  "payer",
 ]);
 
 export const POPULATION_SERVICES = [...GENERATOR_SERVICES, "rave"];
