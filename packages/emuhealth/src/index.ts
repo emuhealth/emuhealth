@@ -6,6 +6,7 @@ import { projectStartCommand } from "./commands/project-start.js";
 import { scaffoldCommand } from "./commands/scaffold.js";
 import { SYNTHETIC_DATA_NOTICE } from "./data-policy.js";
 import { brandedEnv } from "./env.js";
+import { replayCommand } from "./commands/replay.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -28,6 +29,10 @@ Shared population:
   A top-level population key (patients, seed, referenceDate) gives every patient-centric service the same people:
   the FHIR, EHR, payer, and device emulators, the HL7 v2 registry, and Rave EMU-101 subjects.
   population.scenarios adds stories to one person each: diabetes-cgm, inpatient-stay, trial-adverse-event.
+
+Record and replay:
+  record: true (or { path }) in a service's seed config captures its exchanges; GET /_emulate/recording returns
+  them as NDJSON. 'npx emuhealth replay <file> --service <name>' replays them against a fresh emulator.
 
 Fault injection:
   Any service takes faults (latency, rateLimit, outage, expiredTokens, paths) in its seed config, and
@@ -448,6 +453,21 @@ program
     try {
       if (opts.custom) scaffoldCommand(opts.custom, opts.config);
       else initCommand({ service: opts.service });
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command("replay <file>")
+  .description("Replay a recorded NDJSON session against a fresh emulator and report differing responses")
+  .requiredOption("-s, --service <service>", "Service to replay against")
+  .option("--seed <file>", "Seed config for the fresh emulator")
+  .option("--ignore <keys>", "Comma-separated JSON keys to ignore, besides timestamps and tokens")
+  .action(async (file, opts) => {
+    try {
+      await replayCommand(file, opts);
     } catch (error) {
       console.error(error instanceof Error ? error.message : error);
       process.exitCode = 1;

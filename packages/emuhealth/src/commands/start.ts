@@ -24,7 +24,8 @@ import {
   type PublishedGeneratedSecretsFile,
 } from "../generated-secrets-file.js";
 import { applyPopulation, validatePopulation } from "../population.js";
-import { validateFaults, withFaults, withoutFaults } from "../faults.js";
+import { validateFaults, withFaults, withoutCliKeys } from "../faults.js";
+import { validateRecord, withRecording } from "../recording.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -60,7 +61,7 @@ export interface PreparedService {
 
 type Tokens = Record<string, { login: string; id: number; scopes?: string[] }>;
 
-function loadSeedConfig(seedPath?: string): LoadResult | null {
+export function loadSeedConfig(seedPath?: string): LoadResult | null {
   if (seedPath) {
     const fullPath = resolve(seedPath);
     if (!existsSync(fullPath)) {
@@ -172,7 +173,8 @@ export function createPreparedServiceServer(preparedService: PreparedService, to
     : undefined;
   const fallbackUser = entry.defaultFallback(svcSeedConfig);
   const faults = validateFaults(svcSeedConfig?.faults, `${preparedService.svc}.faults`);
-  const server = createServer(withFaults(loadedSvc.plugin, faults), {
+  const record = validateRecord(svcSeedConfig?.record, `${preparedService.svc}.record`);
+  const server = createServer(withRecording(withFaults(loadedSvc.plugin, faults), record), {
     port,
     baseUrl,
     tokens,
@@ -191,7 +193,7 @@ export function seedPreparedService(
   const { loadedSvc, svcSeedConfig, baseUrl } = preparedService;
   loadedSvc.plugin.seed?.(store, baseUrl);
   if (svcSeedConfig && loadedSvc.seedFromConfig) {
-    loadedSvc.seedFromConfig(store, baseUrl, withoutFaults(svcSeedConfig), webhooks);
+    loadedSvc.seedFromConfig(store, baseUrl, withoutCliKeys(svcSeedConfig), webhooks);
   }
 }
 
