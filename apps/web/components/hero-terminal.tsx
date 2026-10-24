@@ -29,6 +29,7 @@ const services = [
   { name: "hl7v2", port: 4125, note: "HL7 v2 over MLLP" },
   { name: "veeva", port: 4126, note: "Veeva Vault" },
   { name: "rave", port: 4127, note: "Medidata Rave" },
+  { name: "payer", port: 4128, note: "Payer APIs" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

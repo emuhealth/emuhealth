@@ -31,6 +31,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "hl7v2",
   "veeva",
   "rave",
+  "payer",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -656,6 +657,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
             password: "synthetic-password",
           },
         ],
+      },
+    },
+  },
+  payer: {
+    label: "Payer interoperability API emulator (CARIN Blue Button, PDex, Plan-Net)",
+    endpoints:
+      "CMS patient access API with CARIN Blue Button Coverage and professional ExplanationOfBenefit at /fhir behind SMART (tokens required), PDex payer-to-payer Patient/$member-match with a system token, member clinical data and $everything, and a public read-only Plan-Net provider directory at /directory",
+    async load() {
+      const mod = await import("@emuhealth/payer");
+      return { plugin: mod.payerPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "payer-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      payer: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
       },
     },
   },

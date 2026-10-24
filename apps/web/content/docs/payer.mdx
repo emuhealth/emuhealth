@@ -1,0 +1,80 @@
+---
+title: "Payer APIs"
+---
+
+An emulator of a synthetic health plan's interoperability APIs, for apps and payers that build to the CMS interoperability rules. It runs on `http://localhost:4128` and serves:
+
+- the patient access API at `/fhir`, with members, Coverage, and claims shaped by the [CARIN Blue Button](https://hl7.org/fhir/us/carin-bb/) IG, plus the members' clinical records;
+- payer-to-payer exchange from the [Da Vinci PDex](https://hl7.org/fhir/us/davinci-pdex/) IG, starting with `Patient/$member-match`;
+- a public provider directory at `/directory`, shaped by the [Da Vinci PDex Plan-Net](https://hl7.org/fhir/us/davinci-pdex-plan-net/) IG.
+
+```bash
+npx emuhealth --service payer
+curl http://localhost:4128/directory/PractitionerRole?network=Organization/network-ppo
+```
+
+It is not affiliated with any payer, and every member, claim, and provider is synthetic.
+
+## Patient access
+
+`/fhir` is a full [FHIR R4 server](/docs/fhir) where every request needs a SMART token, as a CMS patient access API does. `/fhir/metadata` and `/fhir/.well-known/smart-configuration` stay open.
+
+- Members are the generated synthetic patients, each with a member id (`SYNM0000001` and onward) typed `MB`.
+- Each member has a Coverage (`coverage-syn-patient-001`) with `subscriberId`, group and plan classes, and the payer `Organization/syn-payer`.
+- Each finished encounter has a professional ExplanationOfBenefit with the `C4BB-ExplanationOfBenefit-Professional-NonClinician` profile: a unique claim id, care team, network status and received date supporting info, ICD-10-CM diagnoses, one HCPCS Level II line with submitted, eligible, and paid amounts, totals, and payment.
+- The members' Conditions, Observations, Encounters, medications, and other records are there too, for PDex.
+
+The default clients are `member-app` (a public app with redirect URI `http://localhost:3000/callback`) and `synthetic-new-payer` (a confidential client with secret `synthetic-new-payer-secret`). A member app signs in with SMART App Launch, and the sign in picks the member, so its token only sees that member's data.
+
+emuhealth does not bundle CPT, NUBC, or NDC codes, so institutional and pharmacy claims are not generated.
+
+## Payer-to-payer
+
+A new payer gets a system token with client credentials, then asks the old payer to match its member:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:4128/fhir/auth/token \
+  -d grant_type=client_credentials -d client_id=synthetic-new-payer \
+  -d client_secret=synthetic-new-payer-secret -d scope=system/*.read | jq -r .access_token)
+
+curl -X POST http://localhost:4128/fhir/Patient/\$member-match \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/fhir+json' \
+  -d @member-match.json
+```
+
+The `Parameters` body carries `MemberPatient` (name and birth date), `CoverageToMatch` (the member id as `subscriberId` or an identifier), and an active `Consent`.
+
+- One member matching the member id, birth date, and family name returns `MemberIdentifier` and `MemberId`.
+- No match or more than one returns `422`, as does a Consent that is not active.
+- A missing token returns `401`, and a token without a `system/` scope returns `403`.
+
+The new payer then reads the member's data with the same token, for example `GET /fhir/Patient/syn-patient-002/$everything` or Bulk Data `$export`.
+
+## Provider directory
+
+`/directory` is a public, read-only FHIR server with:
+
+- two networks (`network-ppo`, `network-hmo`) and the payer;
+- six provider groups with locations;
+- 24 practitioners with roles that carry the `network-reference` and `newpatients` extensions;
+- healthcare services, two insurance plans, a patient access Endpoint, and organization affiliations.
+
+Searches cover the Plan-Net parameters, such as `PractitionerRole?network=`, `?location=`, `?specialty=`, `InsurancePlan?administered-by=`, `?plan-type=`, `OrganizationAffiliation?participating-organization=`, and `Organization?type=ntwk`. Specialties are text only, since emuhealth does not bundle the NUCC taxonomy. Writes return `405`.
+
+## Seed config
+
+```yaml
+payer:
+  generate:
+    patients: 5
+    seed: 1
+  directory: true # false leaves the directory empty
+  smart:
+    clients:
+      - client_id: member-app
+        redirect_uris: ["http://localhost:3000/callback"]
+      - client_id: synthetic-new-payer
+        client_secret: synthetic-new-payer-secret
+```
+
+The payer also takes the FHIR server's `resources` and `import` keys.

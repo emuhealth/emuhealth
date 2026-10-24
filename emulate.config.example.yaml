@@ -712,3 +712,16 @@ rave:
   # Subjects per Prod environment; false starts without subjects
   generate:
     subjects: 8
+
+# Synthetic health plan: patient access (CARIN Blue Button), payer-to-payer (PDex), Plan-Net directory
+payer:
+  generate:
+    patients: 5
+    seed: 1
+  directory: true # false leaves the Plan-Net directory empty
+  smart:
+    clients:
+      - client_id: member-app
+        redirect_uris: ["http://localhost:3000/callback"]
+      - client_id: synthetic-new-payer
+        client_secret: synthetic-new-payer-secret

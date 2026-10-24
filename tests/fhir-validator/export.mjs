@@ -7,8 +7,11 @@ import { join } from "node:path";
 const [base = "http://localhost:4100", out = "fhir-out"] = process.argv.slice(2);
 mkdirSync(out, { recursive: true });
 
+// FHIR_TOKEN, when set, is sent as a bearer token (for servers that require one, such as the payer emulator).
+const auth = process.env.FHIR_TOKEN ? { Authorization: `Bearer ${process.env.FHIR_TOKEN}` } : {};
+
 async function get(url) {
-  const res = await fetch(url, { headers: { Accept: "application/fhir+json" } });
+  const res = await fetch(url, { headers: { Accept: "application/fhir+json", ...auth } });
   if (!res.ok) throw new Error(`GET ${url} returned ${res.status}: ${await res.text()}`);
   return res.json();
 }

@@ -315,6 +315,13 @@
       "ogTitle": "Medidata Rave | emuhealth",
       "headings": ["Authentication", "Studies and metadata", "Subjects", "Clinical data", "Audit records", "Importing data", "Synthetic data", "Seed config"]
     },
+    "/docs/payer": {
+      "title": "Payer APIs | emuhealth",
+      "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",
+      "ogImage": "/og/payer",
+      "ogTitle": "Payer APIs | emuhealth",
+      "headings": ["Patient access", "Payer-to-payer", "Provider directory", "Seed config"]
+    },
     "/docs/fhir": {
       "title": "FHIR R4 | emuhealth",
       "description": "Local, stateful API emulators for healthcare and life science development. FHIR, SMART on FHIR, EHRs, payers, and life science APIs, without PHI. Synthetic data only.",

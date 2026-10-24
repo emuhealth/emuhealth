@@ -1,0 +1,96 @@
+name: Payer conformance
+
+# Validates the payer emulator's data with the HL7 FHIR Validator against the CARIN Blue Button and Plan-Net IGs:
+# member data from the patient access API (/fhir) and the provider directory (/directory).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "packages/@emuhealth/payer/**"
+      - "packages/@emuhealth/fhir-core/**"
+      - "tests/fhir-validator/**"
+      - ".github/workflows/payer-validator.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VALIDATOR_VERSION: 6.10.4
+  PAYER: http://localhost:4128
+
+jobs:
+  validate:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: CARIN Blue Button (patient access)
+            path: /fhir
+            ig: hl7.fhir.us.carin-bb#2.2.0
+            token: true
+          - name: Plan-Net (provider directory)
+            path: /directory
+            ig: hl7.fhir.us.davinci-pdex-plan-net#1.2.0
+            token: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - name: Start emuhealth
+        run: |
+          node packages/emuhealth/dist/index.js start --service payer > emuhealth.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf "$PAYER/fhir/metadata" > /dev/null && exit 0; sleep 1; done
+          cat emuhealth.log
+          exit 1
+
+      - name: Save served resources
+        run: |
+          if [ "${{ matrix.token }}" = "true" ]; then
+            export FHIR_TOKEN=$(curl -sf -X POST "$PAYER/fhir/auth/token" -d grant_type=client_credentials \
+              -d client_id=synthetic-new-payer -d client_secret=synthetic-new-payer-secret -d 'scope=system/*.read' \
+              | node -pe 'JSON.parse(require("fs").readFileSync(0)).access_token')
+          fi
+          node tests/fhir-validator/export.mjs "$PAYER${{ matrix.path }}" fhir-out
+
+      - name: Download the validator
+        run: curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/$VALIDATOR_VERSION/validator_cli.jar"
+
+      - name: Validate
+        run: |
+          java -Xmx4g -jar validator_cli.jar fhir-out -version 4.0.1 -tx n/a -ig "${{ matrix.ig }}" \
+            -output validator-results.json > validator.log 2>&1 || true
+          tail -20 validator.log
+
+      - name: Check results
+        run: node tests/fhir-validator/check.mjs validator-results.json --min 50
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: payer-validator-${{ strategy.job-index }}
+          path: |
+            validator-results.json
+            validator.log
+            emuhealth.log
