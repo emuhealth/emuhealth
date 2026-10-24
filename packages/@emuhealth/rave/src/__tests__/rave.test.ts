@@ -201,3 +201,21 @@ describe("shared population", () => {
     });
   });
 });
+
+describe("trial-adverse-event scenario", () => {
+  it("logs a serious syncope for the linked subject", async () => {
+    const { generateStudies } = await import("../index.js");
+    const prod = generateStudies({ population: { scenarios: ["trial-adverse-event"] } }).find(
+      (s) => s.project === "EMU-101" && s.env === "Prod",
+    )!;
+    const ae = (key: string) =>
+      prod.subjects
+        .find((s) => s.key === key)!
+        .events.find((e) => e.eventOid === "LOGS")
+        ?.forms[0].groups.map((g) => g.items["AE.AETERM"]);
+    // syn-patient-003 is subject index 2, the first subject of the third site.
+    expect(ae(prod.subjects[2].key)).toEqual(["Syncope"]);
+    expect(prod.subjects[2].events.find((e) => e.eventOid === "LOGS")!.forms[0].groups[0].items["AE.AESER"]).toBe("Y");
+    expect(ae(prod.subjects[1].key)).toEqual(["Headache", "Nausea"]);
+  });
+});

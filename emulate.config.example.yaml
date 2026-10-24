@@ -385,6 +385,7 @@ twilio:
 # population:
 #   patients: 25
 #   seed: 42
+#   scenarios: [diabetes-cgm, inpatient-stay, trial-adverse-event]
 
 fhir:
   # FHIR version: 4.0.1 (R4, default), 4.3.0 (R4B), or 5.0.0 (R5)

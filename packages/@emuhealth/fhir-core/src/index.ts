@@ -79,6 +79,7 @@ export {
 } from "./version.js";
 export { toR5, recordsForVersion } from "./r5.js";
 export { syntheticPeople, type SyntheticPerson } from "./people.js";
+export { SCENARIOS, type ScenarioName, type ScenarioRequest } from "./scenarios.js";
 export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,

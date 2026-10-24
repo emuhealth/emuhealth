@@ -215,3 +215,20 @@ describe("shared population", () => {
     );
   });
 });
+
+describe("inpatient-stay scenario", () => {
+  it("adds the admission as a discharged visit", () => {
+    const { store } = startService();
+    seedFromConfig(store, base, { generate: { scenarios: ["inpatient-stay"] } });
+    const visits = store.getData<Map<string, Patient>>("hl7v2.patients")!.get("syn-patient-002")!.visits;
+    expect(visits).toEqual([
+      expect.objectContaining({
+        visitNumber: "V-002-INPT",
+        patientClass: "I",
+        status: "discharged",
+        location: "3W ward, room 312",
+      }),
+    ]);
+    expect(visits[0].admitted).toMatch(/^\d{14}$/);
+  });
+});

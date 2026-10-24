@@ -133,7 +133,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 - [x] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators ([#84](https://github.com/emuhealth/emuhealth/pull/84))
 - [ ] Load Synthea FHIR bundles as seed data (`fhir.import`)
-- [ ] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event`
+- [x] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` (PR pending)
 
 ## Phase 10: Failure testing
 

@@ -49,3 +49,25 @@ describe("shared population", () => {
     expect(() => validatePopulation({ people: 3 })).toThrow("unknown option people");
   });
 });
+
+describe("scenario packs through population", () => {
+  it("reaches FHIR, HL7 v2, and Rave from one key", async () => {
+    const seed = { population: { scenarios: ["inpatient-stay", "trial-adverse-event"] } };
+    const fhir = await createEmulator({ service: "fhir", port: 0, seed });
+    const hl7 = await createEmulator({ service: "hl7v2", port: 0, seed: { ...seed, hl7v2: { mllp: false } } });
+    const rave = await createEmulator({ service: "rave", port: 0, seed });
+    try {
+      const stay = (await (await fetch(`${fhir.url}/Encounter?class=IMP`)).json()) as any;
+      expect(stay.entry[0].resource.subject.reference).toBe("Patient/syn-patient-002");
+      const patient = (await (await fetch(`${hl7.url}/patients/syn-patient-002`)).json()) as any;
+      expect(patient.visits[0]).toMatchObject({ patientClass: "I", status: "discharged" });
+      const auth = { Authorization: `Basic ${Buffer.from("rws.synthetic:synthetic-password").toString("base64")}` };
+      const ae = await (
+        await fetch(`${rave.url}/RaveWebServices/studies/EMU-101(Prod)/datasets/regular/AE`, { headers: auth })
+      ).text();
+      expect(ae).toContain('ItemOID="AE.AETERM" Value="Syncope"');
+    } finally {
+      await Promise.all([fhir.close(), hl7.close(), rave.close()]);
+    }
+  });
+});

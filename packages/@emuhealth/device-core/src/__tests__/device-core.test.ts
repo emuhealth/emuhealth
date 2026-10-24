@@ -80,3 +80,16 @@ describe("OAuth authorization code flow", () => {
     ).toBe(400);
   });
 });
+
+describe("diabetes-cgm scenario", () => {
+  it("gives the scenario's person a diabetic glucose curve", () => {
+    const users = deviceUsers({ scenarios: ["diabetes-cgm"] });
+    expect(users.map((u) => u.glucoseProfile)).toEqual(["diabetic", "typical", "typical", "typical", "typical"]);
+    const day = Date.parse("2026-01-10T00:00:00Z");
+    const mean = (u: (typeof users)[number]) => {
+      const series = glucoseSeries(u, day, day + 86_400_000);
+      return series.reduce((sum, r) => sum + r.value, 0) / series.length;
+    };
+    expect(mean(users[0])).toBeGreaterThan(mean(users[1]) + 40);
+  });
+});

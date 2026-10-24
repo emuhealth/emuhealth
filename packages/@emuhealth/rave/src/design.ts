@@ -183,7 +183,14 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
     throw new Error("rave.generate.subjects must be an integer from 0 to 500");
   const seed = options.seed ?? "emuhealth";
   // Person n is the same whatever the total, so generating `count` people lines up with any larger population.
-  const people = count > 0 ? syntheticPeople({ ...options.population, patients: count }) : [];
+  // Scenarios can name any person of the population, so generate at least the whole population.
+  const people =
+    count > 0
+      ? syntheticPeople({
+          ...options.population,
+          patients: Math.max(count, options.population?.patients ?? 5),
+        }).slice(0, count)
+      : [];
   const out: StudyEnv[] = [];
   STUDIES.forEach((study, s) => {
     for (const env of ["Prod", "UAT"]) {
@@ -269,7 +276,11 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
               },
             ],
           });
-        if (i % 3 === 1)
+        // The trial-adverse-event scenario: a serious syncope on the linked person's AE log.
+        const serious = linked?.scenarios.includes("trial-adverse-event")
+          ? [{ "AE.AETERM": "Syncope", "AE.AESTDAT": day(30), "AE.AESEV": "SEVERE", "AE.AESER": "Y" }]
+          : [];
+        if (i % 3 === 1 || serious.length)
           events.push({
             eventOid: "LOGS",
             repeatKey: "1",
@@ -277,17 +288,16 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
               {
                 formOid: "AE",
                 repeatKey: "1",
-                modified: `${day(20)}T15:00:00`,
+                modified: `${day(serious.length ? 30 : 20)}T15:00:00`,
                 groups: [
-                  {
-                    repeatKey: "1",
-                    items: { "AE.AETERM": "Headache", "AE.AESTDAT": day(18), "AE.AESEV": "MILD", "AE.AESER": "N" },
-                  },
-                  {
-                    repeatKey: "2",
-                    items: { "AE.AETERM": "Nausea", "AE.AESTDAT": day(20), "AE.AESEV": "MODERATE", "AE.AESER": "N" },
-                  },
-                ],
+                  ...(i % 3 === 1
+                    ? [
+                        { "AE.AETERM": "Headache", "AE.AESTDAT": day(18), "AE.AESEV": "MILD", "AE.AESER": "N" },
+                        { "AE.AETERM": "Nausea", "AE.AESTDAT": day(20), "AE.AESEV": "MODERATE", "AE.AESER": "N" },
+                      ]
+                    : []),
+                  ...serious,
+                ].map((items, k) => ({ repeatKey: String(k + 1), items })),
               },
             ],
           });
