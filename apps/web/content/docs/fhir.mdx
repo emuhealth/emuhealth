@@ -53,7 +53,7 @@ curl 'http://localhost:4100/Patient?_id=synthetic-patient-1&_revinclude=Observat
 
 ## Conditional interactions
 
-Each interaction matches with a search that respects the request's SMART access. More than one match returns `412` with issue code `multiple-matches`.
+Each interaction matches with a search that respects the request's SMART access. More than one match returns `412` with issue code `multiple-matches`. Criteria the server does not support return `400` instead of being ignored, since an ignored criterion would match every resource. Every type that has identifiers supports `identifier`.
 
 - **Create**: `POST /:type` with an `If-None-Exist: identifier=system|value` header creates the resource only when nothing matches. When one resource matches, it is returned with `200` and nothing is created.
 - **Update**: `PUT /:type?<criteria>` updates the one match. With no match, it creates the resource, keeping the `id` from the body if there is one. An `id` that differs from the match returns `400`.

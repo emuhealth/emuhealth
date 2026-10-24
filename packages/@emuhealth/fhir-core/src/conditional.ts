@@ -1,4 +1,5 @@
 import { FhirError } from "./outcome.js";
+import { parseSearch } from "./search.js";
 import type { GuardedOperations } from "./operations.js";
 import type { FhirResource, WriteResult } from "./store.js";
 
@@ -13,8 +14,14 @@ export function criteria(query: string): Array<[string, string]> {
 }
 
 /** The ids of the resources the criteria match. */
+/** Unknown criteria would be ignored by a search and match everything, so conditional criteria are strict. */
+export function assertKnownCriteria(type: string, params: Array<[string, string]>): void {
+  parseSearch(type, params, { strict: true });
+}
+
 export function matchIds(search: SearchFn, type: string, params: Array<[string, string]>): string[] {
   if (params.length === 0) throw new FhirError(400, "required", "A conditional interaction needs search criteria");
+  assertKnownCriteria(type, params);
   const bundle = search(type, params) as FhirResource & {
     total?: number;
     entry?: Array<{ resource: FhirResource; search?: { mode?: string } }>;
