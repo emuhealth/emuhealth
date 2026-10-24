@@ -1,0 +1,133 @@
+---
+title: "Testing Guide"
+---
+
+emuhealth is built to run inside test suites: each test run starts emulators with known synthetic data, resets them between tests, and stops them at the end. This page shows the common setups.
+
+## Vitest and Jest
+
+`createEmulator` starts a service in the test process. Port `0` picks a free port, so suites can run in parallel:
+
+```typescript
+// fhir.test.ts
+import { afterAll, afterEach, beforeAll, expect, test } from "vitest";
+import { createEmulator, type Emulator } from "emuhealth";
+
+let fhir: Emulator;
+
+beforeAll(async () => {
+  fhir = await createEmulator({
+    service: "fhir",
+    port: 0,
+    seed: { fhir: { generate: { patients: 10, seed: 42 } } },
+  });
+});
+afterEach(() => fhir.reset()); // back to the seed after every test
+afterAll(() => fhir.close());
+
+test("lists the generated patients", async () => {
+  const bundle = await (await fetch(`${fhir.url}/Patient?_summary=count`)).json();
+  expect(bundle.total).toBe(10);
+});
+```
+
+The same code works in Jest. Start several services at once with `Promise.all`, and pass their `url` to the code under test through environment variables or its config. See [Programmatic API](/docs/programmatic-api) for every option.
+
+## pytest and other languages
+
+Any language can run the CLI as a subprocess and read the URLs from its start banner, which ends with `Ready.`:
+
+```python
+# conftest.py
+import re
+import subprocess
+
+import pytest
+
+
+@pytest.fixture(scope="session")
+def emuhealth():
+    process = subprocess.Popen(
+        ["npx", "emuhealth", "start", "--service", "fhir,hl7v2", "--port", "14000"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    urls = {}
+    for line in process.stdout:
+        match = re.match(r"^  ([a-z0-9-]+)  (https?://\S+)", line)
+        if match:
+            urls[match.group(1)] = match.group(2)
+        if line.strip() == "Ready.":
+            break
+    yield urls  # {"fhir": "http://localhost:14100", "hl7v2": "http://localhost:14125"}
+    process.terminate()
+    process.wait()
+```
+
+Health services listen at the base port plus 100 and up, so `--port 14000` keeps them away from a development instance on the default ports.
+
+## Testcontainers
+
+The container image `ghcr.io/emuhealth/emuhealth` is published with every release. Wait for the `Ready.` log line before using it.
+
+Node (`testcontainers`):
+
+```typescript
+import { GenericContainer, Wait } from "testcontainers";
+
+const container = await new GenericContainer("ghcr.io/emuhealth/emuhealth:latest")
+  .withCommand(["start", "--service", "fhir", "--host", "0.0.0.0"])
+  .withExposedPorts(4100)
+  .withWaitStrategy(Wait.forLogMessage("Ready."))
+  .start();
+const fhirUrl = `http://${container.getHost()}:${container.getMappedPort(4100)}`;
+```
+
+Python (`testcontainers`):
+
+```python
+from testcontainers.core.container import DockerContainer
+from testcontainers.core.waiting_utils import wait_for_logs
+
+with DockerContainer("ghcr.io/emuhealth/emuhealth:latest").with_command(
+    "start --service fhir --host 0.0.0.0"
+).with_exposed_ports(4100) as container:
+    wait_for_logs(container, "Ready.")
+    fhir_url = f"http://{container.get_container_host_ip()}:{container.get_exposed_port(4100)}"
+```
+
+Java (Testcontainers):
+
+```java
+GenericContainer<?> fhir = new GenericContainer<>(DockerImageName.parse("ghcr.io/emuhealth/emuhealth:latest"))
+    .withCommand("start", "--service", "fhir", "--host", "0.0.0.0")
+    .withExposedPorts(4100)
+    .waitingFor(Wait.forLogMessage(".*Ready\\..*", 1));
+fhir.start();
+String fhirUrl = "http://" + fhir.getHost() + ":" + fhir.getMappedPort(4100);
+```
+
+Mount a config file at `/app/emuhealth.config.yaml` to seed the services. Pin an image version, such as `ghcr.io/emuhealth/emuhealth:0.9.0`, so test data stays the same across runs.
+
+## In CI
+
+In GitHub Actions, the emuhealth action starts emulators for the rest of the job and exports `EMUHEALTH_<SERVICE>_URL`:
+
+```yaml
+- uses: emuhealth/emuhealth@v1
+  with:
+    services: fhir,epic
+- run: npm test
+```
+
+Elsewhere, start `npx emuhealth start --service ...` in the background and wait for `Ready.` the same way.
+
+## Patterns
+
+- **Fixed data.** Set a generator `seed` (or the top-level `population`) so every run has the same patients, and use [scenario packs](/docs/configuration#scenario-packs) for specific clinical stories.
+- **Failures.** Turn on [fault injection](/docs/configuration#fault-injection) for one test with `PUT /_emulate/faults` and clear it with `DELETE` in `afterEach`.
+- **Regression checks.** [Record](/docs/configuration#record-and-replay) a session once and run `npx emuhealth replay` in CI.
+- **Isolation.** Call `reset()` after each test, or start one emulator per test file with port `0`.
+
+Every emulator holds synthetic data only. Never load real patient data into tests.

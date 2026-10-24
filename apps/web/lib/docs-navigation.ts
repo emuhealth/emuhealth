@@ -17,6 +17,7 @@ export const docsSections: NavSection[] = [
       { name: "Programmatic API", href: "/docs/programmatic-api" },
       { name: "Configuration", href: "/docs/configuration" },
       { name: "MCP Server", href: "/docs/mcp" },
+      { name: "Testing Guide", href: "/docs/testing" },
       { name: "Next.js Integration", href: "/docs/nextjs" },
       { name: "Nuxt Integration", href: "/docs/nuxt" },
     ],
