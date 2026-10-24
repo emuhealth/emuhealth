@@ -21,7 +21,15 @@ const LINES = [
   { code: "G0444", display: "Annual depression screening, 5 to 15 minutes", amount: 24 },
 ];
 
-const meta = (profile: string) => ({ profile: [`${C4BB}/${profile}`], tag: [SYNTHETIC_TAG] });
+// CARIN asks for a versioned profile canonical; the data follows STU 2.1.
+const meta = (profile: string) => ({ profile: [`${C4BB}/${profile}|2.1.0`], tag: [SYNTHETIC_TAG] });
+const ADJUDICATION = "http://terminology.hl7.org/CodeSystem/adjudication";
+/** CARIN requires a diagnosis on every claim; members with no recorded conditions get a routine exam. */
+const ROUTINE_EXAM = {
+  system: "http://hl7.org/fhir/sid/icd-10-cm",
+  code: "Z00.00",
+  display: "Encounter for general adult medical examination without abnormal findings",
+};
 const money = (value: number) => ({ value: Number(value.toFixed(2)), currency: "USD" });
 const refId = (ref: unknown) =>
   String((ref as { reference?: string } | undefined)?.reference ?? "").split("/")[1] ?? "";
@@ -177,53 +185,54 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
         supportingInfo: [
           {
             sequence: 1,
-            category: {
-              coding: [{ system: `${C4BB_CS}/C4BBSupportingInfoType`, code: "billingnetworkcontractingstatus" }],
-            },
-            code: { coding: [{ system: `${C4BB_CS}/C4BBPayerAdjudicationStatus`, code: "contracted" }] },
-          },
-          {
-            sequence: 2,
             category: { coding: [{ system: `${C4BB_CS}/C4BBSupportingInfoType`, code: "clmrecvddate" }] },
             timingDate: date,
           },
         ],
-        diagnosis: diagnoses.length
-          ? diagnoses.map((condition, d) => ({
-              sequence: d + 1,
-              diagnosisCodeableConcept: {
-                coding: ((condition.code as { coding?: Array<{ system: string }> }).coding ?? []).filter(
-                  (c) => c.system === ICD10,
-                ),
-              },
-              type: [
+        diagnosis: (diagnoses.length
+          ? diagnoses.map((c) =>
+              ((c.code as { coding?: Array<{ system: string }> }).coding ?? []).filter((x) => x.system === ICD10),
+            )
+          : [[ROUTINE_EXAM]]
+        ).map((coding, d) => ({
+          sequence: d + 1,
+          diagnosisCodeableConcept: { coding },
+          type: [
+            {
+              coding: [
                 {
-                  coding: [
-                    {
-                      system: "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
-                      code: d === 0 ? "principal" : "secondary",
-                    },
-                  ],
+                  system: "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+                  code: d === 0 ? "principal" : "secondary",
                 },
               ],
-            }))
-          : undefined,
+            },
+          ],
+        })),
         insurance: [{ focal: true, coverage: { reference: `Coverage/${coverage}` } }],
+        // CARIN 2.x reports the billing provider's network status in header level adjudication.
+        adjudication: [
+          {
+            category: {
+              coding: [{ system: `${C4BB_CS}/C4BBAdjudicationDiscriminator`, code: "billingnetworkstatus" }],
+            },
+            reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerProviderNetworkStatus`, code: "innetwork" }] },
+          },
+        ],
         item: [
           {
             sequence: 1,
-            diagnosisSequence: diagnoses.length ? [1] : undefined,
+            diagnosisSequence: [1],
             productOrService: { coding: [{ system: HCPCS, code: line.code, display: line.display }] },
             servicedDate: date,
             locationCodeableConcept: { coding: [{ system: POS, code: "11", display: "Office" }] },
             adjudication: [
               {
-                category: { coding: [{ system: `${C4BB_CS}/C4BBAdjudication`, code: "submitted" }] },
+                category: { coding: [{ system: ADJUDICATION, code: "submitted" }] },
                 amount: money(line.amount),
               },
               {
                 category: {
-                  coding: [{ system: "http://terminology.hl7.org/CodeSystem/adjudication", code: "eligible" }],
+                  coding: [{ system: ADJUDICATION, code: "eligible" }],
                 },
                 amount: money(allowed),
               },
@@ -235,18 +244,18 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
                 category: {
                   coding: [{ system: `${C4BB_CS}/C4BBAdjudicationDiscriminator`, code: "benefitpaymentstatus" }],
                 },
-                reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerAdjudicationStatus`, code: "innetwork" }] },
+                reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerBenefitPaymentStatus`, code: "innetwork" }] },
               },
             ],
           },
         ],
         total: [
           {
-            category: { coding: [{ system: `${C4BB_CS}/C4BBAdjudication`, code: "submitted" }] },
+            category: { coding: [{ system: ADJUDICATION, code: "submitted" }] },
             amount: money(line.amount),
           },
           {
-            category: { coding: [{ system: "http://terminology.hl7.org/CodeSystem/adjudication", code: "eligible" }] },
+            category: { coding: [{ system: ADJUDICATION, code: "eligible" }] },
             amount: money(allowed),
           },
           {

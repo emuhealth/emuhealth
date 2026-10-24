@@ -60,6 +60,10 @@ describe("payer emulator", () => {
     expect(eob.meta.profile[0]).toContain("C4BB-ExplanationOfBenefit-Professional-NonClinician");
     expect(eob.insurance[0].coverage.reference).toBe("Coverage/coverage-syn-patient-001");
     expect(eob.item[0].adjudication.length).toBeGreaterThan(2);
+    expect(eob.meta.profile[0]).toMatch(/\|2\.1\.0$/);
+    expect(eob.adjudication[0].category.coding[0].code).toBe("billingnetworkstatus");
+    const all = await req("/fhir/ExplanationOfBenefit?_count=500", { headers: auth });
+    for (const e of all.body.entry) expect(e.resource.diagnosis.length).toBeGreaterThan(0);
     const coverage = await req("/fhir/Coverage/coverage-syn-patient-001", { headers: auth });
     expect(coverage.body.subscriberId).toBe(memberId(1));
     // PDex clinical data rides along with the claims.

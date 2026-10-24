@@ -21,7 +21,7 @@ It is not affiliated with any payer, and every member, claim, and provider is sy
 
 - Members are the generated synthetic patients, each with a member id (`SYNM0000001` and onward) typed `MB`.
 - Each member has a Coverage (`coverage-syn-patient-001`) with `subscriberId`, group and plan classes, and the payer `Organization/syn-payer`.
-- Each finished encounter has a professional ExplanationOfBenefit with the `C4BB-ExplanationOfBenefit-Professional-NonClinician` profile: a unique claim id, care team, network status and received date supporting info, ICD-10-CM diagnoses, one HCPCS Level II line with submitted, eligible, and paid amounts, totals, and payment.
+- Each finished encounter has a professional ExplanationOfBenefit with the CARIN STU 2.1 `C4BB-ExplanationOfBenefit-Professional-NonClinician` profile: a unique claim id, care team, the received date, the billing network status, ICD-10-CM diagnoses (a routine exam code when the member has no recorded conditions), one HCPCS Level II line with submitted, eligible, and paid amounts and the benefit payment status, totals, and payment.
 - The members' Conditions, Observations, Encounters, medications, and other records are there too, for PDex.
 
 The default clients are `member-app` (a public app with redirect URI `http://localhost:3000/callback`) and `synthetic-new-payer` (a confidential client with secret `synthetic-new-payer-secret`). A member app signs in with SMART App Launch, and the sign in picks the member, so its token only sees that member's data.

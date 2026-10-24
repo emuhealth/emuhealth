@@ -1,0 +1,3 @@
+{
+  "IndividualAndGroupSpecialtiesVS": "Plan-Net binds PractitionerRole.specialty to the NUCC taxonomy, which emuhealth does not bundle; specialties are text only"
+}

@@ -33,7 +33,7 @@ jobs:
         include:
           - name: CARIN Blue Button (patient access)
             path: /fhir
-            ig: hl7.fhir.us.carin-bb#2.2.0
+            ig: hl7.fhir.us.carin-bb#2.1.0
             token: true
           - name: Plan-Net (provider directory)
             path: /directory
@@ -84,7 +84,7 @@ jobs:
           tail -20 validator.log
 
       - name: Check results
-        run: node tests/fhir-validator/check.mjs validator-results.json --min 50
+        run: node tests/fhir-validator/check.mjs validator-results.json --min 50 --exceptions tests/fhir-validator/exceptions-payer.json
 
       - uses: actions/upload-artifact@v4
         if: always()
