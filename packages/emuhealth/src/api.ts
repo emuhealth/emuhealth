@@ -25,6 +25,7 @@ import type { ServiceListener, ServiceName } from "./registry.js";
 import { resolveBaseUrl } from "./base-url.js";
 import { defaultServicePort } from "./registry-health.js";
 import { applyPopulation, validatePopulation, type PopulationConfig } from "./population.js";
+import { validateFaults, withFaults, withoutFaults } from "./faults.js";
 
 export interface SeedConfig {
   tokens?: Record<string, { login: string; scopes?: string[] }>;
@@ -202,7 +203,8 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
 
     const fallbackUser = entry.defaultFallback(svcSeedConfig);
 
-    const { app, store, webhooks, tokenMap } = createServer(loaded.plugin, {
+    const faults = validateFaults(svcSeedConfig?.faults, `${service}.faults`);
+    const { app, store, webhooks, tokenMap } = createServer(withFaults(loaded.plugin, faults), {
       port,
       baseUrl,
       tokens,
@@ -214,7 +216,7 @@ async function createBuiltinEmulator(options: EmulatorOptions): Promise<Emulator
     const seed = () => {
       loaded.plugin.seed?.(store, baseUrl);
       if (svcSeedConfig && loaded.seedFromConfig) {
-        loaded.seedFromConfig(store, baseUrl, svcSeedConfig, webhooks);
+        loaded.seedFromConfig(store, baseUrl, withoutFaults(svcSeedConfig), webhooks);
       }
     };
     seed();

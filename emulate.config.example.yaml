@@ -388,6 +388,12 @@ twilio:
 #   scenarios: [diabetes-cgm, inpatient-stay, trial-adverse-event]
 
 fhir:
+  # Failure testing; any service takes the same key. PUT /_emulate/faults changes it at runtime.
+  # faults:
+  #   latency: { ms: 200 }
+  #   rateLimit: { requests: 100, windowSeconds: 60 }
+  #   outage: { status: 503, probability: 0.1 }
+  #   expiredTokens: { probability: 0.05 }
   # FHIR version: 4.0.1 (R4, default), 4.3.0 (R4B), or 5.0.0 (R5)
   fhirVersion: R4
   # SMART App Launch clients; with none, any client_id and redirect_uri is accepted

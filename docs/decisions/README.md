@@ -29,3 +29,4 @@ Rules:
 | [0017](0017-r5-write-conversion.md) | R4 shaped writes on an R5 server | Accepted |
 | [0018](0018-shared-synthetic-population.md) | Shared synthetic population | Accepted |
 | [0019](0019-scenario-packs.md) | Scenario packs | Accepted |
+| [0020](0020-fault-injection.md) | Fault injection | Accepted |

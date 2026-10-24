@@ -24,6 +24,7 @@ import {
   type PublishedGeneratedSecretsFile,
 } from "../generated-secrets-file.js";
 import { applyPopulation, validatePopulation } from "../population.js";
+import { validateFaults, withFaults, withoutFaults } from "../faults.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -170,7 +171,8 @@ export function createPreparedServiceServer(preparedService: PreparedService, to
     ? (appId) => cachedResolver!(appId)
     : undefined;
   const fallbackUser = entry.defaultFallback(svcSeedConfig);
-  const server = createServer(loadedSvc.plugin, {
+  const faults = validateFaults(svcSeedConfig?.faults, `${preparedService.svc}.faults`);
+  const server = createServer(withFaults(loadedSvc.plugin, faults), {
     port,
     baseUrl,
     tokens,
@@ -189,7 +191,7 @@ export function seedPreparedService(
   const { loadedSvc, svcSeedConfig, baseUrl } = preparedService;
   loadedSvc.plugin.seed?.(store, baseUrl);
   if (svcSeedConfig && loadedSvc.seedFromConfig) {
-    loadedSvc.seedFromConfig(store, baseUrl, svcSeedConfig, webhooks);
+    loadedSvc.seedFromConfig(store, baseUrl, withoutFaults(svcSeedConfig), webhooks);
   }
 }
 

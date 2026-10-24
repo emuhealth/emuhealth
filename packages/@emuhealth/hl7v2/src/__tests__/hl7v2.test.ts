@@ -232,3 +232,28 @@ describe("inpatient-stay scenario", () => {
     expect(visits[0].admitted).toMatch(/^\d{14}$/);
   });
 });
+
+describe("MLLP failure testing", () => {
+  it("drops connections without an ACK and delays ACKs", async () => {
+    const { store } = startService();
+    const dropping = await listen({ store, config: { mllp: { port: 0, dropRate: 1 } } });
+    const slow = await listen({ store, config: { mllp: { port: 0, ackDelayMs: 300 } } });
+    try {
+      const dropPort = Number(dropping!.urls[0].split(":").pop());
+      await expect(sendMllp("127.0.0.1", dropPort, adt("A04", [], "DROP1"), 1000)).rejects.toThrow();
+      const messages = store.getData<unknown[]>("hl7v2.messages") ?? [];
+      expect(messages).toHaveLength(0);
+
+      const slowPort = Number(slow!.urls[0].split(":").pop());
+      const started = Date.now();
+      expect(msa(await sendMllp("127.0.0.1", slowPort, adt("A04", [], "SLOW1"))).code).toBe("AA");
+      expect(Date.now() - started).toBeGreaterThanOrEqual(290);
+    } finally {
+      await dropping!.close();
+      await slow!.close();
+    }
+    expect(() => seedFromConfig(store, base, { mllp: { dropRate: 2 } })).toThrow(
+      "hl7v2.mllp.dropRate must be from 0 to 1",
+    );
+  });
+});
