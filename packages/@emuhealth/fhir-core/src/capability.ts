@@ -125,6 +125,19 @@ export function buildCapabilityStatement(options: CapabilityOptions): FhirResour
                 ],
               }
             : {}),
+          ...(type === "Subscription" && fhirVersion !== "4.0.1"
+            ? {
+                operation: [
+                  {
+                    name: "status",
+                    definition:
+                      fhirVersion === "5.0.0"
+                        ? "http://hl7.org/fhir/OperationDefinition/Subscription-status"
+                        : "http://hl7.org/fhir/uv/subscriptions-backport/OperationDefinition/backport-subscription-status",
+                  },
+                ],
+              }
+            : {}),
           ...(type === "Group"
             ? {
                 operation: [

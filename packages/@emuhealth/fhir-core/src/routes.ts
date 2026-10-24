@@ -9,6 +9,7 @@ import { lookupCode, validateCode } from "./terminology.js";
 import { resolveAccess, UNRESTRICTED, type AccessGuard } from "./access.js";
 import { guardedOperations } from "./operations.js";
 import { conditionalCreate, conditionalDelete, conditionalUpdate } from "./conditional.js";
+import { notifyingOperations, subscriptionStatusBundle } from "./subscriptions.js";
 import { NDJSON, deleteExportJob, exportManifest, getExportJob, startExport, type ExportJob } from "./bulk.js";
 import { parseTypes, patientEverything } from "./everything.js";
 import {
@@ -155,7 +156,9 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
   };
   /** SMART access for this request (decision 0010): unrestricted without a token unless fhir.smart.required. */
   const access = (c: AnyContext): AccessGuard => resolveAccess(store, c.req.header("Authorization"), searchContext());
-  const ops = (c: AnyContext) => guardedOperations(fhir(), access(c));
+  /** Store operations for a request: SMART access applied, and Subscriptions notified of writes. */
+  const writable = (guard: AccessGuard) => notifyingOperations(store, base, guardedOperations(fhir(), guard));
+  const ops = (c: AnyContext) => writable(access(c));
 
   function writeResponse(c: AnyContext, result: WriteResult, type: string): Response {
     const status = result.created ? 201 : 200;
@@ -293,20 +296,20 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     const body = await readJson(c, ["application/fhir+json", "application/json"]);
     const prefer = c.req.header("Prefer");
     const guard = access(c);
-    return fhirJson(
-      c,
-      processBundle(body, {
-        ops: guardedOperations(fhir(), guard),
-        base,
-        prefer,
-        search: (type, params) => searchBundle(type, params, false, guard),
-        history: (params, type, id) => historyBundle(params, type, id, guard),
-        snapshot: () => {
-          const saved = store.snapshot();
-          return () => store.restore(saved);
-        },
-      }),
-    );
+    const queue: Array<() => void> = [];
+    const result = processBundle(body, {
+      ops: notifyingOperations(store, base, guardedOperations(fhir(), guard), queue),
+      base,
+      prefer,
+      search: (type, params) => searchBundle(type, params, false, guard),
+      history: (params, type, id) => historyBundle(params, type, id, guard),
+      snapshot: () => {
+        const saved = store.snapshot();
+        return () => store.restore(saved);
+      },
+    });
+    for (const send of queue) send();
+    return fhirJson(c, result);
   }
 
   const smartPaths = registerSmartRoutes(app, store, {
@@ -540,7 +543,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     handle(async (c) => {
       const type = c.req.param("type");
       const guard = access(c);
-      const operations = guardedOperations(fhir(), guard);
+      const operations = writable(guard);
       const body = await readJson(c, ["application/fhir+json", "application/json"]);
       const ifNoneExist = c.req.header("If-None-Exist");
       if (!ifNoneExist) return writeResponse(c, operations.create(type, body), type);
@@ -557,6 +560,14 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
         },
         type,
       );
+    }),
+  );
+
+  app.get(
+    `${basePath}/Subscription/${ID}/$status`,
+    handle((c) => {
+      const record = ops(c).read("Subscription", c.req.param("id"));
+      return fhirJson(c, subscriptionStatusBundle(store, base, record.resource));
     }),
   );
 
@@ -586,7 +597,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
       const body = await readJson(c, ["application/fhir+json", "application/json"]);
       const params: Array<[string, string]> = [...new URL(c.req.url).searchParams];
       const result = conditionalUpdate(
-        guardedOperations(fhir(), guard),
+        writable(guard),
         conditionalSearch(guard),
         type,
         params,
@@ -601,12 +612,7 @@ export function registerFhirRoutes(app: Hono<any>, store: Store, options: FhirRo
     handle((c) => {
       const guard = access(c);
       const params: Array<[string, string]> = [...new URL(c.req.url).searchParams];
-      const { versionId } = conditionalDelete(
-        guardedOperations(fhir(), guard),
-        conditionalSearch(guard),
-        c.req.param("type"),
-        params,
-      );
+      const { versionId } = conditionalDelete(writable(guard), conditionalSearch(guard), c.req.param("type"), params);
       return c.body(null, 204, versionId ? { ETag: `W/"${versionId}"` } : {});
     }),
   );
