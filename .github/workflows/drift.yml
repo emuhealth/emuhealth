@@ -1,0 +1,29 @@
+name: Contract drift
+
+# Weekly check for upstream releases emuhealth does not cover yet: FHIR packages, the validator and Inferno kits,
+# the Vault API version, and the client libraries the contract tests pin. It only reads public metadata.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  pull_request:
+    paths:
+      - "tests/drift/**"
+      - ".github/workflows/drift.yml"
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check upstream versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node tests/drift/check.mjs
