@@ -73,7 +73,7 @@ To prepare a release:
 
 The website's hero terminal reads its version from `packages/emuhealth/package.json`, so it needs no edit. When approving the waiting `Release` run through the API, include a comment: `gh api -X POST repos/emuhealth/emuhealth/actions/runs/<run id>/pending_deployments -F "environment_ids[]=<environment id>" -f state=approved -f comment="Release <version>"`. GitHub rejects approvals without one.
 
-The release workflow compares the version in `packages/emuhealth/package.json` to what's on npm. If it differs, it builds, publishes `emuhealth` and every `@emuhealth/*` package with provenance, and creates the GitHub release. Publishing runs in the `Release` environment and waits for maintainer approval. The release body is extracted from the content between the markers.
+The release workflow compares the version in `packages/emuhealth/package.json` to what's on npm. If it differs, it builds, publishes `emuhealth` and every `@emuhealth/*` package with provenance, publishes the container image `ghcr.io/emuhealth/emuhealth` (the version and `latest`, amd64 and arm64) from the published package, and creates the GitHub release. Publishing runs in the `Release` environment and waits for maintainer approval. The release body is extracted from the content between the markers.
 
 <!-- opensrc:start -->
 
