@@ -32,6 +32,22 @@ Every authorization signs in a beneficiary, so the token response always carries
 
 Other resource types return `404`, and writes return `405`.
 
+## CMS's Node SDK
+
+The [Blue Button Node SDK](https://www.npmjs.com/package/cms-bluebutton-sdk) works against the emulator with `environment: "LOCAL"`, which points it at `http://localhost:8000`. Run the emulator there and register the SDK's client with a secret:
+
+```yaml
+bluebutton:
+  port: 8000
+  smart:
+    clients:
+      - client_id: my-sdk-app
+        client_secret: synthetic-secret
+        redirect_uris: ["http://localhost:3000/callback"]
+```
+
+Like Blue Button, the emulator answers `/v2/o/authorize` with or without a trailing slash, and FHIR searches such as `/v2/fhir/ExplanationOfBenefit/` with one, as the SDK sends them.
+
 ## Synthetic beneficiaries
 
 The emulator starts with the same 5 generated people as the [FHIR R4](/docs/fhir) server, as Medicare beneficiaries. Each has Part A, B, and D Coverage, a carrier claim for every encounter, with ICD-10-CM diagnoses and HCPCS Level II line items (public domain, CMS; CPT is not bundled), and a Part D event for every prescription, with RxNorm codes. MBIs follow the MBI layout but contain the letter `S`, which real MBIs never use.

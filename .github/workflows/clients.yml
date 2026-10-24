@@ -13,6 +13,9 @@ on:
       - "packages/@emuhealth/hl7v2/**"
       - "packages/@emuhealth/rave/**"
       - "packages/@emuhealth/veeva/**"
+      - "packages/@emuhealth/epic/**"
+      - "packages/@emuhealth/cerner/**"
+      - "packages/@emuhealth/bluebutton/**"
       - "packages/emuhealth/src/**"
       - "tests/clients/**"
       - ".github/workflows/clients.yml"
@@ -139,4 +142,46 @@ jobs:
         if: failure()
         with:
           name: clients-vapil
+          path: emuhealth.log
+
+  javascript:
+    name: fhirclient (SMART JS), Blue Button SDK
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - name: Start emuhealth
+        run: |
+          node packages/emuhealth/dist/index.js start --service epic,cerner,bluebutton \
+            --seed tests/clients/js/emuhealth.seed.yaml > emuhealth.log 2>&1 &
+          for url in http://localhost:4101/api/FHIR/R4/metadata \
+            http://localhost:4109/r4/5e7e0000-0000-4000-8000-000000000001/metadata http://localhost:8000/v2/fhir/metadata; do
+            for i in $(seq 1 30); do curl -sf "$url" > /dev/null && break; sleep 1; done
+            curl -sf "$url" > /dev/null || { cat emuhealth.log; exit 1; }
+          done
+
+      - name: Install the clients
+        working-directory: tests/clients/js
+        run: npm install --no-audit --no-fund
+
+      - name: Run the client tests
+        working-directory: tests/clients/js
+        run: node --test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: clients-javascript
           path: emuhealth.log

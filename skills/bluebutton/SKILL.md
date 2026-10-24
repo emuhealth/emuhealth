@@ -36,3 +36,5 @@ bluebutton:
 ```
 
 Docs: https://www.emuhealth.dev/docs/bluebutton
+
+CMS's Node SDK (`cms-bluebutton-sdk`): use `environment: "LOCAL"` and run the emulator on port 8000 (`bluebutton.port: 8000`) with a client that has a `client_secret`. `/v2/o/authorize` and FHIR searches work with or without a trailing slash.

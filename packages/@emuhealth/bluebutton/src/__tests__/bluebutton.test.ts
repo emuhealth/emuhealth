@@ -106,4 +106,16 @@ describe("Blue Button 2.0", () => {
     const other = await get(app, "/Patient/syn-patient-001", access_token);
     expect(other.status).toBe(404);
   });
+
+  it("accepts the paths CMS's SDK uses, with and without trailing slashes", async () => {
+    const app = startService();
+    const authorize = await app.request(`${origin}/v2/o/authorize?response_type=code&client_id=bb-app`);
+    expect(authorize.status).toBe(302);
+    expect(authorize.headers.get("Location")).toBe("/v2/o/authorize/?response_type=code&client_id=bb-app");
+    const { access_token } = await signIn(app);
+    const eobs = await (await get(app, "/ExplanationOfBenefit/?patient=syn-patient-002", access_token)).json();
+    expect(eobs.total).toBeGreaterThan(0);
+    expect((await get(app, "/Coverage/", access_token)).status).toBe(200);
+    expect((await get(app, "/Coverage/")).status).toBe(401);
+  });
 });

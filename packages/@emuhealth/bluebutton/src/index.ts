@@ -83,6 +83,15 @@ export const bluebuttonPlugin: ServicePlugin = {
       return next();
     });
 
+    // Blue Button answers its paths with or without a trailing slash, and CMS's SDK uses the other form for
+    // some: /v2/o/authorize without one, FHIR searches such as /v2/fhir/ExplanationOfBenefit/ with one.
+    app.get("/v2/o/authorize", (c) => c.redirect(`${BB_OAUTH_PATHS.authorize}${new URL(c.req.url).search}`, 302));
+    app.get(`${BB_FHIR_PATH}/:type{(Patient|Coverage|ExplanationOfBenefit)}/`, (c) => {
+      const url = new URL(c.req.url);
+      url.pathname = url.pathname.replace(/\/$/, "");
+      return app.fetch(new Request(url, { headers: c.req.raw.headers }));
+    });
+
     // OpenID userinfo for the signed-in beneficiary.
     app.get("/v2/connect/userinfo", (c) => {
       const bearer = /^Bearer\s+(.+)$/i.exec(c.req.header("Authorization") ?? "")?.[1];
