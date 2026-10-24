@@ -302,6 +302,25 @@ fhir:
         reference: Patient/synthetic-patient-1
 ```
 
+### Importing Synthea and other files
+
+`fhir.import` loads files or directories at startup, after the generated population (set `generate: false` to load only your files):
+
+```yaml
+fhir:
+  generate: false
+  import:
+    - ./synthea/output/fhir # a directory of .json and .ndjson files
+    - ./fixtures/extra-patient.json
+```
+
+- Transaction and batch Bundles run as they would over the API, so `urn:uuid` fullUrls, `ifNoneExist`, and conditional references such as `Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|...` resolve. A conditional reference must match exactly one resource.
+- In a directory, Synthea's `hospitalInformation*` and `practitionerInformation*` files load before the patient Bundles that reference them.
+- Other Bundles load their entries, a `.json` file with one resource loads it, and `.ndjson` files (Bulk Data output) load one resource per line.
+- Relative paths resolve from the working directory. A failure names the file and stops startup.
+
+[Synthea](https://github.com/synthetichealth/synthea) generates synthetic patients, so its output fits the synthetic data rule. Never import real patient data.
+
 ## Programmatic use
 
 ```typescript

@@ -399,6 +399,9 @@ fhir:
   generate:
     patients: 5
     seed: 1
+  # Files or directories to load: Synthea output, Bundles, single resources, or Bulk Data .ndjson
+  # import:
+  #   - ./synthea/output/fhir
   resources:
     - resourceType: Patient
       id: synthetic-patient-1

@@ -3,6 +3,7 @@ import { FHIR_JSON, registerFhirRoutes } from "./routes.js";
 import { operationOutcome } from "./outcome.js";
 import { getFhirStore, type FhirResource } from "./store.js";
 import { generateSyntheticRecords, type GenerateOptions } from "./generator.js";
+import { importFhirFiles } from "./import.js";
 import { seedTerminology, terminologyFixtures } from "./terminology.js";
 import { setSmartConfig, type SmartConfig } from "./smart.js";
 import { recordsForVersion } from "./r5.js";
@@ -80,6 +81,7 @@ export {
 export { toR5, recordsForVersion } from "./r5.js";
 export { syntheticPeople, type SyntheticPerson } from "./people.js";
 export { SCENARIOS, type ScenarioName, type ScenarioRequest } from "./scenarios.js";
+export { importFhirFiles } from "./import.js";
 export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,
@@ -125,6 +127,11 @@ export interface FhirSeedConfig {
   terminology?: boolean;
   /** FHIR version to serve: 4.0.1 (R4, the default), 4.3.0 (R4B), or 5.0.0 (R5). */
   fhirVersion?: string;
+  /**
+   * Files or directories to load: Synthea output, transaction or batch Bundles, other Bundles, single resources
+   * (.json), and Bulk Data NDJSON (.ndjson). Relative paths resolve from the working directory.
+   */
+  import?: string | string[];
 }
 
 /** Write generated records into the store, keeping their ids. */
@@ -135,7 +142,7 @@ export function seedSyntheticRecords(store: Store, options: GenerateOptions = {}
   return records.length;
 }
 
-export function seedFromConfig(store: Store, _baseUrl: string, config: FhirSeedConfig): void {
+export function seedFromConfig(store: Store, baseUrl: string, config: FhirSeedConfig): void {
   if (config.fhirVersion !== undefined) {
     const version = parseFhirVersion(config.fhirVersion);
     if (!version) throw new Error("fhir.fhirVersion must be 4.0.1 (R4), 4.3.0 (R4B), or 5.0.0 (R5)");
@@ -162,6 +169,12 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: FhirSeedC
   if (config.terminology !== undefined && typeof config.terminology !== "boolean")
     throw new Error("fhir.terminology must be true or false");
   if (config.terminology === false) for (const cs of terminologyFixtures()) fhir.purge("CodeSystem", cs.id!);
+  if (config.import !== undefined) {
+    const paths = typeof config.import === "string" ? [config.import] : config.import;
+    if (!Array.isArray(paths) || paths.some((p) => typeof p !== "string"))
+      throw new Error("fhir.import must be a path or an array of paths");
+    importFhirFiles(store, paths, baseUrl);
+  }
   if (config.resources === undefined) return;
   if (!Array.isArray(config.resources)) throw new Error("fhir.resources must be an array of FHIR resources");
   for (const [index, resource] of config.resources.entries()) {

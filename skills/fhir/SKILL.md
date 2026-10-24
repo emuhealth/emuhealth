@@ -138,6 +138,7 @@ fhir:
     seed: 42 # same seed, same records
     referenceDate: "2026-01-01"
     scenarios: [diabetes-cgm, inpatient-stay, trial-adverse-event] # clinical stories with fixed ids
+  import: ./synthea/output/fhir # Synthea output, Bundles, resources, or .ndjson; conditional references resolve
   resources:
     - resourceType: Patient
       id: synthetic-patient-1
