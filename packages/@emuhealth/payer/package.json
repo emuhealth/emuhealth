@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/payer",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Payer API emulator for emuhealth: CARIN Blue Button patient access, PDex payer-to-payer member match, and a Plan-Net provider directory over synthetic members.",
   "license": "Apache-2.0",

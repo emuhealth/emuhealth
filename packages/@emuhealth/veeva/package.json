@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/veeva",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Veeva Vault REST API emulator for emuhealth: sessions, object records, documents, metadata, and VQL over synthetic clinical operations data.",
   "license": "Apache-2.0",

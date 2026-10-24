@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/openfda",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "openFDA API emulator for emuhealth: drug labels, adverse events, and recalls with the openFDA query language. Synthetic data only.",
   "license": "Apache-2.0",

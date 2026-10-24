@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/rave",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Medidata Rave Web Services emulator for emuhealth: studies, subjects, ODM clinical data and metadata, audit records, and ODM data import over synthetic trials.",
   "license": "Apache-2.0",
