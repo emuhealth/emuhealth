@@ -1,0 +1,9 @@
+# The OHIF Viewer on http://localhost:3000 with app-config.js, reading from emuhealth's DICOMweb emulator on the host.
+# Start the emulator first: npm run emulator (npx emuhealth start --service dicomweb).
+services:
+  ohif:
+    image: ohif/app:v3.13.13
+    ports:
+      - "3000:80"
+    volumes:
+      - ./app-config.js:/usr/share/nginx/html/app-config.js:ro

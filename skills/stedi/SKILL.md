@@ -36,3 +36,5 @@ stedi:
 ```
 
 Docs: https://www.emuhealth.dev/docs/stedi
+
+Example: https://github.com/emuhealth/emuhealth/tree/main/examples/stedi-claims (eligibility, claim, status, and 835).

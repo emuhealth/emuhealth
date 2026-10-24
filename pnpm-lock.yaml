@@ -106,6 +106,15 @@ importers:
         specifier: ^5.7
         version: 5.9.3
 
+  examples/dexcom-to-fhir:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
+
   examples/hl7v2-to-fhir:
     devDependencies:
       emuhealth:
@@ -265,6 +274,15 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  examples/ohif-dicomweb:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
+
   examples/rave-edc-sync:
     devDependencies:
       emuhealth:
@@ -339,6 +357,15 @@ importers:
         version: 5.9.3
 
   examples/smart-on-fhir-epic:
+    devDependencies:
+      emuhealth:
+        specifier: workspace:*
+        version: link:../../packages/emuhealth
+      typescript:
+        specifier: ^5.7
+        version: 5.9.3
+
+  examples/stedi-claims:
     devDependencies:
       emuhealth:
         specifier: workspace:*

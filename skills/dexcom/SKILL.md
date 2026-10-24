@@ -35,3 +35,5 @@ dexcom:
 ```
 
 Docs: https://www.emuhealth.dev/docs/dexcom
+
+Example: https://github.com/emuhealth/emuhealth/tree/main/examples/dexcom-to-fhir (CGM readings into FHIR Observations).

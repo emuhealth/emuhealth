@@ -46,3 +46,7 @@ dexcom:
   generate:
     patients: 5
 ```
+
+## Example
+
+The [Dexcom to FHIR example](https://github.com/emuhealth/emuhealth/tree/main/examples/dexcom-to-fhir) connects with OAuth and copies a window of glucose readings into the [FHIR server](/docs/fhir) as Observations, with conditional creates so a second sync adds nothing.
