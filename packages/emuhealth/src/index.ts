@@ -7,6 +7,7 @@ import { scaffoldCommand } from "./commands/scaffold.js";
 import { SYNTHETIC_DATA_NOTICE } from "./data-policy.js";
 import { brandedEnv } from "./env.js";
 import { replayCommand } from "./commands/replay.js";
+import { serveMcp } from "./mcp.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -29,6 +30,10 @@ Shared population:
   A top-level population key (patients, seed, referenceDate) gives every patient-centric service the same people:
   the FHIR, EHR, payer, and device emulators, the HL7 v2 registry, and Rave EMU-101 subjects.
   population.scenarios adds stories to one person each: diabetes-cgm, inpatient-stay, trial-adverse-event.
+
+MCP server:
+  'npx emuhealth mcp' serves the Model Context Protocol over stdio with tools to list, start, stop, reset, and call
+  emulators, set faults, and read recordings. Add it to an agent with the command npx and the args emuhealth mcp.
 
 Record and replay:
   record: true (or { path }) in a service's seed config captures its exchanges; GET /_emulate/recording returns
@@ -480,6 +485,13 @@ program
       console.error(error instanceof Error ? error.message : error);
       process.exitCode = 1;
     }
+  });
+
+program
+  .command("mcp")
+  .description("Run an MCP server over stdio so coding agents can start, call, fault, and reset emulators")
+  .action(async () => {
+    await serveMcp(pkg.version);
   });
 
 program
