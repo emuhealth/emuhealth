@@ -2,9 +2,12 @@
 // Health emulators, then patient reads through the client.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { createRequire } from "node:module";
 import { test } from "node:test";
-import { smart } from "fhirclient/node";
 import { signIn } from "./browser.mjs";
+
+// The package's ESM build cannot load in Node (missing file extensions), so use its CommonJS build.
+const { smart } = createRequire(import.meta.url)("fhirclient/node");
 
 const SERVERS = [
   { name: "Epic", iss: "http://localhost:4101/api/FHIR/R4" },

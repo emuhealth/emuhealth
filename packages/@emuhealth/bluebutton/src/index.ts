@@ -115,7 +115,12 @@ export const bluebuttonPlugin: ServicePlugin = {
       software: { name: "emuhealth Blue Button 2.0 emulator" },
       description:
         "Emulates the CMS Blue Button 2.0 API for local development with synthetic beneficiaries. Not affiliated with CMS.",
-      smart: { paths: BB_OAUTH_PATHS, patientAccess: true },
+      smart: {
+        paths: BB_OAUTH_PATHS,
+        patientAccess: true,
+        defaultScope:
+          "profile launch/patient patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read",
+      },
     });
 
     app.on("GET", "/:rest{(?!_emulate).*}", (c) => c.json({ detail: "Not found." }, 404));

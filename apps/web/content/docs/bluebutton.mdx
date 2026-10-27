@@ -18,7 +18,7 @@ npx emuhealth --service bluebutton
 | `GET /v2/connect/userinfo` | `sub`, `patient`, and the beneficiary's name |
 | `GET /v2/fhir/.well-known/smart-configuration` | Discovery |
 
-Every authorization signs in a beneficiary, so the token response always carries `patient`, and there is no practitioner picker. Request scopes such as `patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read profile`. Register your app under `bluebutton.smart.clients`, or use any client id until you do.
+Every authorization signs in a beneficiary, so the token response always carries `patient`, and there is no practitioner picker. Request scopes such as `patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read profile`. A request with no `scope`, as CMS's SDK sends it, gets those beneficiary scopes plus `launch/patient`. Register your app under `bluebutton.smart.clients`, or use any client id until you do.
 
 ## FHIR API
 

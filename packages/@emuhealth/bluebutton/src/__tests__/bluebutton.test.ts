@@ -18,14 +18,18 @@ function startService(config?: BlueButtonSeedConfig) {
 }
 
 /** Walk the beneficiary sign-in: authorize, pick a patient, exchange the code with PKCE. */
-async function signIn(app: Hono, patient = "syn-patient-002"): Promise<any> {
+async function signIn(
+  app: Hono,
+  patient = "syn-patient-002",
+  scope: string | undefined = "patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read profile",
+): Promise<any> {
   const verifier = randomBytes(32).toString("base64url");
   const auth = await app.request(
     `${origin}/v2/o/authorize/?${new URLSearchParams({
       response_type: "code",
       client_id: "bb-app",
       redirect_uri: redirect,
-      scope: "patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read profile",
+      ...(scope ? { scope } : {}),
       state: "s",
       code_challenge: createHash("sha256").update(verifier).digest("base64url"),
       code_challenge_method: "S256",
@@ -69,6 +73,15 @@ describe("Blue Button 2.0", () => {
       headers: { Authorization: `Bearer ${token.access_token}` },
     })) as JsonResponse;
     expect(await info.json()).toMatchObject({ sub: "syn-patient-002", patient: "syn-patient-002" });
+  });
+
+  it("grants the standard beneficiary scopes when the authorize request sends none", async () => {
+    const app = startService();
+    const token = await signIn(app, "syn-patient-002", undefined);
+    expect(token.scope.split(" ")).toEqual(
+      expect.arrayContaining(["patient/Patient.read", "patient/Coverage.read", "patient/ExplanationOfBenefit.read"]),
+    );
+    expect((await get(app, "/ExplanationOfBenefit?patient=syn-patient-002", token.access_token)).status).toBe(200);
   });
 
   it("requires a token, is read-only, and serves only Patient, Coverage, and ExplanationOfBenefit", async () => {
