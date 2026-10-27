@@ -53,6 +53,7 @@ export const docsSections: NavSection[] = [
       { name: "Medidata Rave", href: "/docs/rave" },
       { name: "Payer APIs", href: "/docs/payer" },
       { name: "Prior Authorization", href: "/docs/priorauth" },
+      { name: "IHE XDS and XCA", href: "/docs/xds" },
     ],
   },
   {

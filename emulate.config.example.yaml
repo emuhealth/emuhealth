@@ -728,3 +728,11 @@ payer:
 
 # Da Vinci prior authorization: CRD at /cds-services, DTR and PAS at /fhir
 priorauth: {}
+
+# IHE XDS.b registry and repository and XCA responding gateway over SOAP
+xds:
+  generate:
+    patients: 5
+    seed: 1
+  # More patient ids (CX) to accept in submissions
+  # patientIds: ["SYN-900001^^^&2.25.211144934573491648823315826212385512893&ISO"]

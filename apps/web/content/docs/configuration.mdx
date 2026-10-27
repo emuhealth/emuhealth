@@ -31,11 +31,12 @@ population:
   referenceDate: "2026-06-01" # default 2026-01-01
 ```
 
-It reaches `fhir`, `epic`, `cerner`, `athena`, `bluebutton`, `redox`, `cdshooks`, `stedi`, `availity`, `dexcom`, `fitbit`, `oura`, `withings`, `terra`, `hl7v2`, and `rave`:
+It reaches `fhir`, `epic`, `cerner`, `athena`, `bluebutton`, `redox`, `cdshooks`, `stedi`, `availity`, `dexcom`, `fitbit`, `oura`, `withings`, `terra`, `hl7v2`, `xds`, and `rave`:
 
 - The FHIR based emulators, payers, and devices generate those patients.
 - The HL7 v2 registry holds them keyed by FHIR Patient id (`syn-patient-001`), with the FHIR MRN as a second PID-3 identifier.
 - Medidata Rave subject n of `EMU-101 (Prod)` has person n's birth date and sex.
+- The IHE XDS registry holds documents for each person, with the FHIR MRN as the XDS patient id.
 
 ### Scenario packs
 

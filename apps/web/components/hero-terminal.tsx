@@ -31,6 +31,7 @@ const services = [
   { name: "rave", port: 4127, note: "Medidata Rave" },
   { name: "payer", port: 4128, note: "Payer APIs" },
   { name: "priorauth", port: 4129, note: "Prior Authorization" },
+  { name: "xds", port: 4130, note: "IHE XDS and XCA" },
 ];
 
 export function HeroTerminal({ pixelFont }: { pixelFont: string }) {

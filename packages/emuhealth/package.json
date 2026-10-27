@@ -64,6 +64,7 @@
     "@emuhealth/fhir-core": "workspace:*",
     "@emuhealth/payer": "workspace:*",
     "@emuhealth/priorauth": "workspace:*",
+    "@emuhealth/xds": "workspace:*",
     "@emuhealth/rave": "workspace:*",
     "@emuhealth/veeva": "workspace:*",
     "@emuhealth/hl7v2": "workspace:*",

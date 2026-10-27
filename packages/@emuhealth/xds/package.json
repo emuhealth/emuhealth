@@ -1,0 +1,47 @@
+{
+  "name": "@emuhealth/xds",
+  "version": "0.9.0",
+  "private": true,
+  "description": "IHE document sharing emulator for emuhealth: XDS.b registry and repository and an XCA responding gateway over SOAP with MTOM, with synthetic clinical documents.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "homepage": "https://www.emuhealth.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emuhealth/emuhealth.git",
+    "directory": "packages/@emuhealth/xds"
+  },
+  "bugs": {
+    "url": "https://github.com/emuhealth/emuhealth/issues"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "tsup --clean",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src",
+    "prepack": "node ../../../scripts/prepare-package.mjs"
+  },
+  "devDependencies": {
+    "@emulators/core": "workspace:*",
+    "@emuhealth/fhir-core": "workspace:*",
+    "tsup": "^8",
+    "typescript": "^5.7",
+    "vitest": "^4.1.0"
+  }
+}

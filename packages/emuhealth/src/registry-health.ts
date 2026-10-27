@@ -33,6 +33,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "rave",
   "payer",
   "priorauth",
+  "xds",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -694,6 +695,26 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
     },
     initConfig: {
       priorauth: {},
+    },
+  },
+  xds: {
+    label: "IHE document sharing emulator (XDS.b registry and repository, XCA responding gateway)",
+    endpoints:
+      "SOAP 1.2 with WS-Addressing and MTOM: ITI-41 provide and register and ITI-43 retrieve at /xds/repository, ITI-18 stored queries (FindDocuments, GetDocuments, GetSubmissionSets) and ITI-42 register at /xds/registry, and XCA ITI-38 and ITI-39 at /xca/query and /xca/retrieve, over synthetic documents for the shared population",
+    async load() {
+      const mod = await import("@emuhealth/xds");
+      return { plugin: mod.xdsPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "xds-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      xds: {
+        generate: {
+          patients: 5,
+          seed: 1,
+        },
+      },
     },
   },
 };
