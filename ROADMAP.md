@@ -146,7 +146,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 Inferno test kits for these guides are the acceptance gates where they exist. NCPDP SCRIPT is licensed and out of scope.
 
 - [ ] Da Vinci Prior Authorization: CRD (CDS Hooks), DTR (questionnaire package), and PAS (`Claim/$submit`, `$inquire`)
-- [x] Payer APIs: CARIN Blue Button Patient Access, PDex payer-to-payer, and Plan-Net provider directory (PR pending)
+- [x] Payer APIs: CARIN Blue Button Patient Access, PDex payer-to-payer, and Plan-Net provider directory ([#92](https://github.com/emuhealth/emuhealth/pull/92))
 - [ ] IHE document exchange: XDS.b registry and repository and XCA gateway (SOAP)
 - [x] FHIR Subscriptions (R5 topic-based and the R4B backport) with REST-hook notifications ([#91](https://github.com/emuhealth/emuhealth/pull/91))
 
