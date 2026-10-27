@@ -5,6 +5,7 @@ export const PAGE_TITLES: Record<string, string> = {
   configuration: "Configuration",
   fhir: "FHIR R4",
   payer: "Payer APIs",
+  priorauth: "Prior Authorization",
   rave: "Medidata Rave",
   veeva: "Veeva Vault",
   hl7v2: "HL7 v2 over MLLP",

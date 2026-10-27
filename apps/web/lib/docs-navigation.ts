@@ -52,6 +52,7 @@ export const docsSections: NavSection[] = [
       { name: "Veeva Vault", href: "/docs/veeva" },
       { name: "Medidata Rave", href: "/docs/rave" },
       { name: "Payer APIs", href: "/docs/payer" },
+      { name: "Prior Authorization", href: "/docs/priorauth" },
     ],
   },
   {

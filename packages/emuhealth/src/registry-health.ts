@@ -32,6 +32,7 @@ const HEALTH_SERVICE_NAME_LIST = [
   "veeva",
   "rave",
   "payer",
+  "priorauth",
 ] as const;
 export type HealthServiceName = (typeof HEALTH_SERVICE_NAME_LIST)[number];
 export const HEALTH_SERVICE_NAMES: readonly HealthServiceName[] = HEALTH_SERVICE_NAME_LIST;
@@ -678,6 +679,21 @@ export const HEALTH_SERVICE_REGISTRY: Record<HealthServiceName, ServiceEntry> = 
           seed: 1,
         },
       },
+    },
+  },
+  priorauth: {
+    label: "Da Vinci prior authorization emulator (CRD, DTR, PAS)",
+    endpoints:
+      "a payer CRD CDS service at /cds-services (order-sign, order-select) returning coverage-information system actions and cards, DTR Questionnaire/$questionnaire-package, and PAS Claim/$submit and Claim/$inquire with ClaimResponse decisions at /fhir, over synthetic HCPCS coverage rules",
+    async load() {
+      const mod = await import("@emuhealth/priorauth");
+      return { plugin: mod.priorauthPlugin, seedFromConfig: mod.seedFromConfig };
+    },
+    defaultFallback() {
+      return { login: "priorauth-user", id: 1, scopes: [] };
+    },
+    initConfig: {
+      priorauth: {},
     },
   },
 };

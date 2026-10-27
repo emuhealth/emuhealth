@@ -725,3 +725,6 @@ payer:
         redirect_uris: ["http://localhost:3000/callback"]
       - client_id: synthetic-new-payer
         client_secret: synthetic-new-payer-secret
+
+# Da Vinci prior authorization: CRD at /cds-services, DTR and PAS at /fhir
+priorauth: {}

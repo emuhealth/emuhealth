@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       "@emuhealth/fhir-core": source("../@emuhealth/fhir-core/src/index.ts"),
       "@emuhealth/payer": source("../@emuhealth/payer/src/index.ts"),
+      "@emuhealth/priorauth": source("../@emuhealth/priorauth/src/index.ts"),
       "@emuhealth/rave": source("../@emuhealth/rave/src/index.ts"),
       "@emuhealth/veeva": source("../@emuhealth/veeva/src/index.ts"),
       "@emuhealth/hl7v2": source("../@emuhealth/hl7v2/src/index.ts"),
