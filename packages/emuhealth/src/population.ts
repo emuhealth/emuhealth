@@ -8,6 +8,8 @@ export interface PopulationConfig {
   seed?: number;
   /** Date the records are relative to (YYYY-MM-DD). Default 2026-01-01. */
   referenceDate?: string;
+  /** Scenario packs (decision 0019), by name or as { name, patient }. */
+  scenarios?: Array<string | { name: string; patient?: string }>;
 }
 
 /** Services whose `generate` takes the FHIR generator's options directly. */
@@ -34,8 +36,8 @@ export const POPULATION_SERVICES = [...GENERATOR_SERVICES, "rave"];
 export function validatePopulation(value: unknown): PopulationConfig | undefined {
   if (value === undefined) return undefined;
   if (!value || typeof value !== "object" || Array.isArray(value))
-    throw new Error("population must be an object with patients, seed, and referenceDate");
-  const { patients, seed, referenceDate, ...rest } = value as Record<string, unknown>;
+    throw new Error("population must be an object with patients, seed, referenceDate, and scenarios");
+  const { patients, seed, referenceDate, scenarios, ...rest } = value as Record<string, unknown>;
   if (Object.keys(rest).length) throw new Error(`population: unknown option ${Object.keys(rest).join(", ")}`);
   if (
     patients !== undefined &&
@@ -45,6 +47,9 @@ export function validatePopulation(value: unknown): PopulationConfig | undefined
   if (seed !== undefined && !Number.isInteger(seed)) throw new Error("population.seed must be an integer");
   if (referenceDate !== undefined && (typeof referenceDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(referenceDate)))
     throw new Error("population.referenceDate must be a YYYY-MM-DD date");
+  // The generator checks scenario names and patients when the services seed.
+  if (scenarios !== undefined && !Array.isArray(scenarios))
+    throw new Error("population.scenarios must be an array of scenario names or { name, patient }");
   return value as PopulationConfig;
 }
 

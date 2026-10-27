@@ -171,6 +171,34 @@ function observation(r: Json): Json {
   return component.length === r.component.length ? r : { ...r, component };
 }
 
+/** R5 renames ResearchSubject.individual to subject and moves the R4 status into progress. */
+function researchSubject(r: Json): Json {
+  const { individual, status, ...rest } = r;
+  const r4Status = status && !["draft", "active", "retired", "unknown"].includes(status);
+  return {
+    ...rest,
+    status: r4Status ? "active" : (status ?? "active"),
+    ...(individual ? { subject: individual } : {}),
+    ...(r4Status
+      ? {
+          progress: [
+            ...(rest.progress ?? []),
+            {
+              type: { coding: [{ system: "http://hl7.org/fhir/research-subject-state-type", code: "Enrollment" }] },
+              subjectState: { coding: [{ system: "http://hl7.org/fhir/research-subject-state", code: status }] },
+            },
+          ],
+        }
+      : {}),
+  };
+}
+
+/** R5 renames AdverseEvent.event to code and requires a status. */
+function adverseEvent(r: Json): Json {
+  const { event, ...rest } = r;
+  return { status: "completed", ...rest, ...(event ? { code: event } : {}) };
+}
+
 /** R5 drops Device.patient; the link moves to a DeviceAssociation. */
 function device(r: Json): Json[] {
   const { patient, type, distinctIdentifier: _distinct, udiCarrier, ...rest } = r;
@@ -213,6 +241,10 @@ export function toR5(resources: FhirResource[]): FhirResource[] {
         return [endpoint(r) as FhirResource];
       case "Device":
         return device(r) as FhirResource[];
+      case "ResearchSubject":
+        return [researchSubject(r) as FhirResource];
+      case "AdverseEvent":
+        return [adverseEvent(r) as FhirResource];
       case "CareTeam":
         return [careTeam(r) as FhirResource];
       case "AllergyIntolerance":

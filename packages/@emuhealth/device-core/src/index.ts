@@ -21,6 +21,8 @@ export interface DeviceUser {
   weightKg: number;
   /** Seed for this user's sensor data. */
   seed: number;
+  /** Glucose pattern: "diabetic" for people with the diabetes-cgm scenario, else "typical". */
+  glucoseProfile: "typical" | "diabetic";
 }
 
 /** Device users from the synthetic patient generator, with height and weight from their latest vitals. */
@@ -51,6 +53,11 @@ export function deviceUsers(options: GenerateOptions = {}): DeviceUser[] {
         heightCm: latest(p.id!, "8302-2") ?? 170,
         weightKg: latest(p.id!, "29463-7") ?? 72,
         seed: (options.seed ?? 1) * 1000 + i + 1,
+        glucoseProfile: records.some(
+          (r) => r.resourceType === "Device" && r.id === `syn-device-${p.id!.slice(12)}-scn-cgm`,
+        )
+          ? ("diabetic" as const)
+          : ("typical" as const),
       };
     });
 }
@@ -150,10 +157,12 @@ export function glucoseSeries(user: DeviceUser, startMs: number, endMs: number):
   const level = (t: number) => {
     const hour = (t % 86_400_000) / 3_600_000;
     const meal = [8, 13, 19].reduce((sum, h) => sum + 60 * Math.exp(-((hour - h - 0.75) ** 2) / 0.5), 0);
+    // Type 2 diabetes on metformin: a higher fasting level and larger, slower meal peaks.
+    const diabetic = user.glucoseProfile === "diabetic";
     return (
-      100 +
+      (diabetic ? 150 : 100) +
       10 * Math.sin((hour / 24) * 2 * Math.PI) +
-      meal +
+      meal * (diabetic ? 1.6 : 1) +
       between(-6, 6, noise(user.seed, "glucose", Math.floor(t / step)))
     );
   };

@@ -162,6 +162,18 @@ function seedPatients(store: Store, options: GenerateOptions = {}): void {
       phone: person.phone,
     });
     p.identifiers.push({ id: person.mrn, authority: "SYNTHETIC", type: "MR" });
+    // Inpatient stays, such as the inpatient-stay scenario's, appear as discharged visits.
+    const ts = (iso: string) => iso.replace(/[-:T]/g, "").slice(0, 14);
+    for (const a of person.admissions)
+      p.visits.push({
+        visitNumber: a.visitNumber,
+        patientClass: "I",
+        location: a.location,
+        attendingDoctor: "EXAMPLE, DANA",
+        admitted: ts(a.admitted),
+        ...(a.discharged ? { discharged: ts(a.discharged) } : {}),
+        status: a.discharged ? "discharged" : "active",
+      });
     map.set(person.id, p);
   }
 }

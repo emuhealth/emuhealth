@@ -1,4 +1,11 @@
 import type { FhirResource } from "./store.js";
+import {
+  parseScenarios,
+  scenarioRecords,
+  SCENARIO_CODES,
+  type ScenarioName,
+  type ScenarioRequest,
+} from "./scenarios.js";
 
 /**
  * Deterministic, Synthea-style synthetic patient records (decision 0009).
@@ -12,9 +19,11 @@ export interface GenerateOptions {
   seed?: number;
   /** Date the records are relative to (YYYY-MM-DD): ages, encounter dates, and onsets. Default 2026-01-01. */
   referenceDate?: string;
+  /** Scenario packs to add, by name or as { name, patient }. */
+  scenarios?: Array<ScenarioName | ScenarioRequest>;
 }
 
-export const DEFAULT_GENERATE_OPTIONS: Required<GenerateOptions> = {
+export const DEFAULT_GENERATE_OPTIONS: Required<Omit<GenerateOptions, "scenarios">> = {
   patients: 5,
   seed: 1,
   referenceDate: "2026-01-01",
@@ -233,7 +242,7 @@ export function generatorTerminology(): TerminologySubset[] {
       system: ICD10,
       name: "ICD10CMSubset",
       title: "ICD-10-CM (emuhealth subset)",
-      concepts: CONDITIONS.map(({ code, display }) => ({ code, display })),
+      concepts: [...CONDITIONS.map(({ code, display }) => ({ code, display })), ...SCENARIO_CODES.icd10],
     },
     {
       system: RXNORM,
@@ -242,7 +251,12 @@ export function generatorTerminology(): TerminologySubset[] {
       concepts: [...rxnorm].map(([code, display]) => ({ code, display })),
     },
     { system: CVX, name: "CVXSubset", title: "CVX (emuhealth subset)", concepts: VACCINES },
-    { system: LOINC, name: "LOINCSubset", title: "LOINC (emuhealth subset)", concepts: LOINC_CODES },
+    {
+      system: LOINC,
+      name: "LOINCSubset",
+      title: "LOINC (emuhealth subset)",
+      concepts: [...LOINC_CODES, ...SCENARIO_CODES.loinc],
+    },
     { system: UCUM, name: "UCUMSubset", title: "UCUM (emuhealth subset)", concepts: UCUM_CODES },
     { system: ICD10PCS, name: "ICD10PCSSubset", title: "ICD-10-PCS (emuhealth subset)", concepts: PROCEDURES },
     {
@@ -784,6 +798,7 @@ export function generateSyntheticRecords(options: GenerateOptions = {}): FhirRes
     });
     out.push(provenance(out.slice(first), short, practitioner, organization, encounterStarts));
   }
+  out.push(...scenarioRecords(parseScenarios(options.scenarios, patients), out, reference));
   return out;
 }
 

@@ -137,6 +137,7 @@ fhir:
     patients: 25 # 0 to 1000, default 5; false starts empty
     seed: 42 # same seed, same records
     referenceDate: "2026-01-01"
+    scenarios: [diabetes-cgm, inpatient-stay, trial-adverse-event] # clinical stories with fixed ids
   resources:
     - resourceType: Patient
       id: synthetic-patient-1

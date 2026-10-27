@@ -37,6 +37,26 @@ It reaches `fhir`, `epic`, `cerner`, `athena`, `bluebutton`, `redox`, `cdshooks`
 - The HL7 v2 registry holds them keyed by FHIR Patient id (`syn-patient-001`), with the FHIR MRN as a second PID-3 identifier.
 - Medidata Rave subject n of `EMU-101 (Prod)` has person n's birth date and sex.
 
+### Scenario packs
+
+`population.scenarios` adds named clinical stories to one person each. Every service that uses the population shows the same story:
+
+| Pack | Default patient | What it adds |
+| --- | --- | --- |
+| `diabetes-cgm` | `syn-patient-001` | Type 2 diabetes on metformin, four quarterly HbA1c results rising from 7.4% to 8.4%, and a continuous glucose monitor. The device emulators give this person a diabetic glucose curve. |
+| `inpatient-stay` | `syn-patient-002` | A three day inpatient Encounter (class `IMP`) for pneumonia with a resolved Condition and a discharge summary DocumentReference. The HL7 v2 registry lists it as a discharged visit. |
+| `trial-adverse-event` | `syn-patient-003` | A ResearchStudy for EMU-101, a ResearchSubject, and a serious AdverseEvent (syncope). The linked Rave subject logs it on the AE form with `AESER` = `Y`. |
+
+```yaml
+population:
+  patients: 10
+  scenarios:
+    - diabetes-cgm
+    - { name: inpatient-stay, patient: syn-patient-007 }
+```
+
+Packs add records with fixed ids, such as `Encounter/syn-encounter-007-scn-inpatient`, and leave every other generated record unchanged. `fhir.generate.scenarios` and the other services' `generate.scenarios` take the same list.
+
 A service's own `generate` setting wins, so `fhir: { generate: false }` still starts that service empty. The cloud FHIR stores (`healthlake`, `gcphealthcare`, `azurehealth`) preload the default population per store. `createEmulator` takes the same key in `seed`.
 
 ## Vercel Seed Config
