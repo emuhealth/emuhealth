@@ -51,6 +51,8 @@ The FHIR base URL is the server root. Send and expect `application/fhir+json` (`
 | bulk export | `GET /$export`, `/Patient/$export`, `/Group/:id/$export` with `Prefer: respond-async`: 202 + status URL, manifest with one NDJSON file per type; `_type`, `_since`, `_outputFormat`; `DELETE` status URL to remove |
 | $everything | `GET /Patient/:id/$everything` (or `GET /Patient/$everything`) with `_type`, `_since`, `_count`: the patient, everything referencing it, and referenced practitioners and organizations |
 
+Subscriptions (R5, and R4B with the backport shape): POST a SubscriptionTopic (resourceTrigger, queryCriteria.current) and a Subscription (status requested, rest-hook endpoint, content, filterBy); the server handshakes, sets it active, and POSTs subscription-notification Bundles for matching API writes. GET /Subscription/:id/$status.
+
 Conditional interactions: `POST` with `If-None-Exist` (one match returns it with 200), `PUT /:type?criteria` (updates the one match or creates), `DELETE /:type?criteria` (deletes the one match; none is a 204 no-op), and `If-Modified-Since` or `If-None-Match` on read (304). More than one match returns 412 `multiple-matches`. They also work as Bundle entries. Requests without a token have full access unless `fhir.smart.required` is on.
 
 ## Search

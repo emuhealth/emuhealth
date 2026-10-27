@@ -83,6 +83,12 @@ export { syntheticPeople, type SyntheticPerson } from "./people.js";
 export { SCENARIOS, type ScenarioName, type ScenarioRequest } from "./scenarios.js";
 export { importFhirFiles } from "./import.js";
 export {
+  notifySubscriptions,
+  subscriptionDeliveries,
+  subscriptionsIdle,
+  type SubscriptionDelivery,
+} from "./subscriptions.js";
+export {
   generateSyntheticRecords,
   DEFAULT_GENERATE_OPTIONS,
   SYNTHETIC_TAG,

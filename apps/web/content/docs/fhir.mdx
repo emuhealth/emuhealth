@@ -321,6 +321,45 @@ fhir:
 
 [Synthea](https://github.com/synthetichealth/synthea) generates synthetic patients, so its output fits the synthetic data rule. Never import real patient data.
 
+## Subscriptions
+
+R5 and R4B servers deliver topic-based Subscriptions over `rest-hook`. Create a SubscriptionTopic, then a Subscription for it:
+
+```json
+{
+  "resourceType": "SubscriptionTopic",
+  "url": "http://example.org/SubscriptionTopic/encounter-in-progress",
+  "status": "active",
+  "resourceTrigger": [
+    {
+      "resource": "http://hl7.org/fhir/StructureDefinition/Encounter",
+      "supportedInteraction": ["create", "update"],
+      "queryCriteria": { "current": "status=in-progress" }
+    }
+  ]
+}
+```
+
+```json
+{
+  "resourceType": "Subscription",
+  "status": "requested",
+  "topic": "http://example.org/SubscriptionTopic/encounter-in-progress",
+  "channelType": { "system": "http://terminology.hl7.org/CodeSystem/subscription-channel-type", "code": "rest-hook" },
+  "endpoint": "http://localhost:3000/fhir-hook",
+  "content": "full-resource",
+  "parameter": [{ "name": "Authorization", "value": "Bearer my-hook-token" }],
+  "filterBy": [{ "resourceType": "Encounter", "filterParameter": "patient", "value": "Patient/syn-patient-001" }]
+}
+```
+
+- The server sends a `handshake` to the endpoint. A `2xx` answer makes the Subscription `active`; anything else sets `error`.
+- Writes through the API that match the topic trigger (type, interaction, and `queryCriteria.current`) and the `filterBy` filters are POSTed as a `subscription-notification` Bundle: a SubscriptionStatus with the event number and focus, then the focus resource (`full-resource`), its URL only (`id-only`), or nothing (`empty`). `parameter` entries become request headers.
+- A transaction's notifications go out only after it commits. Seed data and `fhir.import` do not notify.
+- `GET /Subscription/{id}/$status` returns the SubscriptionStatus with the event count.
+- On R4B, use the [Subscriptions R5 Backport](https://hl7.org/fhir/uv/subscriptions-backport/) shape: `criteria` holds the topic URL, `backport-filter-criteria` extensions on `_criteria` hold filters such as `Encounter?patient=Patient/123`, and `channel` holds `type: rest-hook`, `endpoint`, `header`, and the `backport-payload-content` extension. Event numbers are strings there.
+- Each notification is tried once, with a 10 second timeout. Heartbeats, retries, and websocket or email channels are not emulated. R4 servers do not deliver notifications.
+
 ## Programmatic use
 
 ```typescript

@@ -31,3 +31,4 @@ Rules:
 | [0019](0019-scenario-packs.md) | Scenario packs | Accepted |
 | [0020](0020-fault-injection.md) | Fault injection | Accepted |
 | [0021](0021-record-and-replay.md) | Record and replay | Accepted |
+| [0022](0022-fhir-subscriptions.md) | FHIR Subscriptions | Accepted |
