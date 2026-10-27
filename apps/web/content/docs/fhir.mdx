@@ -236,7 +236,7 @@ fhir:
   - CareTeam participants have a single `role`, and AllergyIntolerance reactions list `manifestation.concept`;
   - Organization, PractitionerRole, and Location keep their phone numbers in `contact`, and Organization its addresses too.
 
-  R4B keeps the R4 shapes, which these resources share. In CI, the served data for each version passes the HL7 FHIR Validator.
+  R4B keeps the R4 shapes, which these resources share. On R5, creates and updates in those R4 shapes are converted the same way, and R4 elements R5 removed (`Device.patient`, `Device.distinctIdentifier`, `Encounter.statusHistory`, `Encounter.classHistory`) return `400`. In CI, the served data for each version passes the HL7 FHIR Validator.
 - **Searches.** Search parameters cover the renamed R5 elements, so `Encounter?date=`, `MedicationRequest?code=`, and `Organization?address=` work on every version.
 
 Resources you load or write are stored as sent. They are not converted or validated against the version. The Inferno gate in [Conformance](#conformance) runs against R4.
