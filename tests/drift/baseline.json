@@ -1,0 +1,14 @@
+{
+  "HL7 FHIR Validator": "7.0.3",
+  "Inferno US Core test kit": "v1.1.6",
+  "US Core": "9.0.0",
+  "SMART App Launch": "2.2.0",
+  "FHIR R5 core": "5.0.0",
+  "Vault API (VAPIL)": "v26.2",
+  "VAPIL": "26.2.1",
+  "rwslib (PyPI)": "1.2.15",
+  "fhirclient (PyPI)": "4.4.0",
+  "dicomweb-client (PyPI)": "0.61.2",
+  "hl7 (PyPI)": "0.4.5",
+  "pydicom (PyPI)": "3.0.2"
+}
