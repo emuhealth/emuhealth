@@ -66,6 +66,17 @@ export function payerOrganization(): FhirResource {
 /** Patients become members, each with a Coverage and claims for their finished encounters. */
 export function memberRecords(records: FhirResource[]): FhirResource[] {
   const out: FhirResource[] = [payerOrganization()];
+  // Claims point at the clinic's practitioners and organization, which CARIN profiles too.
+  const NPI = "http://hl7.org/fhir/sid/us-npi";
+  const npiType = { coding: [{ system: V2_0203, code: "NPI", display: "National provider identifier" }] };
+  for (const r of records.filter((x) => x.resourceType === "Practitioner" || x.id === "syn-organization-1"))
+    out.push({
+      ...r,
+      meta: meta(r.resourceType === "Practitioner" ? "C4BB-Practitioner" : "C4BB-Organization"),
+      identifier: ((r.identifier as Array<{ system?: string }>) ?? []).map((i) =>
+        i.system === NPI ? { ...i, type: npiType } : i,
+      ),
+    });
   const patients = records.filter((r) => r.resourceType === "Patient");
   const conditions = records.filter((r) => r.resourceType === "Condition");
   for (const [index, source] of patients.entries()) {
@@ -176,7 +187,7 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
                 provider: practitioner,
                 role: {
                   coding: [
-                    { system: `${C4BB_CS}/C4BBClaimCareTeamRole`, code: "performing", display: "Performing provider" },
+                    { system: `${C4BB_CS}/C4BBClaimCareTeamRole`, code: "rendering", display: "Rendering provider" },
                   ],
                 },
               },
@@ -201,7 +212,11 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
             {
               coding: [
                 {
-                  system: "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+                  // CARIN takes principal from HL7's diagnosis types and secondary from its own.
+                  system:
+                    d === 0
+                      ? "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
+                      : `${C4BB_CS}/C4BBClaimDiagnosisType`,
                   code: d === 0 ? "principal" : "secondary",
                 },
               ],
@@ -215,7 +230,7 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
             category: {
               coding: [{ system: `${C4BB_CS}/C4BBAdjudicationDiscriminator`, code: "billingnetworkstatus" }],
             },
-            reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerProviderNetworkStatus`, code: "innetwork" }] },
+            reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerAdjudicationStatus`, code: "innetwork" }] },
           },
         ],
         item: [
@@ -244,7 +259,7 @@ export function memberRecords(records: FhirResource[]): FhirResource[] {
                 category: {
                   coding: [{ system: `${C4BB_CS}/C4BBAdjudicationDiscriminator`, code: "benefitpaymentstatus" }],
                 },
-                reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerBenefitPaymentStatus`, code: "innetwork" }] },
+                reason: { coding: [{ system: `${C4BB_CS}/C4BBPayerAdjudicationStatus`, code: "innetwork" }] },
               },
             ],
           },

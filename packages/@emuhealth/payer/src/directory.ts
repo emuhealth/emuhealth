@@ -169,7 +169,7 @@ export function generateDirectory(): FhirResource[] {
             {
               url: "acceptingPatients",
               valueCodeableConcept: {
-                coding: [{ system: `${CS}/AcceptingPatientsCS`, code: p % 4 === 3 ? "no" : "newpt" }],
+                coding: [{ system: `${CS}/AcceptingPatientsCS`, code: p % 4 === 3 ? "nopt" : "newpt" }],
               },
             },
           ],
@@ -225,7 +225,7 @@ export function generateDirectory(): FhirResource[] {
     id: "endpoint-patient-access",
     meta: meta("plannet-Endpoint"),
     status: "active",
-    connectionType: { system: `${CS}/EndpointConnectionTypeCS`, code: "hl7-fhir-rest" },
+    connectionType: { system: "http://terminology.hl7.org/CodeSystem/endpoint-connection-type", code: "hl7-fhir-rest" },
     name: "Synthetic Health Plan patient access API",
     managingOrganization: { reference: `Organization/${PAYER_ID}` },
     payloadType: [{ coding: [{ system: `${CS}/EndpointPayloadTypeCS`, code: "NA" }] }],
