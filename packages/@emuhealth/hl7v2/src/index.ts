@@ -25,8 +25,11 @@ export * from "./hl7.js";
 /** HL7 v2 emulator: an MLLP listener and an HTTP API that acknowledge messages and keep a synthetic patient registry. */
 export interface Hl7v2SeedConfig {
   port?: number;
-  /** The MLLP listener: port (default 2575) and host, or false to turn it off. */
-  mllp?: { port?: number; host?: string } | false;
+  /**
+   * The MLLP listener: port (default 2575) and host, or false to turn it off. For failure testing, dropRate (0 to 1)
+   * closes the connection after a message without applying it or sending an ACK, and ackDelayMs delays every ACK.
+   */
+  mllp?: { port?: number; host?: string; dropRate?: number; ackDelayMs?: number } | false;
   /** Seed the synthetic patients (default true): false for none, or generator options for another population. */
   generate?: boolean | GenerateOptions;
   /** Extra synthetic patients. */
@@ -197,6 +200,11 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: Hl7v2Seed
     const port = config.mllp.port;
     if (port !== undefined && (!Number.isInteger(port) || port < 0 || port > 65535))
       throw new Error("hl7v2.mllp.port must be a port number");
+    const { dropRate, ackDelayMs } = config.mllp;
+    if (dropRate !== undefined && (typeof dropRate !== "number" || dropRate < 0 || dropRate > 1))
+      throw new Error("hl7v2.mllp.dropRate must be from 0 to 1");
+    if (ackDelayMs !== undefined && (typeof ackDelayMs !== "number" || !Number.isFinite(ackDelayMs) || ackDelayMs < 0))
+      throw new Error("hl7v2.mllp.ackDelayMs must be a number of milliseconds");
   }
   if (config.patients === undefined) return;
   if (!Array.isArray(config.patients)) throw new Error("hl7v2.patients must be an array");
@@ -530,7 +538,17 @@ export async function listen(context: {
     socket.on("data", (chunk) => {
       const { messages: got, rest } = deframe(Buffer.concat([buffer, chunk]));
       buffer = rest;
-      for (const raw of got) socket.write(frame(receive(context.store, raw, peer)));
+      for (const raw of got) {
+        if (Math.random() < (config.mllp ? (config.mllp.dropRate ?? 0) : 0)) {
+          // An emulated network failure: the sender sees the connection close with no ACK.
+          socket.destroy();
+          return;
+        }
+        const ack = frame(receive(context.store, raw, peer));
+        const delay = config.mllp ? (config.mllp.ackDelayMs ?? 0) : 0;
+        if (delay > 0) setTimeout(() => socket.writable && socket.write(ack), delay);
+        else socket.write(ack);
+      }
     });
     socket.on("error", () => socket.destroy());
     socket.on("close", () => sockets.delete(socket));

@@ -29,6 +29,10 @@ Shared population:
   the FHIR, EHR, payer, and device emulators, the HL7 v2 registry, and Rave EMU-101 subjects.
   population.scenarios adds stories to one person each: diabetes-cgm, inpatient-stay, trial-adverse-event.
 
+Fault injection:
+  Any service takes faults (latency, rateLimit, outage, expiredTokens, paths) in its seed config, and
+  PUT, GET, or DELETE /_emulate/faults changes them while it runs. hl7v2.mllp.dropRate and ackDelayMs fail MLLP.
+
 FHIR R4:
   'npx emuhealth --service fhir' serves a FHIR R4 server at http://localhost:4100 (base port + 100).
   Supports create, read, vread, update (create on update), JSON Patch, logical delete, and _history.

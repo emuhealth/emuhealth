@@ -59,6 +59,31 @@ Packs add records with fixed ids, such as `Encounter/syn-encounter-007-scn-inpat
 
 A service's own `generate` setting wins, so `fhir: { generate: false }` still starts that service empty. The cloud FHIR stores (`healthlake`, `gcphealthcare`, `azurehealth`) preload the default population per store. `createEmulator` takes the same key in `seed`.
 
+## Fault injection
+
+Any service takes a `faults` key to test retries, backoff, and token refresh:
+
+```yaml
+fhir:
+  faults:
+    latency: { ms: 200, jitterMs: 100 } # added to every matching response
+    rateLimit: { requests: 100, windowSeconds: 60 } # then 429 with Retry-After
+    outage: { status: 503, probability: 0.1, retryAfterSeconds: 5 } # status 400 to 599, probability 0 to 1
+    expiredTokens: { probability: 0.05 } # 401 invalid_token for requests with a bearer token
+    paths: ["/Patient", "/Observation"] # optional; default every path
+```
+
+- Failed responses carry an `X-Emulate-Fault` header (`rate_limited`, `outage`, or `invalid_token`). FHIR clients get an OperationOutcome; other clients get `{ "error": "...", "message": "..." }`.
+- `/_emulate` and `/_inspector` paths are never faulted.
+- Change faults while a service runs: `PUT /_emulate/faults` with the same object replaces them, `GET` returns them, and `DELETE` clears them.
+
+```bash
+curl -X PUT http://localhost:4100/_emulate/faults -H 'Content-Type: application/json' -d '{"outage":{"status":503}}'
+curl -X DELETE http://localhost:4100/_emulate/faults
+```
+
+For HL7 v2, `hl7v2.mllp.dropRate` (0 to 1) closes the MLLP connection without applying the message or sending an ACK, and `hl7v2.mllp.ackDelayMs` delays every ACK.
+
 ## Vercel Seed Config
 
 ```yaml

@@ -69,6 +69,8 @@ hl7v2:
   mllp:
     port: 2575
     host: 127.0.0.1
+    dropRate: 0 # 0 to 1: close the connection without applying the message or sending an ACK
+    ackDelayMs: 0 # delay every ACK
   generate: true
   strict: false # true rejects message types the emulator does not apply
   patients:
