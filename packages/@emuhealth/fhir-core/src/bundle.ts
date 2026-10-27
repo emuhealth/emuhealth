@@ -193,6 +193,15 @@ function rewriteReferences(value: unknown, ids: Map<string, string>): unknown {
   return out;
 }
 
+function conditionalReferences(value: unknown, found = new Set<string>()): Set<string> {
+  if (Array.isArray(value)) for (const v of value) conditionalReferences(v, found);
+  else if (value && typeof value === "object")
+    for (const [key, child] of Object.entries(value))
+      if (key === "reference" && typeof child === "string" && /^[A-Z][A-Za-z]+\?./.test(child)) found.add(child);
+      else conditionalReferences(child, found);
+  return found;
+}
+
 function responseBundle(type: string, entries: Array<Record<string, unknown>>): FhirResource {
   return {
     resourceType: "Bundle",
@@ -270,6 +279,25 @@ function processTransaction(entries: BundleEntry[], deps: BundleDeps): FhirResou
       if (entry.fullUrl && !entry.fullUrl.startsWith(deps.base)) ids.set(entry.fullUrl, `${type}/${id}`);
     }
   }
+
+  // Conditional references (FHIR R4 3.1.0.11.2), such as Practitioner?identifier=..., must match exactly one resource.
+  for (const entry of entries)
+    for (const reference of conditionalReferences(entry.resource)) {
+      if (ids.has(reference)) continue;
+      const [type, query] = [reference.slice(0, reference.indexOf("?")), reference.slice(reference.indexOf("?") + 1)];
+      const found = deps.search(type, [...new URLSearchParams(query)]) as FhirResource & {
+        total?: number;
+        entry?: Array<{ resource: FhirResource; search?: { mode?: string } }>;
+      };
+      const matches = (found.entry ?? []).filter((e) => e.search?.mode === "match");
+      if (found.total !== 1 || matches.length !== 1)
+        throw new FhirError(
+          412,
+          "multiple-matches",
+          `Conditional reference ${reference} matched ${found.total ?? 0} resources`,
+        );
+      ids.set(reference, `${type}/${matches[0].resource.id}`);
+    }
 
   const prepared = entries.map((entry) =>
     entry.resource ? { ...entry, resource: rewriteReferences(entry.resource, ids) as FhirResource } : entry,

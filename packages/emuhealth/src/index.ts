@@ -41,7 +41,7 @@ FHIR R4:
   Bulk Data: GET /$export, /Patient/$export, /Group/:id/$export with Prefer: respond-async for NDJSON files.
   Starts with 5 generated synthetic patients; fhir.generate sets patients, seed, and referenceDate, or false for none.
   Terminology fixtures: GET /CodeSystem/$lookup and /CodeSystem/$validate-code; fhir.terminology: false leaves them out.
-  Load extra synthetic resources under fhir.resources.
+  Load extra synthetic resources under fhir.resources, or files under fhir.import (Synthea output, Bundles, NDJSON).
   fhir.fhirVersion: R4B or R5 serves that version (resource types, CapabilityStatement, generated data); GET /$versions.
   Conditional interactions: If-None-Exist on POST, PUT and DELETE /:type?criteria, If-Modified-Since on read.
   SMART App Launch: /.well-known/smart-configuration, /auth/authorize (patient and practitioner pickers),
