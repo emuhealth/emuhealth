@@ -195,3 +195,23 @@ describe("MLLP", () => {
     expect(await listen({ store, config: { mllp: false } })).toBeUndefined();
   });
 });
+
+describe("shared population", () => {
+  it("holds the same people as the FHIR generator, and follows generator options", async () => {
+    const { syntheticPeople } = await import("@emuhealth/fhir-core");
+    const { store } = startService();
+    const registry = store.getData<Map<string, Patient>>("hl7v2.patients")!;
+    const people = syntheticPeople();
+    expect([...registry.keys()]).toEqual(people.map((p) => p.id));
+    const first = registry.get(people[0].id)!;
+    expect(first.family).toBe(people[0].family.toUpperCase());
+    expect(first.birthDate).toBe(people[0].birthDate.replace(/-/g, ""));
+    expect(first.identifiers.map((i) => i.id)).toEqual([people[0].id, people[0].mrn]);
+
+    seedFromConfig(store, base, { generate: { patients: 12, seed: 3 } });
+    expect(registry.size).toBe(12);
+    expect(registry.get("syn-patient-012")!.given).toBe(
+      syntheticPeople({ patients: 12, seed: 3 })[11].given.toUpperCase(),
+    );
+  });
+});

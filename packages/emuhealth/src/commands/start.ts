@@ -23,6 +23,7 @@ import {
   type GeneratedSecretsFileTarget,
   type PublishedGeneratedSecretsFile,
 } from "../generated-secrets-file.js";
+import { applyPopulation, validatePopulation } from "../population.js";
 
 declare const PKG_VERSION: string;
 const pkg = { version: PKG_VERSION };
@@ -128,7 +129,11 @@ export async function prepareStartServices(
     const entry = SERVICE_REGISTRY[svc];
     const loadedSvc = await entry.load();
 
-    const inputSvcSeedConfig = seedConfig?.[svc] as Record<string, unknown> | undefined;
+    const inputSvcSeedConfig = applyPopulation(
+      svc,
+      seedConfig?.[svc] as Record<string, unknown> | undefined,
+      validatePopulation(seedConfig?.population),
+    );
     const preparedSeed =
       materializeGeneratedSecrets && inputSvcSeedConfig && loadedSvc.prepareSeed
         ? await loadedSvc.prepareSeed(inputSvcSeedConfig)

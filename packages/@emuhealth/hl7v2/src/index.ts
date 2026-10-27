@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { connect, createServer, type Server, type Socket } from "node:net";
 import type { AppEnv, Context, Hono, ServicePlugin, Store, TokenMap, WebhookDispatcher } from "@emulators/core";
 import { escapeAttr, escapeHtml, renderInspectorPage } from "@emulators/core";
+import { syntheticPeople, type GenerateOptions } from "@emuhealth/fhir-core";
 import {
   build,
   components,
@@ -26,8 +27,8 @@ export interface Hl7v2SeedConfig {
   port?: number;
   /** The MLLP listener: port (default 2575) and host, or false to turn it off. */
   mllp?: { port?: number; host?: string } | false;
-  /** Seed the synthetic patients (default true). */
-  generate?: boolean;
+  /** Seed the synthetic patients (default true): false for none, or generator options for another population. */
+  generate?: boolean | GenerateOptions;
   /** Extra synthetic patients. */
   patients?: Array<Partial<Patient> & { mrn: string }>;
   /** Reject message types the emulator does not apply with AR and ERR code 200 (default false: accept with AA). */
@@ -107,49 +108,6 @@ const MAX_MESSAGES = 1000;
 /** The MLLP port per store, kept outside the store so it survives reset. */
 const mllpPorts = new WeakMap<Store, number>();
 
-const SYNTHETIC_PATIENTS: Array<Pick<Patient, "mrn" | "family" | "given" | "birthDate" | "sex" | "address">> = [
-  {
-    mrn: "syn-patient-001",
-    family: "SYNTHETIC",
-    given: "AVERY",
-    birthDate: "19680412",
-    sex: "F",
-    address: "100 SAMPLE ST^^SPRINGFIELD^IL^62701",
-  },
-  {
-    mrn: "syn-patient-002",
-    family: "SYNTHETIC",
-    given: "JORDAN",
-    birthDate: "19790903",
-    sex: "M",
-    address: "200 EXAMPLE AVE^^MADISON^WI^53703",
-  },
-  {
-    mrn: "syn-patient-003",
-    family: "SYNTHETIC",
-    given: "MORGAN",
-    birthDate: "19550127",
-    sex: "F",
-    address: "300 FICTION RD^^COLUMBUS^OH^43215",
-  },
-  {
-    mrn: "syn-patient-004",
-    family: "SYNTHETIC",
-    given: "RILEY",
-    birthDate: "20240610",
-    sex: "M",
-    address: "400 PLACEHOLDER LN^^DENVER^CO^80202",
-  },
-  {
-    mrn: "syn-patient-005",
-    family: "SYNTHETIC",
-    given: "CASEY",
-    birthDate: "19910218",
-    sex: "U",
-    address: "500 TEST BLVD^^PORTLAND^OR^97201",
-  },
-];
-
 function messages(store: Store): StoredMessage[] {
   let list = store.getData<StoredMessage[]>(MESSAGES_KEY);
   if (!list) {
@@ -185,9 +143,27 @@ function newPatient(p: Partial<Patient> & { mrn: string }): Patient {
   };
 }
 
-function seedPatients(store: Store): void {
+const SEX: Record<string, string> = { female: "F", male: "M", other: "O", unknown: "U" };
+
+/** The registry holds the shared synthetic population, keyed by FHIR Patient id, with the FHIR MRN as a second identifier. */
+function seedPatients(store: Store, options: GenerateOptions = {}): void {
   const map = patients(store);
-  for (const p of SYNTHETIC_PATIENTS) map.set(p.mrn, newPatient(p));
+  map.clear();
+  for (const person of syntheticPeople(options)) {
+    const p = newPatient({
+      mrn: person.id,
+      family: person.family.toUpperCase(),
+      given: person.given.toUpperCase(),
+      birthDate: person.birthDate.replace(/-/g, ""),
+      sex: SEX[person.gender] ?? "U",
+      address: [person.address.line, "", person.address.city, person.address.state, person.address.postalCode]
+        .join("^")
+        .toUpperCase(),
+      phone: person.phone,
+    });
+    p.identifiers.push({ id: person.mrn, authority: "SYNTHETIC", type: "MR" });
+    map.set(person.id, p);
+  }
 }
 
 // Kept outside the store data so the setting survives reset.
@@ -198,6 +174,11 @@ export function seedFromConfig(store: Store, _baseUrl: string, config: Hl7v2Seed
     throw new Error("hl7v2.strict must be true or false");
   strictStores.set(store, config.strict === true);
   if (config.generate === false) patients(store).clear();
+  else if (config.generate !== undefined && config.generate !== true) {
+    if (typeof config.generate !== "object" || config.generate === null)
+      throw new Error("hl7v2.generate must be true, false, or generator options");
+    seedPatients(store, config.generate);
+  }
   if (config.mllp !== undefined && config.mllp !== false) {
     if (typeof config.mllp !== "object" || config.mllp === null)
       throw new Error("hl7v2.mllp must be an object or false");

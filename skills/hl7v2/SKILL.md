@@ -49,7 +49,7 @@ Original mode: `AA` accepted; `AE` could not apply (no PID, empty PID-3, no visi
 ```yaml
 hl7v2:
   mllp: { port: 2575, host: 127.0.0.1 } # or false
-  generate: true # syn-patient-001 to 005
+  generate: true # syn-patient-001 to 005, the FHIR population; or { patients, seed }
   patients:
     - { mrn: syn-mrn-100, family: SYNTHETIC, given: QUINN }
 ```

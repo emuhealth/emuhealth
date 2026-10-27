@@ -24,6 +24,10 @@ program
 Data policy:
   ${SYNTHETIC_DATA_NOTICE}
 
+Shared population:
+  A top-level population key (patients, seed, referenceDate) gives every patient-centric service the same people:
+  the FHIR, EHR, payer, and device emulators, the HL7 v2 registry, and Rave EMU-101 subjects.
+
 FHIR R4:
   'npx emuhealth --service fhir' serves a FHIR R4 server at http://localhost:4100 (base port + 100).
   Supports create, read, vread, update (create on update), JSON Patch, logical delete, and _history.

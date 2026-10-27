@@ -1,4 +1,5 @@
 import type { EmulatorDefinition, InspectorOptions, PersistenceAdapter } from "@emulators/core";
+import type { PopulationConfig } from "./population.js";
 
 export interface ServiceConfig<Definition extends EmulatorDefinition | string = EmulatorDefinition | string> {
   emulator: Definition;
@@ -13,12 +14,15 @@ export interface EmulateConfig {
   services: Record<string, ServiceConfig>;
   watch?: string[];
   tokens?: Record<string, { login: string; scopes?: string[] }>;
+  /** The shared synthetic population for every patient-centric service. */
+  population?: PopulationConfig;
 }
 
 export function defineConfig<Definitions extends Record<string, EmulatorDefinition | string>>(config: {
   services: { [Name in keyof Definitions]: ServiceConfig<Definitions[Name]> };
   watch?: string[];
   tokens?: EmulateConfig["tokens"];
+  population?: PopulationConfig;
 }): typeof config {
   return config;
 }

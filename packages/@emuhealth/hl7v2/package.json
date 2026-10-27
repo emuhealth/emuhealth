@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@emulators/core": "workspace:*",
+    "@emuhealth/fhir-core": "workspace:*",
     "tsup": "^8",
     "typescript": "^5.7",
     "vitest": "^4.1.0"

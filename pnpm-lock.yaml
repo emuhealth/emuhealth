@@ -829,6 +829,9 @@ importers:
 
   packages/@emuhealth/hl7v2:
     devDependencies:
+      '@emuhealth/fhir-core':
+        specifier: workspace:*
+        version: link:../fhir-core
       '@emulators/core':
         specifier: workspace:*
         version: link:../../@emulators/core
@@ -910,6 +913,9 @@ importers:
 
   packages/@emuhealth/rave:
     devDependencies:
+      '@emuhealth/fhir-core':
+        specifier: workspace:*
+        version: link:../fhir-core
       '@emulators/core':
         specifier: workspace:*
         version: link:../../@emulators/core

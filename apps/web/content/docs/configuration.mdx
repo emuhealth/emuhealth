@@ -20,6 +20,25 @@ tokens:
       - user
 ```
 
+## Shared population
+
+`population` sets one synthetic population for every patient-centric service, so the same people appear in each:
+
+```yaml
+population:
+  patients: 25 # 0 to 1000, default 5
+  seed: 42 # default 1
+  referenceDate: "2026-06-01" # default 2026-01-01
+```
+
+It reaches `fhir`, `epic`, `cerner`, `athena`, `bluebutton`, `redox`, `cdshooks`, `stedi`, `availity`, `dexcom`, `fitbit`, `oura`, `withings`, `terra`, `hl7v2`, and `rave`:
+
+- The FHIR based emulators, payers, and devices generate those patients.
+- The HL7 v2 registry holds them keyed by FHIR Patient id (`syn-patient-001`), with the FHIR MRN as a second PID-3 identifier.
+- Medidata Rave subject n of `EMU-101 (Prod)` has person n's birth date and sex.
+
+A service's own `generate` setting wins, so `fhir: { generate: false }` still starts that service empty. The cloud FHIR stores (`healthlake`, `gcphealthcare`, `azurehealth`) preload the default population per store. `createEmulator` takes the same key in `seed`.
+
 ## Vercel Seed Config
 
 ```yaml

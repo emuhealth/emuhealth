@@ -98,6 +98,7 @@ A CRF version that does not exist returns `404` with a `Response` carrying `RWS0
 
 - Two studies, `EMU-101` and `EMU-202`, each in `Prod` and `UAT`, with three sites.
 - Prod has eight subjects (`101-001` and onward) and UAT has two.
+- Subject n of `EMU-101 (Prod)` is person n of the synthetic population: its birth date and sex match `syn-patient-00n` in the FHIR emulators. The top-level [`population`](/docs/configuration#shared-population) key, or `rave.generate.population`, picks the population.
 - Subjects have demographics and vital signs at screening, baseline, and week 4 visits (some visits are missing on purpose), and adverse event log lines.
 - Values are generated from a seed. Site names, users, and terms are fictional.
 

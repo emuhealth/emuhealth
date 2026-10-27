@@ -42,7 +42,8 @@ Values are type-checked. The import is all or nothing.
 ```yaml
 rave:
   users: [{ username: rws.synthetic, password: synthetic-password }]
-  generate: { subjects: 8, seed: emuhealth } # or false
+  generate: { subjects: 8, seed: emuhealth } # or false; EMU-101 Prod subject n is FHIR syn-patient-00n
+# population: { patients: 8, seed: 1 } at the top level links every service to the same people
 ```
 
 Not affiliated with Medidata. Docs: https://www.emuhealth.dev/docs/rave

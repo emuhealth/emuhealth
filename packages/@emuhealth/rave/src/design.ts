@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { syntheticPeople, type GenerateOptions as PopulationOptions } from "@emuhealth/fhir-core";
 
 // The CRF design every synthetic study uses, and the generated subjects.
 
@@ -158,6 +159,7 @@ function prng(seed: string) {
 }
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
+const SEX_CODE: Record<string, string> = { male: "M", female: "F", other: "U", unknown: "U" };
 
 export const STUDIES = [
   { project: "EMU-101", description: "Synthetic phase 2 oncology study", versionOid: "1001" },
@@ -168,6 +170,11 @@ export interface GenerateOptions {
   /** Subjects per Prod environment (default 8). */
   subjects?: number;
   seed?: string;
+  /**
+   * The shared synthetic population (FHIR generator options). Subject n of EMU-101 (Prod) is person n of it, with
+   * that person's birth date and sex, so it is the same person as syn-patient-00n in the FHIR emulators.
+   */
+  population?: PopulationOptions;
 }
 
 export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
@@ -175,6 +182,8 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
   if (!Number.isInteger(count) || count < 0 || count > 500)
     throw new Error("rave.generate.subjects must be an integer from 0 to 500");
   const seed = options.seed ?? "emuhealth";
+  // Person n is the same whatever the total, so generating `count` people lines up with any larger population.
+  const people = count > 0 ? syntheticPeople({ ...options.population, patients: count }) : [];
   const out: StudyEnv[] = [];
   STUDIES.forEach((study, s) => {
     for (const env of ["Prod", "UAT"]) {
@@ -200,6 +209,7 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
           "VS.WEIGHT": (55 + rand() * 40).toFixed(1),
         });
         const stamp = `${day(0)}T15:00:00`;
+        const linked = s === 0 && env === "Prod" ? people[i] : undefined;
         const events: EventRecord[] = [
           {
             eventOid: "SCREENING",
@@ -224,6 +234,7 @@ export function generateStudies(options: GenerateOptions = {}): StudyEnv[] {
                       ),
                       "DM.SEX": rand() < 0.5 ? "F" : "M",
                       "DM.HEIGHT": (150 + rand() * 45).toFixed(1),
+                      ...(linked ? { "DM.BRTHDAT": linked.birthDate, "DM.SEX": SEX_CODE[linked.gender] } : {}),
                     },
                   },
                 ],
