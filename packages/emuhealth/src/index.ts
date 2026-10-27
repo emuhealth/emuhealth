@@ -254,6 +254,14 @@ Medidata Rave:
   POST webservice.aspx?PostODMClinicalData imports ODM. rave.users sets credentials; rave.generate sets subjects.
   Docs: https://www.emuhealth.dev/docs/rave
 
+Payer APIs:
+  'npx emuhealth --service payer' serves a synthetic health plan at http://localhost:4128.
+  /fhir: patient access (CARIN Blue Button Coverage and ExplanationOfBenefit, plus clinical data); every request needs
+  a SMART token. Default clients: member-app (public) and synthetic-new-payer (secret synthetic-new-payer-secret).
+  POST /fhir/Patient/$member-match (PDex payer-to-payer) needs a system scope token.
+  /directory: public, read-only Plan-Net provider directory.
+  Docs: https://www.emuhealth.dev/docs/payer
+
 Framework adapters:
   Embed emulators in app routes with @emulators/adapter-next or @emulators/adapter-nuxt.
   Docs: https://www.emuhealth.dev/docs/nextjs and https://www.emuhealth.dev/docs/nuxt

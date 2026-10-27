@@ -1,0 +1,4 @@
+{
+  "IndividualAndGroupSpecialtiesVS": "Plan-Net binds PractitionerRole.specialty to the NUCC taxonomy, which emuhealth does not bundle; specialties are text only",
+  "EOB-prof-careTeam-practitioner": "The rule resolves the care team provider, which the validator cannot do for a claim saved on its own; inside the $everything Bundle, where the practitioner is included, the same claims pass"
+}

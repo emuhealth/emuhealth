@@ -51,6 +51,7 @@ export const docsSections: NavSection[] = [
       { name: "HL7 v2 over MLLP", href: "/docs/hl7v2" },
       { name: "Veeva Vault", href: "/docs/veeva" },
       { name: "Medidata Rave", href: "/docs/rave" },
+      { name: "Payer APIs", href: "/docs/payer" },
     ],
   },
   {
