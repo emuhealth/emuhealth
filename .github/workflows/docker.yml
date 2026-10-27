@@ -1,0 +1,30 @@
+name: Container image
+
+# Builds the image from the Dockerfile with the latest published emuhealth and checks that it serves FHIR. The release
+# workflow publishes the image; this only checks the Dockerfile.
+
+on:
+  pull_request:
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - ".github/workflows/docker.yml"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: docker build --build-arg VERSION="$(npm view emuhealth version)" -t emuhealth:check .
+
+      - name: Serve FHIR
+        run: |
+          docker run -d --name emuhealth -p 4100:4100 emuhealth:check start --service fhir --host 0.0.0.0
+          for i in $(seq 1 30); do curl -sf http://localhost:4100/metadata > /dev/null && exit 0; sleep 1; done
+          docker logs emuhealth
+          exit 1

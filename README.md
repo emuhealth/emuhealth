@@ -18,6 +18,13 @@ Local drop-in replacement services for CI and no-network sandboxes. Fully statef
 npx emuhealth
 ```
 
+Or run the container image, published to GitHub Container Registry with every release:
+
+```bash
+docker run --rm -p 4100:4100 ghcr.io/emuhealth/emuhealth start --service fhir --host 0.0.0.0
+docker run --rm -p 4100-4130:4100-4130 -v "$PWD/emuhealth.config.yaml:/app/emuhealth.config.yaml" ghcr.io/emuhealth/emuhealth
+```
+
 All services listen on IPv4 loopback (`127.0.0.1`) by default. No config file needed:
 
 - **Vercel** on `http://localhost:4000`

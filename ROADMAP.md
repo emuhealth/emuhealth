@@ -152,7 +152,7 @@ Inferno test kits for these guides are the acceptance gates where they exist. NC
 
 ## Phase 12: Adoption tooling
 
-- [ ] Docker image built for every release and published to GHCR by the release workflow
+- [x] Docker image built for every release and published to GHCR by the release workflow ([#97](https://github.com/emuhealth/emuhealth/pull/97))
 - [ ] GitHub Action that starts emulators in a workflow
 - [x] MCP server (`npx emuhealth mcp`) to start, seed, inspect, and reset emulators from agents ([#96](https://github.com/emuhealth/emuhealth/pull/96))
 - [ ] Testing guide: `createEmulator` in Vitest and Jest, the CLI from pytest, and Testcontainers with the Docker image
