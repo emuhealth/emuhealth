@@ -131,32 +131,14 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 ## Phase 9: Linked scenarios
 
-<<<<<<< HEAD
 - [x] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators ([#84](https://github.com/emuhealth/emuhealth/pull/84))
-- [ ] Load Synthea FHIR bundles as seed data (`fhir.import`)
-- [x] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` ([#85](https://github.com/emuhealth/emuhealth/pull/85))
-||||||| parent of 025bfed (Import Synthea output and other FHIR files with fhir.import)
-- [x] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators ([#86](https://github.com/emuhealth/emuhealth/pull/86))
-- [ ] Load Synthea FHIR bundles as seed data (`fhir.import`)
-- [x] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` ([#86](https://github.com/emuhealth/emuhealth/pull/86))
-=======
-- [x] One synthetic identity across services: the same patients in FHIR, Epic, Oracle Health, HL7 v2, payer, wearable, and Rave emulators ([#86](https://github.com/emuhealth/emuhealth/pull/86))
 - [x] Load Synthea FHIR bundles as seed data (`fhir.import`) ([#86](https://github.com/emuhealth/emuhealth/pull/86))
-- [x] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` ([#86](https://github.com/emuhealth/emuhealth/pull/86))
->>>>>>> 025bfed (Import Synthea output and other FHIR files with fhir.import)
+- [x] Scenario packs: named presets such as `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` ([#85](https://github.com/emuhealth/emuhealth/pull/85))
 
 ## Phase 10: Failure testing
 
-<<<<<<< HEAD
 - [x] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections ([#87](https://github.com/emuhealth/emuhealth/pull/87))
-- [ ] Record and replay: capture traffic to an emulator as fixtures and replay it as a regression test
-||||||| parent of f209a5a (Add record and replay for every service)
-- [x] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections ([#88](https://github.com/emuhealth/emuhealth/pull/88))
-- [ ] Record and replay: capture traffic to an emulator as fixtures and replay it as a regression test
-=======
-- [x] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections ([#88](https://github.com/emuhealth/emuhealth/pull/88))
 - [x] Record and replay: capture traffic to an emulator as fixtures and replay it as a regression test ([#88](https://github.com/emuhealth/emuhealth/pull/88))
->>>>>>> f209a5a (Add record and replay for every service)
 - [ ] Contract drift check: a scheduled job that flags new vendor API versions and FHIR package releases the emulators do not cover
 
 ## Phase 11: Regulatory and exchange APIs
