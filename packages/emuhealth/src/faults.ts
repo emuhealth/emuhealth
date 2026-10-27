@@ -62,10 +62,10 @@ export function validateFaults(value: unknown, where = "faults"): FaultConfig | 
   return config as FaultConfig;
 }
 
-/** A service's seed config without the faults key, which the service itself does not read. */
-export function withoutFaults(config: Record<string, unknown>): Record<string, unknown> {
-  if (!("faults" in config)) return config;
-  const { faults: _faults, ...rest } = config;
+/** A service's seed config without the keys the CLI handles (faults, record), which the service does not read. */
+export function withoutCliKeys(config: Record<string, unknown>): Record<string, unknown> {
+  if (!("faults" in config) && !("record" in config)) return config;
+  const { faults: _faults, record: _record, ...rest } = config;
   return rest;
 }
 

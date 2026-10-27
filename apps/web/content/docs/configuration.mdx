@@ -84,6 +84,30 @@ curl -X DELETE http://localhost:4100/_emulate/faults
 
 For HL7 v2, `hl7v2.mllp.dropRate` (0 to 1) closes the MLLP connection without applying the message or sending an ACK, and `hl7v2.mllp.ackDelayMs` delays every ACK.
 
+## Record and replay
+
+Record what an app does against a service, then replay it later as a regression test:
+
+```yaml
+fhir:
+  record:
+    path: ./recordings/fhir.ndjson # optional; every exchange is also kept in memory
+```
+
+- `GET /_emulate/recording` returns the recorded exchanges as NDJSON, `DELETE` clears them, and `PUT` with `true`, `false`, or `{ "path": "..." }` turns recording on or off while the service runs.
+- Each exchange keeps the method, path, query, content negotiation and conditional request headers, request body, status, and textual response body. The `Authorization` header is never recorded.
+
+```bash
+npx emuhealth replay ./recordings/fhir.ndjson --service fhir --seed emuhealth.config.yaml
+```
+
+`replay` starts a fresh emulator, sends the requests in order, and exits with `1` when a response differs:
+
+- Statuses are compared for every exchange.
+- JSON bodies are compared without timestamps, generated tokens, reference numbers, the host and port of absolute URLs, and any keys you pass with `--ignore`.
+- Ids the server assigns differently on replay are mapped into later requests.
+- Other bodies, such as XML and HL7 v2, are compared by status only.
+
 ## Vercel Seed Config
 
 ```yaml
