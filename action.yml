@@ -1,0 +1,50 @@
+name: emuhealth
+description: Start emuhealth health and life science API emulators for the rest of the job. Synthetic data only.
+author: emuhealth
+branding:
+  icon: activity
+  color: green
+
+inputs:
+  services:
+    description: Comma-separated emulators to start, such as fhir,epic,hl7v2
+    required: true
+  config:
+    description: Path to an emuhealth config file (YAML, JSON, or TypeScript)
+    required: false
+    default: ""
+  port:
+    description: Base port; health services listen at base + 100 and up
+    required: false
+    default: "4000"
+  version:
+    description: emuhealth version from npm
+    required: false
+    default: latest
+  command:
+    description: Command that runs the CLI, for testing a local build (default npx --yes emuhealth@<version>)
+    required: false
+    default: ""
+  timeout:
+    description: Seconds to wait for the emulators to be ready
+    required: false
+    default: "120"
+
+outputs:
+  urls:
+    description: JSON object of service name to base URL
+    value: ${{ steps.start.outputs.urls }}
+
+runs:
+  using: composite
+  steps:
+    - id: start
+      shell: bash
+      env:
+        EMUHEALTH_SERVICES: ${{ inputs.services }}
+        EMUHEALTH_CONFIG: ${{ inputs.config }}
+        EMUHEALTH_PORT: ${{ inputs.port }}
+        EMUHEALTH_VERSION: ${{ inputs.version }}
+        EMUHEALTH_COMMAND: ${{ inputs.command }}
+        EMUHEALTH_TIMEOUT: ${{ inputs.timeout }}
+      run: bash "${{ github.action_path }}/scripts/action-start.sh"

@@ -1,0 +1,41 @@
+name: GitHub Action
+
+# Runs this repository's action (action.yml) against the local build, as a workflow using emuhealth would.
+
+on:
+  pull_request:
+    paths:
+      - "action.yml"
+      - "scripts/action-start.sh"
+      - ".github/workflows/action.yml"
+  workflow_dispatch:
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=emuhealth...
+
+      - id: emuhealth
+        uses: ./
+        with:
+          services: fhir,epic
+          command: node packages/emuhealth/dist/index.js
+
+      - name: Call the emulators
+        run: |
+          curl -sf "$EMUHEALTH_FHIR_URL/metadata" > /dev/null
+          curl -sf "$EMUHEALTH_EPIC_URL/api/FHIR/R4/metadata" > /dev/null
+          echo '${{ steps.emuhealth.outputs.urls }}' | node -e 'const u = JSON.parse(require("fs").readFileSync(0)); if (!u.fhir || !u.epic) process.exit(1)'
