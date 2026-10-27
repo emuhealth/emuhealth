@@ -147,7 +147,7 @@ Prove the emulators match the real APIs. Third-party validators and clients run 
 
 ## Phase 10: Failure testing
 
-- [x] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections (PR pending)
+- [x] Fault injection per service: latency, rate limits (429 with Retry-After), 5xx outages, expired tokens, and dropped MLLP connections ([#87](https://github.com/emuhealth/emuhealth/pull/87))
 - [ ] Record and replay: capture traffic to an emulator as fixtures and replay it as a regression test
 - [ ] Contract drift check: a scheduled job that flags new vendor API versions and FHIR package releases the emulators do not cover
 
