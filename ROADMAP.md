@@ -147,7 +147,7 @@ Inferno test kits for these guides are the acceptance gates where they exist. NC
 
 - [x] Da Vinci Prior Authorization: CRD (CDS Hooks), DTR (questionnaire package), and PAS (`Claim/$submit`, `$inquire`) ([#93](https://github.com/emuhealth/emuhealth/pull/93))
 - [x] Payer APIs: CARIN Blue Button Patient Access, PDex payer-to-payer, and Plan-Net provider directory ([#92](https://github.com/emuhealth/emuhealth/pull/92))
-- [x] IHE document exchange: XDS.b registry and repository and XCA gateway (SOAP) (PR pending)
+- [x] IHE document exchange: XDS.b registry and repository and XCA gateway (SOAP) ([#94](https://github.com/emuhealth/emuhealth/pull/94))
 - [x] FHIR Subscriptions (R5 topic-based and the R4B backport) with REST-hook notifications ([#91](https://github.com/emuhealth/emuhealth/pull/91))
 
 ## Phase 12: Adoption tooling
