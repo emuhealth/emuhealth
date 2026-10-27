@@ -1,0 +1,43 @@
+---
+title: "MCP Server"
+---
+
+`npx emuhealth mcp` runs a [Model Context Protocol](https://modelcontextprotocol.io/) server over stdio, so coding agents can start emulators, seed them, call them, inject faults, read recordings, and reset them while they build and test health apps.
+
+## Connect an agent
+
+Add the server to an MCP client with the command `npx` and the arguments `emuhealth mcp`. For example, in a client that reads an `mcpServers` JSON config:
+
+```json
+{
+  "mcpServers": {
+    "emuhealth": { "command": "npx", "args": ["emuhealth", "mcp"] }
+  }
+}
+```
+
+The server speaks MCP protocol versions `2025-06-18`, `2025-03-26`, and `2024-11-05`, and offers tools only. Emulators it starts stop when the client disconnects.
+
+## Tools
+
+| Tool | What it does |
+| --- | --- |
+| `list_emulators` | The health and life science emulators, their default ports, and the URLs of the ones running |
+| `start_emulator` | Start one (`service`, optional `port` and `seed`, the same seed config the CLI takes, including `population`) and return its URL |
+| `stop_emulator` | Stop a running emulator |
+| `reset_emulator` | Reset it to its seed data |
+| `request` | Send an HTTP request (`method`, `path`, `body`, `headers`) and return the status, content type, and body. Bodies over 20,000 characters are cut. |
+| `set_faults` | Set [fault injection](/docs/configuration#fault-injection) (`latency`, `rateLimit`, `outage`, `expiredTokens`, `paths`), or clear it with `{}` |
+| `recording` | `start`, `stop`, `read`, or `clear` [request recording](/docs/configuration#record-and-replay) |
+
+Messages are handled in order, so a `request` after `start_emulator` always finds the emulator running.
+
+## Example
+
+An agent asked to "check that my app handles a FHIR outage" might:
+
+1. `start_emulator` with `{ "service": "fhir", "seed": { "population": { "scenarios": ["inpatient-stay"] } } }`;
+2. `request` `GET /Encounter?class=IMP` to find the inpatient stay;
+3. `set_faults` with `{ "outage": { "status": 503 }, "paths": ["/Encounter"] }`, run the app's tests, then `set_faults` with `{}`.
+
+Every emulator holds synthetic data only. Never load real patient data.

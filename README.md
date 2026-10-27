@@ -73,6 +73,8 @@ A top-level `population` key (`patients`, `seed`, `referenceDate`) gives every p
 
 Every service can inject faults (latency, rate limits, outages, and expired tokens) from a `faults` seed key or at runtime with `PUT /_emulate/faults`, for testing retries and backoff. See [Configuration](https://www.emuhealth.dev/docs/configuration#fault-injection). A `record` key captures a session as NDJSON, and `npx emuhealth replay` checks it against a fresh emulator as a regression test.
 
+`npx emuhealth mcp` runs a Model Context Protocol server over stdio, so coding agents can start, seed, call, fault, record, and reset emulators as tools. See [MCP Server](https://www.emuhealth.dev/docs/mcp).
+
 End-to-end examples, each with a test that runs the whole flow: a [SMART on FHIR app against Epic](examples/smart-on-fhir-epic), an [HL7 v2 feed into FHIR](examples/hl7v2-to-fhir), and an [incremental EDC sync from Rave](examples/rave-edc-sync).
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.

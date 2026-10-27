@@ -1,6 +1,7 @@
 export const PAGE_TITLES: Record<string, string> = {
   "": "Local API Emulation\nfor Health Apps",
   "programmatic-api": "Programmatic API",
+  mcp: "MCP Server",
   "custom-emulators": "Custom Emulators",
   configuration: "Configuration",
   fhir: "FHIR R4",
