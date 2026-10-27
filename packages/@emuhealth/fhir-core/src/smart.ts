@@ -75,6 +75,11 @@ export interface SmartRouteOptions {
    * patient is the token's fhirUser. Default false.
    */
   patientAccess?: boolean;
+  /**
+   * Scope granted when an authorization request sends none (CMS Blue Button grants the app its registered
+   * beneficiary scopes). Default empty.
+   */
+  defaultScope?: string;
 }
 
 /** What a token response is issued for, as passed to `tokenExtras`. */
@@ -422,7 +427,7 @@ export function registerSmartRoutes(app: Hono<any>, store: Store, options: Smart
     if (!params.code_challenge && !confidential && getSmartConfig(store).requirePkce !== false)
       return fail("invalid_request", "PKCE is required: send code_challenge with code_challenge_method=S256.");
 
-    const scope = filterScope(params.scope ?? "", client);
+    const scope = filterScope(params.scope || options.defaultScope || "", client);
     const req: AuthorizeRequest = {
       clientId,
       redirectUri,

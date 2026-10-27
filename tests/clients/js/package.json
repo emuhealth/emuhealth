@@ -1,0 +1,13 @@
+{
+  "name": "emuhealth-js-client-contracts",
+  "private": true,
+  "type": "module",
+  "description": "Contract tests that drive the emulators with JavaScript clients real apps use. Installed with npm in CI only.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cms-bluebutton-sdk": "1.0.13",
+    "fhirclient": "3.0.0"
+  }
+}

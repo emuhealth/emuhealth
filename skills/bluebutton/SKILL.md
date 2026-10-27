@@ -17,7 +17,7 @@ npx emuhealth --service bluebutton
 
 ## OAuth
 
-- `GET /v2/o/authorize/` shows a beneficiary picker (always; no practitioner); token response includes `patient`.
+- `GET /v2/o/authorize/` shows a beneficiary picker (always; no practitioner); token response includes `patient`. A request with no `scope` gets the standard beneficiary scopes (`profile launch/patient patient/Patient.read patient/Coverage.read patient/ExplanationOfBenefit.read`), as the real service grants an app its registered scopes.
 - `POST /v2/o/token/` (`authorization_code` with PKCE S256, `refresh_token`), `/v2/o/introspect/`, `/v2/o/revoke_token/`.
 - `GET /v2/connect/userinfo` with the token: `sub`, `patient`, names.
 
@@ -36,3 +36,5 @@ bluebutton:
 ```
 
 Docs: https://www.emuhealth.dev/docs/bluebutton
+
+CMS's Node SDK (`cms-bluebutton-sdk`): use `environment: "LOCAL"` and run the emulator on port 8000 (`bluebutton.port: 8000`) with a client that has a `client_secret`. `/v2/o/authorize` and FHIR searches work with or without a trailing slash.

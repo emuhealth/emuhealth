@@ -1,0 +1,11 @@
+# Seed for the JavaScript client contract tests (.github/workflows/clients.yml).
+bluebutton:
+  # CMS's SDK points its LOCAL environment at http://localhost:8000.
+  port: 8000
+  smart:
+    clients:
+      - client_id: bb-sdk-app
+        client_secret: synthetic-bb-secret
+        redirect_uris: ["http://localhost:3000/callback"]
+epic: {}
+cerner: {}
