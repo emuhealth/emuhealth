@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/nppes",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "NPPES NPI Registry API emulator for emuhealth: provider search by NPI, name, organization, place, and taxonomy over synthetic providers.",
   "license": "Apache-2.0",

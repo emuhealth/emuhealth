@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/cdshooks",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "CDS Hooks emulator for emuhealth: a simulated EHR that fires patient-view and order-sign at your CDS service with signed JWTs and prefetch, plus sample CDS services.",
   "license": "Apache-2.0",

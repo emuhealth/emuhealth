@@ -163,7 +163,7 @@ Inferno test kits for these guides are the acceptance gates where they exist. NC
 - [x] Stability policy decision record: config keys, ports, programmatic API, and seed format ([#101](https://github.com/emuhealth/emuhealth/pull/101))
 - [x] Deprecation policy and upgrade guide ([#101](https://github.com/emuhealth/emuhealth/pull/101))
 - [x] CONTRIBUTING guide for new emulators, SECURITY.md, and issue templates ([#101](https://github.com/emuhealth/emuhealth/pull/101))
-- [ ] Release 1.0.0
+- [x] Release 1.0.0 ([#103](https://github.com/emuhealth/emuhealth/pull/103))
 
 Maintainer actions outside the roadmap: enable GitHub Discussions, record fixtures from vendor sandboxes that need accounts, and decide whether to host a public demo.
 

@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/xds",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "IHE document sharing emulator for emuhealth: XDS.b registry and repository and an XCA responding gateway over SOAP with MTOM, with synthetic clinical documents.",
   "license": "Apache-2.0",

@@ -1,6 +1,42 @@
 # Changelog
 
 <!-- release:start -->
+## 1.0.0
+
+The first stable release. From here, CLI commands, config keys, ports, the programmatic API, control routes, and generated ids for a seed stay compatible within the major version (decision 0024). Synthetic data only.
+
+### New Features
+
+- **Payer APIs** (`--service payer`, port 4128): CARIN Blue Button patient access with Coverage and professional claims, PDex `Patient/$member-match`, and a public Plan-Net provider directory
+- **Prior Authorization** (`--service priorauth`, port 4129): Da Vinci CRD coverage information, DTR questionnaire packages, and PAS `Claim/$submit` and `$inquire`
+- **IHE XDS and XCA** (`--service xds`, port 4130): XDS.b registry and repository and an XCA responding gateway over SOAP with MTOM
+- **FHIR Subscriptions** on R5 and R4B: topic-based, rest-hook delivery with handshakes and `$status` (decision 0022)
+- **Shared population and scenario packs**: one `population` key gives every patient-centric service the same people, and `diabetes-cgm`, `inpatient-stay`, and `trial-adverse-event` add stories every service shows (decisions 0018, 0019)
+- **Synthea import** with `fhir.import`, including conditional references in transactions
+- **Fault injection** for every service and failing MLLP connections (decision 0020), and **record and replay** with `npx emuhealth replay` (decision 0021)
+- **MCP server**: `npx emuhealth mcp` (decision 0023)
+- **Container image** `ghcr.io/emuhealth/emuhealth` and a **GitHub Action** that starts emulators for a job
+- HL7 v2 strict mode, and conditional create, read, update, and delete in the FHIR server
+
+### Changes
+
+- On R5 servers, R4 shaped writes are converted and removed R4 elements are rejected (decision 0017)
+- Conditional criteria the server does not support return `400`, and every type with identifiers supports `identifier`
+- Blue Button accepts its paths with or without trailing slashes, as CMS's SDK uses them, and grants the standard beneficiary scopes when an authorization request sends none
+- The payer emulator's members come from the shared population when one is configured
+- The HL7 v2 registry and Rave EMU-101 subjects now hold the shared population; see the upgrade guide
+
+### Documentation
+
+- Testing guide, upgrade guide, MCP server page, CONTRIBUTING, SECURITY, and issue templates
+- Examples: OHIF on DICOMweb, Stedi eligibility to claim status, and Dexcom to FHIR
+
+### CI
+
+- The FHIR behavior suite runs on R4, R4B, and R5; weekly runs use the latest validator, terminology checks, and clients; JavaScript client tests cover fhirclient and CMS's Blue Button SDK; a weekly contract drift check and payer IG validation
+
+<!-- release:end -->
+
 ## 0.9.0
 
 Fidelity release: the emulators are now checked against the HL7 FHIR Validator and against the client libraries real integrations use, and the fixes those checks found ship here. Synthetic data only.
@@ -22,7 +58,6 @@ Fidelity release: the emulators are now checked against the HL7 FHIR Validator a
 - The Vault and Rave docs cite their sources for error statuses and reason codes (#74)
 - The homepage covers FHIR R4, R4B, and R5, and the hero version comes from the CLI package (#70)
 
-<!-- release:end -->
 
 ## 0.8.0
 

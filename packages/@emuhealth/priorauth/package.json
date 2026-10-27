@@ -1,6 +1,6 @@
 {
   "name": "@emuhealth/priorauth",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Da Vinci prior authorization emulator for emuhealth: a payer's CRD CDS service, DTR questionnaire packages, and PAS Claim/$submit and $inquire over synthetic coverage rules.",
   "license": "Apache-2.0",
