@@ -104,7 +104,8 @@ async function codeGrant(fields: Record<string, string> = {}) {
   return location.searchParams.get("code")!;
 }
 
-describe("Cognito User Pools with the official AWS SDK", () => {
+// The first test pays for the SDK's first request and RSA key generation, which can pass 5s on a slow CI runner.
+describe("Cognito User Pools with the official AWS SDK", { timeout: 20_000 }, () => {
   it("confirms sign-up, signs tokens, and publishes verifiable discovery and JWKS", async () => {
     const signup = await sdk.send(
       new idp.SignUpCommand({
