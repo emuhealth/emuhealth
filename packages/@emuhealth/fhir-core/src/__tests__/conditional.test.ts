@@ -164,3 +164,33 @@ describe("conditional interactions", () => {
     expect(batch.body.entry.map((e: any) => e.response.status)).toEqual(["204 No Content", "201 Created"]);
   });
 });
+
+describe("conditional criteria", () => {
+  it("matches Observations by identifier and rejects unknown criteria", async () => {
+    const req = startService();
+    const obs = {
+      resourceType: "Observation",
+      status: "final",
+      code: { text: "x" },
+      identifier: [{ system: "urn:example:obs", value: "o-1" }],
+    };
+    const first = await req("/Observation", {
+      method: "POST",
+      headers: { "If-None-Exist": "identifier=urn:example:obs|o-1" },
+      body: JSON.stringify(obs),
+    });
+    expect(first.status).toBe(201);
+    const again = await req("/Observation", {
+      method: "POST",
+      headers: { "If-None-Exist": "identifier=urn:example:obs|o-1" },
+      body: JSON.stringify(obs),
+    });
+    expect(again.status).toBe(200);
+    const unknown = await req("/Observation", {
+      method: "POST",
+      headers: { "If-None-Exist": "nonsense=1" },
+      body: JSON.stringify(obs),
+    });
+    expect(unknown.status).toBe(400);
+  });
+});

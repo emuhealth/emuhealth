@@ -1,0 +1,15 @@
+{
+  "name": "dexcom-to-fhir-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulators": "npx emuhealth start --service dexcom,fhir",
+    "type-check": "tsc --noEmit",
+    "test": "node --test src/sync.test.ts"
+  },
+  "devDependencies": {
+    "emuhealth": "workspace:*",
+    "typescript": "^5.7"
+  }
+}

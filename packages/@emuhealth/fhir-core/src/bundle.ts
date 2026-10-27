@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { conditionalCreate, conditionalDelete, conditionalUpdate, criteria } from "./conditional.js";
+import {
+  assertKnownCriteria,
+  conditionalCreate,
+  conditionalDelete,
+  conditionalUpdate,
+  criteria,
+} from "./conditional.js";
 import { FhirError, operationOutcome } from "./outcome.js";
 import type { GuardedOperations } from "./operations.js";
 import type { FhirResource, WriteResult } from "./store.js";
@@ -239,6 +245,7 @@ function processTransaction(entries: BundleEntry[], deps: BundleDeps): FhirResou
     const [type, id] = segments;
     if (method === "POST" && segments.length === 1) {
       if (entry.request.ifNoneExist) {
+        assertKnownCriteria(type, criteria(entry.request.ifNoneExist));
         const matches = deps.search(type, criteria(entry.request.ifNoneExist));
         const found = ((matches.entry ?? []) as Array<{ resource: FhirResource; search?: { mode?: string } }>).filter(
           (e) => e.search?.mode === "match",

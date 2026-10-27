@@ -94,7 +94,7 @@ In GitHub Actions, the emuhealth action starts emulators for the rest of the job
 
 The [testing guide](https://www.emuhealth.dev/docs/testing) covers Vitest and Jest, pytest, Testcontainers with the container image, and CI.
 
-End-to-end examples, each with a test that runs the whole flow: a [SMART on FHIR app against Epic](examples/smart-on-fhir-epic), an [HL7 v2 feed into FHIR](examples/hl7v2-to-fhir), and an [incremental EDC sync from Rave](examples/rave-edc-sync).
+End-to-end examples, each with a test that runs the whole flow: a [SMART on FHIR app against Epic](examples/smart-on-fhir-epic), an [HL7 v2 feed into FHIR](examples/hl7v2-to-fhir), an [incremental EDC sync from Rave](examples/rave-edc-sync), the [OHIF Viewer on DICOMweb](examples/ohif-dicomweb), a [Stedi eligibility to claim status flow](examples/stedi-claims), and [Dexcom glucose into FHIR](examples/dexcom-to-fhir).
 
 Stripe webhooks configured with a secret include a `Stripe-Signature` header signed over the timestamp and raw request body.
 

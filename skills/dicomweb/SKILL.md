@@ -49,3 +49,5 @@ dicomweb:
 ```
 
 Docs: https://www.emuhealth.dev/docs/dicomweb
+
+Example: https://github.com/emuhealth/emuhealth/tree/main/examples/ohif-dicomweb (OHIF Viewer config and the requests it makes).

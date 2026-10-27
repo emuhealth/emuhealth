@@ -20,6 +20,8 @@ const p = (name: string, type: SearchParamType, paths: string[], targets?: strin
 export const COMMON_SEARCH_PARAMS: SearchParamDefinition[] = [
   p("_id", "token", ["id"]),
   p("_lastUpdated", "date", ["meta.lastUpdated"]),
+  // Most resources have identifiers, and conditional creates and updates match on them.
+  p("identifier", "token", ["identifier"]),
 ];
 
 const patientRef = (path = "subject") => [
@@ -252,6 +254,12 @@ export const SEARCH_PARAMS: Record<string, SearchParamDefinition[]> = {
   ],
 };
 
+/** Types with no identifier element. */
+const NO_IDENTIFIER = new Set(["Binary", "Parameters", "OperationOutcome"]);
+
 export function searchParamsFor(type: string): Map<string, SearchParamDefinition> {
-  return new Map([...COMMON_SEARCH_PARAMS, ...(SEARCH_PARAMS[type] ?? [])].map((d) => [d.name, d]));
+  const common = NO_IDENTIFIER.has(type)
+    ? COMMON_SEARCH_PARAMS.filter((d) => d.name !== "identifier")
+    : COMMON_SEARCH_PARAMS;
+  return new Map([...common, ...(SEARCH_PARAMS[type] ?? [])].map((d) => [d.name, d]));
 }

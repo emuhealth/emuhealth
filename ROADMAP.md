@@ -156,7 +156,7 @@ Inferno test kits for these guides are the acceptance gates where they exist. NC
 - [x] GitHub Action that starts emulators in a workflow ([#98](https://github.com/emuhealth/emuhealth/pull/98))
 - [x] MCP server (`npx emuhealth mcp`) to start, seed, inspect, and reset emulators from agents ([#96](https://github.com/emuhealth/emuhealth/pull/96))
 - [x] Testing guide: `createEmulator` in Vitest and Jest, the CLI from pytest, and Testcontainers with the Docker image ([#99](https://github.com/emuhealth/emuhealth/pull/99))
-- [ ] More end-to-end examples: OHIF viewer on DICOMweb, Stedi eligibility to claim status, Dexcom to FHIR
+- [x] More end-to-end examples: OHIF viewer on DICOMweb, Stedi eligibility to claim status, Dexcom to FHIR ([#100](https://github.com/emuhealth/emuhealth/pull/100))
 
 ## Phase 13: 1.0
 

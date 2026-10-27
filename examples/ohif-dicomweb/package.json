@@ -1,0 +1,15 @@
+{
+  "name": "ohif-dicomweb-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulator": "npx emuhealth start --service dicomweb",
+    "type-check": "tsc --noEmit",
+    "test": "node --test src/viewer.test.ts"
+  },
+  "devDependencies": {
+    "emuhealth": "workspace:*",
+    "typescript": "^5.7"
+  }
+}

@@ -81,3 +81,7 @@ dicomweb:
 ```
 
 `generate: false` starts empty. `files` loads your own Part 10 files at startup; use only synthetic or fully deidentified images. When `token` is set, every DICOMweb route needs `Authorization: Bearer <token>`.
+
+## Example
+
+The [OHIF Viewer example](https://github.com/emuhealth/emuhealth/tree/main/examples/ohif-dicomweb) points OHIF's DICOMweb data source at this emulator and runs the viewer with Docker. Its test checks the requests OHIF makes for the study list and viewer.
