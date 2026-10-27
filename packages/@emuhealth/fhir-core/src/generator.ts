@@ -138,7 +138,7 @@ const ALLERGIES = [
 ];
 
 const VACCINES = [
-  { code: "140", display: "Influenza, seasonal, injectable, preservative free" },
+  { code: "140", display: "Influenza, split virus, trivalent, PF" },
   { code: "208", display: "COVID-19, mRNA, LNP-S, PF, 30 mcg/0.3 mL dose" },
   { code: "115", display: "Tdap" },
   { code: "33", display: "pneumococcal polysaccharide vaccine, 23 valent" },

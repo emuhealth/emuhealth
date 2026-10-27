@@ -1,6 +1,6 @@
 // Summarizes HL7 FHIR Validator output (`-output results.json`) and fails on any error or fatal issue that
 // exceptions.json does not explain. Warnings and information are counted but allowed.
-// Usage: node tests/fhir-validator/check.mjs results.json [--min <files>]
+// Usage: node tests/fhir-validator/check.mjs results.json [--min <files>] [--exceptions <extra.json>]
 import { readFileSync } from "node:fs";
 
 const file = process.argv[2];
@@ -13,7 +13,10 @@ const outcomes = results.resourceType === "Bundle" ? (results.entry ?? []).map((
 const FILE_EXT = "http://hl7.org/fhir/StructureDefinition/operationoutcome-file";
 const fileOf = (o) => o.extension?.find((e) => e.url === FILE_EXT)?.valueString ?? "(unknown file)";
 
-const exceptions = Object.entries(JSON.parse(readFileSync(new URL("./exceptions.json", import.meta.url), "utf8")));
+const extraIndex = process.argv.indexOf("--exceptions");
+const exceptionFiles = [new URL("./exceptions.json", import.meta.url)];
+if (extraIndex !== -1) exceptionFiles.push(new URL(process.argv[extraIndex + 1], `file://${process.cwd()}/`));
+const exceptions = exceptionFiles.flatMap((f) => Object.entries(JSON.parse(readFileSync(f, "utf8"))));
 const exception = (text) => exceptions.find(([pattern]) => new RegExp(pattern).test(text))?.[1];
 
 const severities = {};

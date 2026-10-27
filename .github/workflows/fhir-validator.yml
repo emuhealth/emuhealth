@@ -13,7 +13,15 @@ on:
       - "packages/emuhealth/src/**"
       - "tests/fhir-validator/**"
       - ".github/workflows/fhir-validator.yml"
+  # Weekly: the latest validator release, with terminology checked against tx.fhir.org.
+  schedule:
+    - cron: "0 5 * * 1"
   workflow_dispatch:
+    inputs:
+      latest:
+        description: Use the latest validator and check terminology against tx.fhir.org
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,6 +29,7 @@ concurrency:
 
 env:
   VALIDATOR_VERSION: 6.10.4
+  LATEST: ${{ github.event_name == 'schedule' || inputs.latest == true }}
   FHIR_BASE: http://localhost:4100
 
 jobs:
@@ -74,17 +83,28 @@ jobs:
         run: node tests/fhir-validator/export.mjs "$FHIR_BASE" fhir-out
 
       - name: Download the validator
-        run: curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/$VALIDATOR_VERSION/validator_cli.jar"
+        run: |
+          if [ "$LATEST" = "true" ]; then
+            VALIDATOR_VERSION=$(curl -fsSL https://api.github.com/repos/hapifhir/org.hl7.fhir.core/releases/latest | node -pe 'JSON.parse(require("fs").readFileSync(0)).tag_name')
+          fi
+          echo "Validator $VALIDATOR_VERSION"
+          curl -fsSL -o validator_cli.jar "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/$VALIDATOR_VERSION/validator_cli.jar"
 
-      # Terminology is checked against nothing (-tx n/a) so a remote terminology server cannot make the gate flaky.
+      # Pull requests check no terminology (-tx n/a) so a remote server cannot make the gate flaky; the weekly run
+      # checks codes against tx.fhir.org.
       - name: Validate
         run: |
-          java -Xmx4g -jar validator_cli.jar fhir-out -version ${{ matrix.version }} -tx n/a ${{ matrix.args }} \
+          tx=n/a
+          if [ "$LATEST" = "true" ]; then tx=https://tx.fhir.org; fi
+          java -Xmx4g -jar validator_cli.jar fhir-out -version ${{ matrix.version }} -tx "$tx" ${{ matrix.args }} \
             -output validator-results.json > validator.log 2>&1 || true
           tail -20 validator.log
 
       - name: Check results
-        run: node tests/fhir-validator/check.mjs validator-results.json --min 300
+        run: |
+          extra=""
+          if [ "$LATEST" = "true" ]; then extra="--exceptions tests/fhir-validator/exceptions-terminology.json"; fi
+          node tests/fhir-validator/check.mjs validator-results.json --min 300 $extra
 
       - uses: actions/upload-artifact@v4
         if: always()
