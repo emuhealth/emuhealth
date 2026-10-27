@@ -1,0 +1,36 @@
+---
+title: "Upgrading"
+---
+
+emuhealth follows semantic versioning from 1.0.0 (decision [0024](https://github.com/emuhealth/emuhealth/blob/main/docs/decisions/0024-stability-and-deprecation.md)).
+
+## What stays compatible
+
+Within a major version, these do not break:
+
+- CLI commands, flags, and exit codes, and the start banner's service URL lines and `Ready.` line;
+- config keys, top-level and per service;
+- default ports, since new services only append ports;
+- the `emuhealth` package's programmatic API;
+- the documented `/_emulate` control routes, the container image, and the GitHub Action;
+- for a given seed, the ids and demographics of each generated person and the ids of their records.
+
+Minor releases can add records to generated data, fix codes and displays to match the standards, and change an emulator to behave more like the real API. Each such change is in the changelog.
+
+Inspector pages, other log output, and the private `@emuhealth/*` packages are not part of the contract.
+
+## Deprecations
+
+A deprecated feature keeps working for at least one minor release, prints a warning to stderr when used, and is listed here and in the changelog. It is removed only in the next major release.
+
+There are no deprecations yet.
+
+## Upgrading to 1.0
+
+1.0 adds features without removing any. These changes from the 0.x releases can affect tests written against earlier behavior:
+
+- **HL7 v2**: the registry holds the shared synthetic population, so its default patients have the same names and birth dates as the FHIR emulators instead of the old `SYNTHETIC^AVERY` list, and PID-3 also carries the FHIR MRN.
+- **Medidata Rave**: `Response` documents have no XML declaration, failed imports return `400` instead of `409`, an existing subject returns `RWS00024`, and a missing CRF version returns `RWS00092`. Subject n of `EMU-101 (Prod)` takes person n's birth date and sex.
+- **Veeva Vault**: unknown routes return `MALFORMED_URL` with HTTP `200`, as Vault does.
+- **FHIR**: conditional criteria the server does not support return `400` instead of matching everything, every type with identifiers supports `identifier`, and on R5 servers R4 shaped writes are converted and removed R4 elements are rejected.
+- **Blue Button**: `/v2/o/authorize` and FHIR searches work with or without a trailing slash.

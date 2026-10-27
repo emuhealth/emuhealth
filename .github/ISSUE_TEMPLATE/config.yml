@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://www.emuhealth.dev/docs
+    about: Guides for every emulator, configuration, and testing.
+  - name: Report a security vulnerability
+    url: https://github.com/emuhealth/emuhealth/security/advisories/new
+    about: Report security problems privately.

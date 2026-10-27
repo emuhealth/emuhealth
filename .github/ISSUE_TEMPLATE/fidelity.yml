@@ -1,0 +1,27 @@
+name: Fidelity gap
+description: An emulator behaves differently from the real API
+labels: [fidelity]
+body:
+  - type: markdown
+    attributes:
+      value: Use synthetic data only. Never paste real patient data or real API responses that contain patient data.
+  - type: input
+    id: service
+    attributes:
+      label: Service
+    validations:
+      required: true
+  - type: textarea
+    id: difference
+    attributes:
+      label: What differs
+      description: The request, what the emulator returns, and what the real API returns.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: A link to the vendor documentation, specification, or official client that shows the real behavior.
+    validations:
+      required: true

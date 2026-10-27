@@ -1,0 +1,22 @@
+name: New emulator or feature
+description: Ask for an API to emulate or a new capability
+labels: [enhancement]
+body:
+  - type: input
+    id: api
+    attributes:
+      label: API or feature
+      placeholder: For example, a vendor API or a FHIR implementation guide
+    validations:
+      required: true
+  - type: textarea
+    id: use
+    attributes:
+      label: What you would test with it
+    validations:
+      required: true
+  - type: textarea
+    id: docs
+    attributes:
+      label: Public documentation
+      description: Links to public docs, specifications, or official clients. Gated APIs are harder to emulate faithfully.
